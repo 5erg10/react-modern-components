@@ -1,8 +1,0 @@
-/* Este archivo está deprecado.
-   Los estilos han sido movidos a cada componente:
-   - src/components/Button/Button.css
-   - src/components/Modal/Modal.css
-
-   Importa directamente el CSS del componente que necesites,
-   o deja que los propios componentes lo importen automáticamente.
-*/
