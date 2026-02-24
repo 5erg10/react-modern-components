@@ -37,6 +37,7 @@
     }
   },
   "scripts": {
+    "sandbox": "vite --config vite.sandbox.config.ts",
     "dev": "vite",
     "build": "rimraf dist && vite build && npm run generate-exports",
     "type-check": "tsc --noEmit",
