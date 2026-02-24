@@ -1,2 +1,2 @@
-export * from "./components/Button";
-export * from "./components/Modal";
+export { Button } from "./components/Button";
+export { Modal } from "./components/Modal";

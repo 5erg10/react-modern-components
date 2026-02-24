@@ -7,7 +7,7 @@
   "files": [
     "dist"
   ],
-  "sideEffects": false,
+  "sideEffects": ["**/*.css"],
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
@@ -22,10 +22,18 @@
       "import": "./dist/components/Button/index.es.js",
       "require": "./dist/components/Button/index.cjs.js"
     },
+    "./button/styles": {
+      "import": "./dist/components/Button/Button.css",
+      "require": "./dist/components/Button/Button.css"
+    },
     "./modal": {
       "types": "./dist/components/Modal/index.d.ts",
       "import": "./dist/components/Modal/index.es.js",
       "require": "./dist/components/Modal/index.cjs.js"
+    },
+    "./modal/styles": {
+      "import": "./dist/components/Modal/Modal.css",
+      "require": "./dist/components/Modal/Modal.css"
     }
   },
   "scripts": {

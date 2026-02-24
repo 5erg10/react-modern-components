@@ -11,9 +11,9 @@ const __dirname = dirname(__filename);
 
 // Generar dinámicamente las entradas para todos los componentes
 const componentEntries: Record<string, string> = {};
-const files = fg.sync("src/components/*/index.ts"); // busca todos los index.ts de componentes
+const files = fg.sync("src/components/*/index.ts");
 files.forEach(file => {
-  const name = basename(dirname(file)).toLowerCase(); // button, modal, etc
+  const name = basename(dirname(file)).toLowerCase(); // button, modal, etc.
   componentEntries[name] = resolve(__dirname, file);
 });
 
@@ -24,7 +24,9 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
-      insertTypesEntry: true
+      tsconfigPath: "./tsconfig.build.json",
+      insertTypesEntry: true,
+      rollupTypes: false,
     })
   ],
   build: {
@@ -34,12 +36,24 @@ export default defineConfig({
       name: "ModernReactComponents",
       fileName: (format, entryName) => `${entryName}.${format}.js`
     },
+    // Cada componente genera su propio chunk de CSS
+    cssCodeSplit: true,
     rollupOptions: {
       external: ["react", "react-dom"],
       output: {
+        // Preservar la estructura de directorios en dist
+        preserveModules: true,
+        preserveModulesRoot: "src",
         globals: {
           react: "React",
           "react-dom": "ReactDOM"
+        },
+        // Colocar los CSS junto a sus componentes
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith(".css")) {
+            return "[name][extname]";
+          }
+          return "assets/[name][extname]";
         }
       }
     }
