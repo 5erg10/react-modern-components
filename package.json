@@ -19,21 +19,15 @@
     },
     "./button": {
       "types": "./dist/components/Button/index.d.ts",
+      "style": "./dist/components/Button/Button.css",
       "import": "./dist/components/Button/index.es.js",
       "require": "./dist/components/Button/index.cjs.js"
     },
-    "./button/styles": {
-      "import": "./dist/components/Button/Button.css",
-      "require": "./dist/components/Button/Button.css"
-    },
     "./modal": {
       "types": "./dist/components/Modal/index.d.ts",
+      "style": "./dist/components/Modal/Modal.css",
       "import": "./dist/components/Modal/index.es.js",
       "require": "./dist/components/Modal/index.cjs.js"
-    },
-    "./modal/styles": {
-      "import": "./dist/components/Modal/Modal.css",
-      "require": "./dist/components/Modal/Modal.css"
     }
   },
   "scripts": {

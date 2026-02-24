@@ -24,16 +24,12 @@ const exportsObj = {
 
 components.forEach(name => {
   const lower = name.toLowerCase();
-  // Export del componente (JS + types)
+  // Export del componente: JS, types y CSS unidos en la misma entrada
   exportsObj[`./${lower}`] = {
     types: `./dist/components/${name}/index.d.ts`,
+    style: `./dist/components/${name}/${name}.css`,
     import: `./dist/components/${name}/index.es.js`,
     require: `./dist/components/${name}/index.cjs.js`
-  };
-  // Export del CSS por separado (por si el consumidor quiere importarlo manualmente)
-  exportsObj[`./${lower}/styles`] = {
-    import: `./dist/components/${name}/${name}.css`,
-    require: `./dist/components/${name}/${name}.css`
   };
 });
 
