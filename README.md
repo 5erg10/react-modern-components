@@ -12,11 +12,7 @@ npm install modern-react-components
 
 ## Estilos
 
-Importa los estilos base una sola vez en el punto de entrada de tu aplicación:
-
-```ts
-import "modern-react-components/dist/styles/components.css";
-```
+Cada componente importa sus propios estilos automáticamente. No necesitas importar ningún CSS manualmente.
 
 ---
 
@@ -83,6 +79,24 @@ function App() {
 ```
 
 ---
+
+## Estructura del proyecto
+
+```
+src/
+  index.ts
+  components/
+    Button/
+      Button.tsx        # Componente
+      Button.css        # Estilos del componente
+      Button.types.tsx  # Tipos TypeScript
+      index.ts          # Export
+    Modal/
+      Modal.tsx         # Componente
+      Modal.css         # Estilos del componente
+      Modal.types.tsx   # Tipos TypeScript
+      index.ts          # Export
+```
 
 ## Scripts
 
