@@ -113,12 +113,9 @@ function parseProps(name) {
 }
 
 // ─── 4. Generador de entradas de registry ────────────────────────────────────
-//
-// REGLA: todo el código TypeScript que se escribe en el archivo generado
-// se construye con concatenación de strings (+), NUNCA con template literals
-// anidados. Esto evita que los ${ } se evalúen durante la ejecución del
-// script en lugar de quedar como texto literal en el archivo de salida.
-//
+// Todo el código TypeScript generado usa concatenación de strings (+),
+// nunca template literals anidados, para que los ${ } queden como texto
+// literal en el archivo de salida y no se evalúen durante el script.
 function generateEntry(name, props) {
   const id        = name.toLowerCase();
   const entryName = name + "Entry";
@@ -160,30 +157,16 @@ function generateEntry(name, props) {
   }
 
   // ── generateCode ──────────────────────────────────────────────────────────
-  // Emitimos código TS que:
-  //   1. Declara una variable *Prop por cada prop (sin children)
-  //   2. Hace return de un template literal que las interpolala
-  //
-  // Para escribir un backtick en el archivo de salida usamos la variable BT.
-  // Para escribir ${ } literales en el archivo de salida los partimos en
-  // dos strings: "$" + "{...}" de modo que el template literal del script
-  // no los interprete.
-
   const propVarLines = nonChildren.map((p) => {
     if (p.type === "boolean") {
-      // const disabledProp = values["disabled"] ? " disabled" : "";
       return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? \" " + p.name + "\" : \"\";";
     }
     if (p.type === "select") {
-      // const variantProp = ` variant="${values["variant"]}"`;
       return "    const " + p.name + "Prop = ` " + p.name + "=\"$" + "{values[\"" + p.name + "\"]}\"`;";
     }
-    // string / number
-    // const labelProp = values["label"] ? ` label="${values["label"]}"` : "";
     return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? ` " + p.name + "=\"$" + "{String(values[\"" + p.name + "\"])}\"` : \"\";";
   }).join("\n");
 
-  // Interpolaciones en el return: ${variantProp}${sizeProp}...
   const interpolations = nonChildren
     .map((p) => "$" + "{" + p.name + "Prop}")
     .join("");
@@ -195,7 +178,6 @@ function generateEntry(name, props) {
     returnLine = "    return `<" + name + interpolations + " />`;";
   }
 
-  // ── Ensamblar la entrada completa ─────────────────────────────────────────
   let entry = "";
   entry += "/* AUTO-GENERATED: " + name + " — edit render/generateCode as needed */\n";
   entry += "const " + entryName + ": ComponentEntry = {\n";
@@ -265,21 +247,27 @@ registrySrc =
   registrySrc.slice(markerIdx);
 
 // ─── 9. Añadir referencias al array ──────────────────────────────────────────
-// Localiza el cierre ]; del array y comprueba si el último elemento
-// ya tiene coma trailing para no añadir una coma extra.
-const arrayStart = registrySrc.indexOf(registryArrayMarker);
-const closingIdx = registrySrc.indexOf("];", arrayStart);
+// Estrategia: reconstruir el array completo en lugar de hacer inserción
+// posicional, para tener control total sobre el formato y evitar líneas
+// en blanco o comas extra independientemente de cómo esté el array original.
+const arrayStart  = registrySrc.indexOf(registryArrayMarker);
+const closingIdx  = registrySrc.indexOf("];", arrayStart);
+const arrayBody   = registrySrc.slice(arrayStart + registryArrayMarker.length, closingIdx);
 
-// Texto entre [ y ]; para ver si ya hay trailing comma
-const arrayBody = registrySrc.slice(arrayStart + registryArrayMarker.length, closingIdx);
-const hasTrailingComma = arrayBody.trimEnd().endsWith(",");
+// Extraer nombres de Entry ya existentes preservando el orden original
+const existingRefs = [...arrayBody.matchAll(/(\w+Entry)/g)].map((m) => m[1]);
 
-const newEntryRefs = newComponents.map((name) => "  " + name + "Entry").join(",\n");
-const separator    = hasTrailingComma ? "\n" : ",\n";
+// Añadir los nuevos al final
+const allRefs = [
+  ...existingRefs,
+  ...newComponents.map((name) => name + "Entry"),
+];
+
+const newArrayBody = "\n" + allRefs.map((ref) => "  " + ref).join(",\n") + "\n";
 
 registrySrc =
-  registrySrc.slice(0, closingIdx) +
-  separator + newEntryRefs + "\n" +
+  registrySrc.slice(0, arrayStart + registryArrayMarker.length) +
+  newArrayBody +
   registrySrc.slice(closingIdx);
 
 // ─── 10. Escribir ─────────────────────────────────────────────────────────────
