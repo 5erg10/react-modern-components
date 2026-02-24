@@ -1,6 +1,7 @@
 import { Button } from "../src/components/Button";
 import { Modal } from "../src/components/Modal";
 import { useState } from "react";
+import { Badge } from "../src/components/Badge";
 
 /* -------------------------------------------------------
    Types
@@ -147,7 +148,69 @@ const ModalEntry: ComponentEntry = {
 /* -------------------------------------------------------
    Registry — add new components here
 ------------------------------------------------------- */
+/* AUTO-GENERATED: Badge — edit render/generateCode as needed */
+const BadgeEntry: ComponentEntry = {
+  id: "badge",
+  name: "Badge",
+  icon: "🧩",
+  category: "ui",
+  description: "Badge component.",
+  props: [
+    {
+      name: "variant",
+      type: "select",
+      options: ["default", "success", "warning", "error", "info"],
+      description: "",
+      defaultValue: "default",
+    },
+    {
+      name: "size",
+      type: "select",
+      options: ["sm", "md", "lg"],
+      description: "",
+      defaultValue: "sm",
+    },
+    {
+      name: "label",
+      type: "string",
+      description: "",
+      defaultValue: "label",
+      required: true,
+    },
+    {
+      name: "icon",
+      type: "string",
+      description: "",
+      defaultValue: "icon",
+    },
+    {
+      name: "dismissible",
+      type: "boolean",
+      description: "",
+      defaultValue: false,
+    }
+  ],
+  render: ({ values }) => (
+    <Badge
+      variant={values["variant"] as any}
+      size={values["size"] as any}
+      label={String(values["label"])}
+      icon={String(values["icon"])}
+      dismissible={values["dismissible"] as boolean}
+    />
+  ),
+  generateCode: (values) => {
+    const variantProp = ` variant="${values["variant"]}"`;
+    const sizeProp = ` size="${values["size"]}"`;
+    const labelProp = values["label"] ? ` label="${String(values["label"])}"` : "";
+    const iconProp = values["icon"] ? ` icon="${String(values["icon"])}"` : "";
+    const dismissibleProp = values["dismissible"] ? " dismissible" : "";
+    return `<Badge${variantProp}${sizeProp}${labelProp}${iconProp}${dismissibleProp} />`;
+  },
+};
+
 export const componentRegistry: ComponentEntry[] = [
   ButtonEntry,
   ModalEntry,
+  BadgeEntry
 ];

@@ -7,7 +7,9 @@
   "files": [
     "dist"
   ],
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
@@ -16,6 +18,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
+    },
+    "./badge": {
+      "types": "./dist/components/Badge/index.d.ts",
+      "style": "./dist/components/Badge/Badge.css",
+      "import": "./dist/components/Badge/index.es.js",
+      "require": "./dist/components/Badge/index.cjs.js"
     },
     "./button": {
       "types": "./dist/components/Button/index.d.ts",
@@ -36,7 +44,8 @@
     "build": "rimraf dist && vite build && npm run generate-exports",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
-    "generate-exports": "node scripts/generate-exports.js"
+    "generate-exports": "node scripts/generate-exports.js",
+    "create-component": "node scripts/generate-component.js"
   },
   "keywords": [
     "react",
