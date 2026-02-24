@@ -1,0 +1,68 @@
+{
+  "name": "modern-react-components",
+  "version": "1.0.0",
+  "description": "Modern React components collection",
+  "private": false,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./button": {
+      "types": "./dist/components/Button/index.d.ts",
+      "import": "./dist/components/Button/index.es.js",
+      "require": "./dist/components/Button/index.cjs.js"
+    },
+    "./modal": {
+      "types": "./dist/components/Modal/index.d.ts",
+      "import": "./dist/components/Modal/index.es.js",
+      "require": "./dist/components/Modal/index.cjs.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "rimraf dist && vite build && npm run generate-exports",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "generate-exports": "node scripts/generate-exports.js"
+  },
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "library"
+  ],
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "fast-glob": "^3.3.3",
+    "rimraf": "^6.1.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
