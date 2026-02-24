@@ -39,20 +39,12 @@ console.log("✅ package.json exports actualizados");
 
 // ─── 3. Helpers de parseo ─────────────────────────────────────────────────────
 
-/**
- * Elimina comentarios JSDoc (/** ... *​/) y de línea (//) del source
- * antes de parsear, para que no interfieran con el regex de props.
- */
 function stripComments(src) {
   return src
-    .replace(/\/\*[\s\S]*?\*\//g, "")   // bloque /* ... */
-    .replace(/\/\/[^\n]*/g, "");         // línea // ...
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\/\/[^\n]*/g, "");
 }
 
-/**
- * Extrae todos los type aliases del source como mapa nombre -> valor raw.
- *   type BadgeVariant = "default" | "success";  →  { BadgeVariant: '"default" | "success"' }
- */
 function extractTypeAliases(src) {
   const aliases = {};
   const re = /\btype\s+(\w+)\s*=\s*([^;]+);/g;
@@ -63,22 +55,11 @@ function extractTypeAliases(src) {
   return aliases;
 }
 
-/**
- * Resuelve un rawType contra el mapa de aliases (un nivel de profundidad).
- */
 function resolveType(raw, aliases) {
   const trimmed = raw.trim();
   return aliases[trimmed] ?? trimmed;
 }
 
-/**
- * Parsea el *.types.tsx de un componente y devuelve un array de PropDef.
- * Soporta:
- *   - inline unions:        prop?: "a" | "b"
- *   - type alias unions:    prop?: BadgeVariant  (resuelto a "a" | "b")
- *   - boolean / string / number
- *   - callbacks () => void  → ignorados
- */
 function parseProps(name) {
   const typesFile = path.join(componentsDir, name, `${name}.types.tsx`);
   if (!fs.existsSync(typesFile)) return [];
@@ -88,11 +69,9 @@ function parseProps(name) {
   const aliases = extractTypeAliases(src);
   const props   = [];
 
-  // Extraer únicamente el cuerpo de la interface principal (Props)
   const ifaceMatch = src.match(/interface\s+\w+Props[^{]*\{([\s\S]*?)\}/);
   const body = ifaceMatch ? ifaceMatch[1] : src;
 
-  // Cada prop: "  name?: type"
   const propRe = /^\s{1,8}(\w+)(\?)?:\s+(.+?)\s*;?\s*$/gm;
   let m;
 
@@ -101,16 +80,13 @@ function parseProps(name) {
     const optional = !!m[2];
     const resolved = resolveType(m[3], aliases);
 
-    // Ignorar callbacks y tipos React complejos
     if (resolved.includes("=>") || resolved.startsWith("React.")) continue;
 
-    // children: ReactNode  → tratar como string editable en el sandbox
     if (propName === "children") {
-      props.push({ name: "children", type: "string", required: false, defaultValue: `${name} content`, multiline: true });
+      props.push({ name: "children", type: "string", required: false, defaultValue: name + " content", multiline: true });
       continue;
     }
 
-    // Union de string literals  →  select
     if (resolved.includes('"')) {
       const options = [...resolved.matchAll(/"([^"]+)"/g)].map((x) => x[1]);
       if (options.length > 0) {
@@ -124,92 +100,119 @@ function parseProps(name) {
       continue;
     }
     if (resolved === "number") {
-      props.push({ name: propName, type: "number",  required: !optional, defaultValue: 0 });
+      props.push({ name: propName, type: "number", required: !optional, defaultValue: 0 });
       continue;
     }
     if (resolved === "string") {
-      props.push({ name: propName, type: "string",  required: !optional, defaultValue: propName });
+      props.push({ name: propName, type: "string", required: !optional, defaultValue: propName });
       continue;
     }
-    // Tipo complejo no manejado (HTMLElement, etc.) → omitir
   }
 
   return props;
 }
 
 // ─── 4. Generador de entradas de registry ────────────────────────────────────
+//
+// REGLA: todo el código TypeScript que se escribe en el archivo generado
+// se construye con concatenación de strings (+), NUNCA con template literals
+// anidados. Esto evita que los ${ } se evalúen durante la ejecución del
+// script en lugar de quedar como texto literal en el archivo de salida.
+//
 function generateEntry(name, props) {
   const id        = name.toLowerCase();
-  const entryName = `${name}Entry`;
+  const entryName = name + "Entry";
 
-  // Array de PropDef para el registry
-  const propDefs = props
-    .map((p) => {
-      const lines = [
-        `      name: "${p.name}",`,
-        `      type: "${p.type}",`,
-        p.options   ? `      options: [${p.options.map((o) => `"${o}"`).join(", ")}],` : null,
-        `      description: "",`,
-        `      defaultValue: ${JSON.stringify(p.defaultValue)},`,
-        p.required  ? `      required: true,`  : null,
-        p.multiline ? `      multiline: true,` : null,
-      ].filter(Boolean);
-      return `    {\n${lines.join("\n")}\n    }`;
-    })
-    .join(",\n");
+  // ── PropDefs ──────────────────────────────────────────────────────────────
+  const propDefs = props.map((p) => {
+    let s = "    {\n";
+    s += "      name: \"" + p.name + "\",\n";
+    s += "      type: \"" + p.type + "\",\n";
+    if (p.options) {
+      s += "      options: [" + p.options.map((o) => "\"" + o + "\"").join(", ") + "],\n";
+    }
+    s += "      description: \"\",\n";
+    s += "      defaultValue: " + JSON.stringify(p.defaultValue) + ",\n";
+    if (p.required)  s += "      required: true,\n";
+    if (p.multiline) s += "      multiline: true,\n";
+    s += "    }";
+    return s;
+  }).join(",\n");
 
-  // JSX props para el render
-  const spreadProps = props
-    .filter((p) => p.name !== "children")
-    .map((p) => {
-      if (p.type === "boolean") return `      ${p.name}={values["${p.name}"] as boolean}`;
-      if (p.type === "number")  return `      ${p.name}={values["${p.name}"] as number}`;
-      if (p.type === "select")  return `      ${p.name}={values["${p.name}"] as any}`;
-      return `      ${p.name}={String(values["${p.name}"])}`;
-    })
-    .join("\n");
-
+  // ── render ────────────────────────────────────────────────────────────────
+  const nonChildren  = props.filter((p) => p.name !== "children");
   const childrenProp = props.find((p) => p.name === "children");
-  const renderInner  = childrenProp
-    ? `<${name}\n${spreadProps}\n    >\n      {String(values["children"])}\n    </${name}>`
-    : `<${name}\n${spreadProps}\n    />`;
 
-  // generateCode
-  const codeProps = props
-    .filter((p) => p.name !== "children")
-    .map((p) => {
-      if (p.type === "boolean") return `    const ${p.name}Prop = values["${p.name}"] ? " ${p.name}" : "";`;
-      if (p.type === "select")  return `    const ${p.name}Prop = \` ${p.name}="\${values["${p.name}"]}"\`;`;
-      return `    const ${p.name}Prop = values["${p.name}"] ? \` ${p.name}="\${values["${p.name}"]}"\` : "";`;
-    })
-    .join("\n");
+  const spreadLines = nonChildren.map((p) => {
+    if (p.type === "boolean") return "      " + p.name + "={values[\"" + p.name + "\"] as boolean}";
+    if (p.type === "number")  return "      " + p.name + "={values[\"" + p.name + "\"] as number}";
+    if (p.type === "select")  return "      " + p.name + "={values[\"" + p.name + "\"] as any}";
+    return "      " + p.name + "={String(values[\"" + p.name + "\"])}";
+  }).join("\n");
 
-  const codePropStr = props
-    .filter((p) => p.name !== "children")
-    .map((p) => `\${${p.name}Prop}`)
+  let renderInner;
+  if (childrenProp) {
+    renderInner  = "<" + name + "\n" + spreadLines + "\n    >\n";
+    renderInner += "      {String(values[\"children\"])}\n";
+    renderInner += "    </" + name + ">";
+  } else {
+    renderInner = "<" + name + "\n" + spreadLines + "\n    />";
+  }
+
+  // ── generateCode ──────────────────────────────────────────────────────────
+  // Emitimos código TS que:
+  //   1. Declara una variable *Prop por cada prop (sin children)
+  //   2. Hace return de un template literal que las interpolala
+  //
+  // Para escribir un backtick en el archivo de salida usamos la variable BT.
+  // Para escribir ${ } literales en el archivo de salida los partimos en
+  // dos strings: "$" + "{...}" de modo que el template literal del script
+  // no los interprete.
+
+  const propVarLines = nonChildren.map((p) => {
+    if (p.type === "boolean") {
+      // const disabledProp = values["disabled"] ? " disabled" : "";
+      return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? \" " + p.name + "\" : \"\";";
+    }
+    if (p.type === "select") {
+      // const variantProp = ` variant="${values["variant"]}"`;
+      return "    const " + p.name + "Prop = ` " + p.name + "=\"$" + "{values[\"" + p.name + "\"]}\"`;";
+    }
+    // string / number
+    // const labelProp = values["label"] ? ` label="${values["label"]}"` : "";
+    return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? ` " + p.name + "=\"$" + "{String(values[\"" + p.name + "\"])}\"` : \"\";";
+  }).join("\n");
+
+  // Interpolaciones en el return: ${variantProp}${sizeProp}...
+  const interpolations = nonChildren
+    .map((p) => "$" + "{" + p.name + "Prop}")
     .join("");
 
-  const codeReturn = childrenProp
-    ? `return \`<${name}\${codePropStr}>\${values["children"]}</${name}>\`;`
-    : `return \`<${name}\${codePropStr} />\`;`;
+  let returnLine;
+  if (childrenProp) {
+    returnLine = "    return `<" + name + interpolations + ">$" + "{values[\"children\"]}</" + name + ">`;";
+  } else {
+    returnLine = "    return `<" + name + interpolations + " />`;";
+  }
 
-  return `/* AUTO-GENERATED: ${name} — edit render/generateCode as needed */
-const ${entryName}: ComponentEntry = {
-  id: "${id}",
-  name: "${name}",
-  icon: "🧩",
-  category: "ui",
-  description: "${name} component.",
-  props: [\n${propDefs}\n  ],
-  render: ({ values }) => (
-    ${renderInner}
-  ),
-  generateCode: (values) => {
-${codeProps}
-    ${codeReturn}
-  },
-};
-`;
+  // ── Ensamblar la entrada completa ─────────────────────────────────────────
+  let entry = "";
+  entry += "/* AUTO-GENERATED: " + name + " — edit render/generateCode as needed */\n";
+  entry += "const " + entryName + ": ComponentEntry = {\n";
+  entry += "  id: \"" + id + "\",\n";
+  entry += "  name: \"" + name + "\",\n";
+  entry += "  icon: \"🧩\",\n";
+  entry += "  category: \"ui\",\n";
+  entry += "  description: \"" + name + " component.\",\n";
+  entry += "  props: [\n" + propDefs + "\n  ],\n";
+  entry += "  render: ({ values }) => (\n    " + renderInner + "\n  ),\n";
+  entry += "  generateCode: (values) => {\n";
+  entry += propVarLines + "\n";
+  entry += returnLine + "\n";
+  entry += "  },\n";
+  entry += "};\n";
+
+  return entry;
 }
 
 // ─── 5. Leer registry y detectar componentes ya registrados ──────────────────
@@ -236,18 +239,15 @@ if (newComponents.length === 0) {
 console.log("✨ Componentes nuevos detectados:", newComponents.join(", "));
 
 // ─── 7. Insertar imports ──────────────────────────────────────────────────────
-// Recorre línea a línea para encontrar el final del último bloque de imports,
-// independientemente de líneas en blanco o comentarios entre medio.
-const lines    = registrySrc.split("\n");
+const lines = registrySrc.split("\n");
 let lastImportLineIdx = -1;
 lines.forEach((line, i) => {
   if (line.startsWith("import ")) lastImportLineIdx = i;
 });
 
 const newImportLines = newComponents
-  .map((name) => `import { ${name} } from "../src/components/${name}";`);
+  .map((name) => "import { " + name + " } from \"../src/components/" + name + "\";");
 
-// Insertar las nuevas líneas justo después del último import
 lines.splice(lastImportLineIdx + 1, 0, ...newImportLines);
 registrySrc = lines.join("\n");
 
@@ -265,14 +265,21 @@ registrySrc =
   registrySrc.slice(markerIdx);
 
 // ─── 9. Añadir referencias al array ──────────────────────────────────────────
-// Busca el cierre ]; del array componentRegistry específicamente
-const arrayStart  = registrySrc.indexOf(registryArrayMarker);
-const closingIdx  = registrySrc.indexOf("];", arrayStart);
-const newEntryRefs = newComponents.map((name) => `  ${name}Entry`).join(",\n");
+// Localiza el cierre ]; del array y comprueba si el último elemento
+// ya tiene coma trailing para no añadir una coma extra.
+const arrayStart = registrySrc.indexOf(registryArrayMarker);
+const closingIdx = registrySrc.indexOf("];", arrayStart);
+
+// Texto entre [ y ]; para ver si ya hay trailing comma
+const arrayBody = registrySrc.slice(arrayStart + registryArrayMarker.length, closingIdx);
+const hasTrailingComma = arrayBody.trimEnd().endsWith(",");
+
+const newEntryRefs = newComponents.map((name) => "  " + name + "Entry").join(",\n");
+const separator    = hasTrailingComma ? "\n" : ",\n";
 
 registrySrc =
   registrySrc.slice(0, closingIdx) +
-  ",\n" + newEntryRefs + "\n" +
+  separator + newEntryRefs + "\n" +
   registrySrc.slice(closingIdx);
 
 // ─── 10. Escribir ─────────────────────────────────────────────────────────────
