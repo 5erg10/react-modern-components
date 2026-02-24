@@ -31,6 +31,12 @@
       "import": "./dist/components/Button/index.es.js",
       "require": "./dist/components/Button/index.cjs.js"
     },
+    "./digitalclock": {
+      "types": "./dist/components/DigitalClock/index.d.ts",
+      "style": "./dist/components/DigitalClock/DigitalClock.css",
+      "import": "./dist/components/DigitalClock/index.es.js",
+      "require": "./dist/components/DigitalClock/index.cjs.js"
+    },
     "./modal": {
       "types": "./dist/components/Modal/index.d.ts",
       "style": "./dist/components/Modal/Modal.css",
@@ -45,7 +51,7 @@
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "generate-exports": "node scripts/generate-exports.js",
-    "create-component": "node scripts/generate-component.js"
+    "create-component": "node scripts/generate-component.js && node scripts/generate-exports.js"
   },
   "keywords": [
     "react",

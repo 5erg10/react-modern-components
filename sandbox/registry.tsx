@@ -2,6 +2,7 @@ import { Button } from "../src/components/Button";
 import { Modal } from "../src/components/Modal";
 import { useState } from "react";
 import { Badge } from "../src/components/Badge";
+import { DigitalClock } from "../src/components/DigitalClock";
 
 /* -------------------------------------------------------
    Types
@@ -209,8 +210,30 @@ const BadgeEntry: ComponentEntry = {
   },
 };
 
+/* AUTO-GENERATED: DigitalClock — edit render/generateCode as needed */
+const DigitalClockEntry: ComponentEntry = {
+  id: "digitalclock",
+  name: "DigitalClock",
+  icon: "🧩",
+  category: "ui",
+  description: "Reloj analogico Animado!!.",
+  props: [
+
+  ],
+  render: ({ values }) => (
+    <DigitalClock
+
+    />
+  ),
+  generateCode: (values) => {
+
+    return `<DigitalClock />`;
+  },
+};
+
 export const componentRegistry: ComponentEntry[] = [
   ButtonEntry,
   ModalEntry,
-  BadgeEntry
+  BadgeEntry,
+  DigitalClockEntry
 ];
