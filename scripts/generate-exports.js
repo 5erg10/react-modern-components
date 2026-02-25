@@ -1,9 +1,46 @@
 import fs from "fs";
 import path from "path";
+import { select } from '@inquirer/prompts';
 
 const componentsDir = path.resolve("./src/components");
 const registryPath  = path.resolve("./sandbox/registry.tsx");
 const pkgPath       = path.resolve("./package.json");
+
+const iconsByCategory = {
+  ui: "🧩",
+  input: "📱",
+  modal: "🎞️",
+  tabla: "📋",
+  button: "🛎️"
+}
+
+const category = await select({
+  message: 'Introduce la categoria del componente: ',
+  choices: [
+    {
+      name: "Ui",
+      value: "ui",
+    },
+    {
+      name: "Input",
+      value: "input",
+    },
+    {
+      name: "Modal",
+      value: "modal",
+    },
+    {
+      name: "Table",
+      value: 'tabla'
+    },
+    {
+      name: "Button",
+      value: 'button'
+    }
+  ]
+});
+
+console.log('category:  ', category);
 
 // ─── 1. Leer componentes del filesystem ──────────────────────────────────────
 const components = fs
@@ -178,13 +215,15 @@ function generateEntry(name, props) {
     returnLine = "    return `<" + name + interpolations + " />`;";
   }
 
+  console.log('icon: ', iconsByCategory[category]);
+
   let entry = "";
   entry += "/* AUTO-GENERATED: " + name + " — edit render/generateCode as needed */\n";
   entry += "const " + entryName + ": ComponentEntry = {\n";
   entry += "  id: \"" + id + "\",\n";
   entry += "  name: \"" + name + "\",\n";
-  entry += "  icon: \"🧩\",\n";
-  entry += "  category: \"ui\",\n";
+  entry += "  icon: \"" + iconsByCategory[category] + "\",\n";
+  entry += "  category: \"" + category + "\",\n";
   entry += "  description: \"" + name + " component.\",\n";
   entry += "  props: [\n" + propDefs + "\n  ],\n";
   entry += "  render: ({ values }) => (\n    " + renderInner + "\n  ),\n";
