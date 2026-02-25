@@ -1,3 +1,7 @@
+:root {
+    --mask-opacity: 0.5;
+}
+
 [clock-size='small'] {
     --main-size: 200;
     --hour-font-size: 0.8rem;
@@ -123,7 +127,7 @@
     align-items: center;
     justify-content: flex-start;
     padding-left: 1rem;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.7);
+    box-shadow: 0 0 0 9999px rgba(0,0,0,var(--mask-opacity));
     span {
         color: var(--indicator-color);
         font-size: var(--hour-font-size);

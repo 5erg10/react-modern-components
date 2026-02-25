@@ -234,11 +234,19 @@ const DigitalClockEntry: ComponentEntry = {
       description: "clock ambient theme",
       defaultValue: "light",
     },
+    {
+      name: "Mask opacity",
+      type: "range",
+      range: [0,1],
+      description: "Opacity of clock mask",
+      defaultValue: 0.5,
+    }
   ],
   render: ({ values }) => (
     <DigitalClock
       size={values["Size"] as any}
       ambient={values["Ambient"] as any}
+      maskOpacity={values["Mask opacity"] as any}
     />
   ),
   generateCode: (values) => {

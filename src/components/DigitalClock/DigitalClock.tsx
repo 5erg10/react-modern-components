@@ -5,7 +5,8 @@ import "./DigitalClock.css";
 
 export const DigitalClock = ({
     size = 'medium',
-    ambient = "light"
+    ambient = "light",
+    maskOpacity = 0.5
 }: DigitalClockProps ) => {
 
     const [time, setTime] = useState(new Date());
@@ -71,7 +72,7 @@ export const DigitalClock = ({
                     })
                 }
             </div>
-            <div className="digital-clock-indicator">
+            <div className="digital-clock-indicator" style={{ "--mask-opacity": maskOpacity } as React.CSSProperties}>
                 <span>Hour</span>
             </div>
         </div>
