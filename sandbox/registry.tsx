@@ -3,17 +3,19 @@ import { Modal } from "../src/components/Modal";
 import { useState } from "react";
 import { Badge } from "../src/components/Badge";
 import { DigitalClock } from "../src/components/DigitalClock";
+import { Input } from "../src/components/Input";
 
 /* -------------------------------------------------------
    Types
 ------------------------------------------------------- */
 export interface PropDef {
   name: string;
-  type: "string" | "boolean" | "number" | "select";
+  type: "string" | "boolean" | "number" | "select" | "range";
   description: string;
   defaultValue: unknown;
   required?: boolean;
-  options?: string[];   // for type === "select"
+  options?: string[];  // for type === "select"
+  range?: number[];  // for type === "range"
   multiline?: boolean;  // for long strings
 }
 

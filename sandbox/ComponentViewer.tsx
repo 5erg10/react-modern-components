@@ -119,6 +119,20 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
     );
   }
 
+  if(prop.type == "range") {
+    return (
+      <label className="sb-toggle">
+        <input 
+          type="range"
+          min={prop.range?.[0] || 0}
+          max={prop.range?.[1] || 1}
+          step="0.1"
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </label>
+    )
+  }
+
   if (prop.options) {
     return (
       <select
