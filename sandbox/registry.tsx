@@ -153,7 +153,7 @@ const ModalEntry: ComponentEntry = {
 const BadgeEntry: ComponentEntry = {
   id: "badge",
   name: "Badge",
-  icon: "🧩",
+  icon: "💊",
   category: "ui",
   description: "Badge component.",
   props: [
@@ -214,15 +214,29 @@ const BadgeEntry: ComponentEntry = {
 const DigitalClockEntry: ComponentEntry = {
   id: "digitalclock",
   name: "DigitalClock",
-  icon: "🧩",
+  icon: "⌚",
   category: "ui",
   description: "Reloj analogico Animado!!.",
   props: [
-
+    {
+      name: "Size",
+      type: "select",
+      options: ["large", "medium", "small"],
+      description: "clock size",
+      defaultValue: "medium",
+    },
+    {
+      name: "Ambient",
+      type: "select",
+      options: ["light", "dark"],
+      description: "clock ambient theme",
+      defaultValue: "light",
+    },
   ],
   render: ({ values }) => (
     <DigitalClock
-
+      size={values["Size"] as any}
+      ambient={values["Ambient"] as any}
     />
   ),
   generateCode: (values) => {

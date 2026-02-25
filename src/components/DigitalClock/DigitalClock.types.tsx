@@ -1,2 +1,5 @@
 
-export interface DigitalClockProps {}
+export interface DigitalClockProps {
+    size?: 'small' | 'medium' | 'large';
+    ambient?: 'dark' | 'light';
+}

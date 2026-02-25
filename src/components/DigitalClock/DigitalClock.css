@@ -1,63 +1,136 @@
-.digital-clock-main-container {
-    width: 400px;
-    height: 400px;
-    background-color: black;
-    border-radius: 50%;
-    position: relative;
+[clock-size='small'] {
+    --main-size: 200;
+    --hour-font-size: 0.8rem;
+    --minuts-marker-rotation: 0deg;
+    --indicator-height: 20;
 }
 
-.digital-clock-seconds-circle {
+[clock-size='medium'] {
+    --main-size: 400;
+    --hour-font-size: 1rem;
+    --minuts-marker-rotation: 270deg;
+    --indicator-height: 25;
+}
+
+[clock-size='large'] {
+    --main-size: 600;
+    --hour-font-size: 1.2rem;
+    --minuts-marker-rotation: 270deg;
+    --indicator-height: 25;
+}
+
+[ambient-mode='light'] {
+    --main-background-color: #fff;
+    --markers-color: #333;
+    --indicator-color: rgb(160, 155, 81);
+}
+
+[ambient-mode='dark'] {
+    --main-background-color: #333;
+    --markers-color: #fff;
+    --indicator-color: rgb(248, 240, 122);
+}
+
+.digital-clock {
+    width: calc(var(--main-size) * 1px);
+    height: calc(var(--main-size) * 1px);
+    background-color: var(--main-background-color);
+    border-radius: 50%;
     position: relative;
+    overflow: hidden;
+}
+
+.dial-box {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
-    font-size: 18px;
-    font-weight: bold;
-    color: #222;
-    animation: seconds-rotation 60s infinite;
 }
 
-.diallines {
-  position: absolute;
-  z-index: 2;
-  width: 2px;
-  height: 15px;
-  background: #666;
-  left: 50%;
-  margin-left: -1px;
-  transform-origin: 100% 200px;
+.seconds-dial {
+    scale: 0.55;
+    animation: dial-rotation 60s infinite linear;
 }
 
-.diallines:nth-of-type(5n) {
-  position: absolute;
-  z-index: 2;
-  width: 4px;
-  height: 25px;
-  background: #666;
-  left: 50%;
-  margin-left: -1px;
-  transform-origin: 100% 200px;
+.minutes-dial {
+    scale: 0.75;
 }
 
-.digital-clock-seconds-marker {
-    width: 100px;
-    height: 20px;
-    background: transparent;
-    border: solid 2px green;
-    position: absolute;
-    right: 0px;
-    top: calc(50% - 10px);
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: 0.5rem;
-    span {
-        color: green;
-        font-size: 0.8rem;
+.minutes-dial > div:not(:nth-child(5n + 1)) {
+    div {
+        rotate: var(--minuts-marker-rotation);
     }
 }
 
-@keyframes seconds-rotation {
-    from { transform: rotate(0deg);}
-    to { transform: rotate(360deg);}
+.minutes-dial > div:nth-child(5n + 1) {
+    font-weight: bold;
+    div {
+        rotate: 270deg;
+    }
+}
+
+.hours-dial {
+    scale: 0.95;
+}
+
+.marker {
+    color: var(--markers-color);
+    position: absolute;
+    z-index: 2;
+    width: 2px;
+    height: 15px;
+    background: transparent;
+    transform-origin: center calc((var(--main-size)*0.5) * 1px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seconds-marker {
+    background: var(--markers-color);
+}
+
+.minutes-marker {
+    font-size: var(--hour-font-size);
+}
+
+.hour-marker {
+  font-size: var(--hour-font-size);
+  div {
+    rotate: 270deg;
+  }
+}
+
+.digital-clock-indicator {
+    width: calc((var(--main-size)*0.5) * 1px);
+    height: calc(var(--indicator-height) * 1px);
+    background: transparent;
+    border-top: solid 2px var(--indicator-color);
+    border-bottom: solid 2px var(--indicator-color);
+    border-left: solid 2px var(--indicator-color);
+    position: absolute;
+    border-radius: 50px 0px 0px 50px;
+    right: 0px;
+    top: calc(50% - calc((var(--indicator-height)/2) * 1px));
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 1rem;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.7);
+    span {
+        color: var(--indicator-color);
+        font-size: var(--hour-font-size);
+    }
+}
+
+@keyframes dial-rotation {
+    from { rotate: 0deg;}
+    to { rotate: 360deg;}
 }
