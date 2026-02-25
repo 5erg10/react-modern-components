@@ -37,6 +37,12 @@
       "import": "./dist/components/DigitalClock/index.es.js",
       "require": "./dist/components/DigitalClock/index.cjs.js"
     },
+    "./input": {
+      "types": "./dist/components/Input/index.d.ts",
+      "style": "./dist/components/Input/Input.css",
+      "import": "./dist/components/Input/index.es.js",
+      "require": "./dist/components/Input/index.cjs.js"
+    },
     "./modal": {
       "types": "./dist/components/Modal/index.d.ts",
       "style": "./dist/components/Modal/Modal.css",

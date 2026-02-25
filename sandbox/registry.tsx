@@ -245,9 +245,31 @@ const DigitalClockEntry: ComponentEntry = {
   },
 };
 
+/* AUTO-GENERATED: Input — edit render/generateCode as needed */
+const InputEntry: ComponentEntry = {
+  id: "input",
+  name: "Input",
+  icon: "📱",
+  category: "input",
+  description: "Input component.",
+  props: [
+
+  ],
+  render: ({ values }) => (
+    <Input
+
+    />
+  ),
+  generateCode: (values) => {
+
+    return `<Input />`;
+  },
+};
+
 export const componentRegistry: ComponentEntry[] = [
   ButtonEntry,
   ModalEntry,
   BadgeEntry,
-  DigitalClockEntry
+  DigitalClockEntry,
+  InputEntry
 ];
