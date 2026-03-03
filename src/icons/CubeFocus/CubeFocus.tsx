@@ -1,0 +1,45 @@
+import { SVGProps } from "react";
+
+export type CubeFocusVariant = "duotone" | "fill" | "light";
+
+export interface CubeFocusProps extends SVGProps<SVGSVGElement> {
+  variant?: CubeFocusVariant;
+  primaryColor?: string;
+  secondaryColor?: string;
+}
+
+const FILL_INNER      = "<path d=\"M232,48V88a8,8,0,0,1-16,0V56H184a8,8,0,0,1,0-16h40A8,8,0,0,1,232,48ZM72,200H40V168a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16Zm152-40a8,8,0,0,0-8,8v32H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V168A8,8,0,0,0,224,160ZM32,96a8,8,0,0,0,8-8V56H72a8,8,0,0,0,0-16H32a8,8,0,0,0-8,8V88A8,8,0,0,0,32,96ZM177.92,83.31,132,57.05a8,8,0,0,0-7.94,0L78.08,83.31a4,4,0,0,0,0,7L128,118.79l49.92-28.53A4,4,0,0,0,177.92,83.31ZM64,107.53V160A8,8,0,0,0,68,167l46,26.27a4,4,0,0,0,6-3.47V132.64L70,104.06A4,4,0,0,0,64,107.53ZM192,160V107.53a4,4,0,0,0-6-3.47l-50,28.58v57.11a4,4,0,0,0,6,3.47L188,167A8,8,0,0,0,192,160Z\"/>";
+const LIGHT_INNER     = "<path d=\"M230,48V88a6,6,0,0,1-12,0V54H184a6,6,0,0,1,0-12h40A6,6,0,0,1,230,48ZM72,202H38V168a6,6,0,0,0-12,0v40a6,6,0,0,0,6,6H72a6,6,0,0,0,0-12Zm152-40a6,6,0,0,0-6,6v34H184a6,6,0,0,0,0,12h40a6,6,0,0,0,6-6V168A6,6,0,0,0,224,162ZM32,94a6,6,0,0,0,6-6V54H72a6,6,0,0,0,0-12H32a6,6,0,0,0-6,6V88A6,6,0,0,0,32,94Zm155,71.21-56,32a6,6,0,0,1-6,0l-56-32A6,6,0,0,1,66,160V96a6,6,0,0,1,3-5.21l56-32a6,6,0,0,1,6,0l56,32A6,6,0,0,1,190,96v64A6,6,0,0,1,187,165.21ZM84.09,96,128,121.09,171.91,96,128,70.91ZM78,156.52l44,25.14V131.48L78,106.34Zm100,0V106.34l-44,25.14v50.18Z\"/>";
+const PRIMARY_PATHS   = "<path d=\"M232,48V88a8,8,0,0,1-16,0V56H184a8,8,0,0,1,0-16h40A8,8,0,0,1,232,48ZM72,200H40V168a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H72a8,8,0,0,0,0-16Zm152-40a8,8,0,0,0-8,8v32H184a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V168A8,8,0,0,0,224,160ZM32,96a8,8,0,0,0,8-8V56H72a8,8,0,0,0,0-16H32a8,8,0,0,0-8,8V88A8,8,0,0,0,32,96ZM188,167l-56,32a8,8,0,0,1-7.94,0L68,167A8,8,0,0,1,64,160V96a8,8,0,0,1,4-7l56-32a8,8,0,0,1,7.94,0l56,32a8,8,0,0,1,4,7v64A8,8,0,0,1,188,167ZM88.12,96,128,118.79,167.88,96,128,73.21ZM80,155.36l40,22.85V132.64L80,109.79Zm96,0V109.79l-40,22.85v45.57Z\"/>";
+const SECONDARY_PATHS = "<path d=\"M184,96v64l-56,32L72,160V96l56-32Z\"/>";
+
+export const CubeFocus = ({
+  variant = "duotone",
+  primaryColor = "currentColor",
+  secondaryColor,
+  style,
+  ...props
+}: CubeFocusProps) => {
+  const svgStyle = { width: "1em", height: "1em", ...style };
+
+  if (variant === "fill") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: FILL_INNER }} />
+    </svg>
+  );
+
+  if (variant === "light") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: LIGHT_INNER }} />
+    </svg>
+  );
+
+  const secColor   = secondaryColor ?? primaryColor;
+  const secOpacity = secondaryColor ? 1 : 0.2;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" style={svgStyle} {...props}>
+      <g fill={secColor} opacity={secOpacity} dangerouslySetInnerHTML={{ __html: SECONDARY_PATHS }} />
+      <g fill={primaryColor} dangerouslySetInnerHTML={{ __html: PRIMARY_PATHS }} />
+    </svg>
+  );
+};

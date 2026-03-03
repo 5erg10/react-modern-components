@@ -1,0 +1,45 @@
+import { SVGProps } from "react";
+
+export type SpeakerSimpleXVariant = "duotone" | "fill" | "light";
+
+export interface SpeakerSimpleXProps extends SVGProps<SVGSVGElement> {
+  variant?: SpeakerSimpleXVariant;
+  primaryColor?: string;
+  secondaryColor?: string;
+}
+
+const FILL_INNER      = "<path d=\"M163.52,24.81a8,8,0,0,0-8.43.88L85.25,80H40A16,16,0,0,0,24,96v64a16,16,0,0,0,16,16H85.25l69.84,54.31A7.94,7.94,0,0,0,160,232a8,8,0,0,0,8-8V32A8,8,0,0,0,163.52,24.81Z\"/><path d=\"M235.31,128l18.35-18.34a8,8,0,0,0-11.32-11.32L224,116.69,205.66,98.34a8,8,0,0,0-11.32,11.32L212.69,128l-18.35,18.34a8,8,0,0,0,11.32,11.32L224,139.31l18.34,18.35a8,8,0,0,0,11.32-11.32Z\"/>";
+const LIGHT_INNER     = "<path d=\"M162.64,26.61a6,6,0,0,0-6.32.65L85.94,82H40A14,14,0,0,0,26,96v64a14,14,0,0,0,14,14H85.94l70.38,54.74A6,6,0,0,0,166,224V32A6,6,0,0,0,162.64,26.61ZM154,211.73,91.68,163.26A6,6,0,0,0,88,162H40a2,2,0,0,1-2-2V96a2,2,0,0,1,2-2H88a6,6,0,0,0,3.68-1.26L154,44.27Zm98.24-64a6,6,0,1,1-8.48,8.48L224,136.48l-19.76,19.76a6,6,0,0,1-8.48-8.48L215.52,128l-19.76-19.76a6,6,0,0,1,8.48-8.48L224,119.52l19.76-19.76a6,6,0,0,1,8.48,8.48L232.48,128Z\"/>";
+const PRIMARY_PATHS   = "<path d=\"M163.51,24.81a8,8,0,0,0-8.42.88L85.25,80H40A16,16,0,0,0,24,96v64a16,16,0,0,0,16,16H85.25l69.84,54.31A8,8,0,0,0,168,224V32A8,8,0,0,0,163.51,24.81ZM152,207.64,92.91,161.69A7.94,7.94,0,0,0,88,160H40V96H88a7.94,7.94,0,0,0,4.91-1.69L152,48.36Zm101.66-61.3a8,8,0,0,1-11.32,11.32L224,139.31l-18.34,18.35a8,8,0,0,1-11.32-11.32L212.69,128l-18.35-18.34a8,8,0,0,1,11.32-11.32L224,116.69l18.34-18.35a8,8,0,0,1,11.32,11.32L235.31,128Z\"/>";
+const SECONDARY_PATHS = "<path d=\"M160,32V224L88,168H40a8,8,0,0,1-8-8V96a8,8,0,0,1,8-8H88Z\"/>";
+
+export const SpeakerSimpleX = ({
+  variant = "duotone",
+  primaryColor = "currentColor",
+  secondaryColor,
+  style,
+  ...props
+}: SpeakerSimpleXProps) => {
+  const svgStyle = { width: "1em", height: "1em", ...style };
+
+  if (variant === "fill") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: FILL_INNER }} />
+    </svg>
+  );
+
+  if (variant === "light") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: LIGHT_INNER }} />
+    </svg>
+  );
+
+  const secColor   = secondaryColor ?? primaryColor;
+  const secOpacity = secondaryColor ? 1 : 0.2;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" style={svgStyle} {...props}>
+      <g fill={secColor} opacity={secOpacity} dangerouslySetInnerHTML={{ __html: SECONDARY_PATHS }} />
+      <g fill={primaryColor} dangerouslySetInnerHTML={{ __html: PRIMARY_PATHS }} />
+    </svg>
+  );
+};

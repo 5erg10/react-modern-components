@@ -1,0 +1,45 @@
+import { SVGProps } from "react";
+
+export type CloudArrowDownVariant = "duotone" | "fill" | "light";
+
+export interface CloudArrowDownProps extends SVGProps<SVGSVGElement> {
+  variant?: CloudArrowDownVariant;
+  primaryColor?: string;
+  secondaryColor?: string;
+}
+
+const FILL_INNER      = "<path d=\"M247.93,124.52C246.11,77.54,207.07,40,160.06,40A88.1,88.1,0,0,0,81.29,88.67h0A87.48,87.48,0,0,0,72,127.73,8.18,8.18,0,0,1,64.57,136,8,8,0,0,1,56,128a103.66,103.66,0,0,1,5.34-32.92,4,4,0,0,0-4.75-5.18A64.09,64.09,0,0,0,8,152c0,35.19,29.75,64,65,64H160A88.09,88.09,0,0,0,247.93,124.52Zm-50.27,25.14-32,32a8,8,0,0,1-11.32,0l-32-32a8,8,0,0,1,11.32-11.32L152,156.69V96a8,8,0,0,1,16,0v60.69l18.34-18.35a8,8,0,0,1,11.32,11.32Z\"/>";
+const LIGHT_INNER     = "<path d=\"M246,128a85.27,85.27,0,0,1-17.2,51.6,6,6,0,1,1-9.6-7.2A74,74,0,1,0,86,128a6,6,0,0,1-12,0,85.54,85.54,0,0,1,3.91-25.64A50.68,50.68,0,0,0,72,102a50,50,0,0,0,0,100H96a6,6,0,0,1,0,12H72A62,62,0,1,1,82.43,90.88,86,86,0,0,1,246,128Zm-66.24,43.76L158,193.51V128a6,6,0,0,0-12,0v65.51l-21.76-21.75a6,6,0,0,0-8.48,8.48l32,32a6,6,0,0,0,8.48,0l32-32a6,6,0,0,0-8.48-8.48Z\"/>";
+const PRIMARY_PATHS   = "<path d=\"M248,128a87.34,87.34,0,0,1-17.6,52.81,8,8,0,1,1-12.8-9.62A71.34,71.34,0,0,0,232,128a72,72,0,0,0-144,0,8,8,0,0,1-16,0,88,88,0,0,1,3.29-23.88C74.2,104,73.1,104,72,104a48,48,0,0,0,0,96H96a8,8,0,0,1,0,16H72A64,64,0,1,1,81.29,88.68,88,88,0,0,1,248,128Zm-69.66,42.34L160,188.69V128a8,8,0,0,0-16,0v60.69l-18.34-18.35a8,8,0,0,0-11.32,11.32l32,32a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0-11.32-11.32Z\"/>";
+const SECONDARY_PATHS = "<path d=\"M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z\"/>";
+
+export const CloudArrowDown = ({
+  variant = "duotone",
+  primaryColor = "currentColor",
+  secondaryColor,
+  style,
+  ...props
+}: CloudArrowDownProps) => {
+  const svgStyle = { width: "1em", height: "1em", ...style };
+
+  if (variant === "fill") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: FILL_INNER }} />
+    </svg>
+  );
+
+  if (variant === "light") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: LIGHT_INNER }} />
+    </svg>
+  );
+
+  const secColor   = secondaryColor ?? primaryColor;
+  const secOpacity = secondaryColor ? 1 : 0.2;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" style={svgStyle} {...props}>
+      <g fill={secColor} opacity={secOpacity} dangerouslySetInnerHTML={{ __html: SECONDARY_PATHS }} />
+      <g fill={primaryColor} dangerouslySetInnerHTML={{ __html: PRIMARY_PATHS }} />
+    </svg>
+  );
+};

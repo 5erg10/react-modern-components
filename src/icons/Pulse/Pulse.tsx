@@ -1,0 +1,45 @@
+import { SVGProps } from "react";
+
+export type PulseVariant = "duotone" | "fill" | "light";
+
+export interface PulseProps extends SVGProps<SVGSVGElement> {
+  variant?: PulseVariant;
+  primaryColor?: string;
+  secondaryColor?: string;
+}
+
+const FILL_INNER      = "<path d=\"M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm-8,96H188.64L159,188a8,8,0,0,1-6.95,4h-.46a8,8,0,0,1-6.89-4.84L103,89.92,79,132a8,8,0,0,1-7,4H48a8,8,0,0,1,0-16H67.36L97.05,68a8,8,0,0,1,14.3.82L153,166.08l24-42.05a8,8,0,0,1,6.95-4h24a8,8,0,0,1,0,16Z\"/>";
+const LIGHT_INNER     = "<path d=\"M238,128a6,6,0,0,1-6,6H203.71l-38.34,76.68A6,6,0,0,1,160,214h-.3a6,6,0,0,1-5.31-3.85L95.51,55.57,61.46,130.48A6,6,0,0,1,56,134H24a6,6,0,0,1,0-12H52.14l38.4-84.48a6,6,0,0,1,11.07.34L160.74,193.1l33.89-67.78A6,6,0,0,1,200,122h32A6,6,0,0,1,238,128Z\"/>";
+const PRIMARY_PATHS   = "<path d=\"M240,128a8,8,0,0,1-8,8H204.94l-37.78,75.58A8,8,0,0,1,160,216h-.4a8,8,0,0,1-7.08-5.14L95.35,60.76,63.28,131.31A8,8,0,0,1,56,136H24a8,8,0,0,1,0-16H50.85L88.72,36.69a8,8,0,0,1,14.76.46l57.51,151,31.85-63.71A8,8,0,0,1,200,120h32A8,8,0,0,1,240,128Z\"/>";
+const SECONDARY_PATHS = "<path d=\"M96,40l33.52,88H56Zm104,88H129.52L160,208Z\"/>";
+
+export const Pulse = ({
+  variant = "duotone",
+  primaryColor = "currentColor",
+  secondaryColor,
+  style,
+  ...props
+}: PulseProps) => {
+  const svgStyle = { width: "1em", height: "1em", ...style };
+
+  if (variant === "fill") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: FILL_INNER }} />
+    </svg>
+  );
+
+  if (variant === "light") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: LIGHT_INNER }} />
+    </svg>
+  );
+
+  const secColor   = secondaryColor ?? primaryColor;
+  const secOpacity = secondaryColor ? 1 : 0.2;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" style={svgStyle} {...props}>
+      <g fill={secColor} opacity={secOpacity} dangerouslySetInnerHTML={{ __html: SECONDARY_PATHS }} />
+      <g fill={primaryColor} dangerouslySetInnerHTML={{ __html: PRIMARY_PATHS }} />
+    </svg>
+  );
+};
