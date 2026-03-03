@@ -6,9 +6,7 @@ const iconsDir = path.resolve("./public/icons");
 const outDir   = path.resolve("./src/icons");
 const variants = ["duotone", "fill", "light"];
 
-function toPascalCase(kebab) {
-  return kebab.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
-}
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function extractSvgContent(raw) {
   const inner = raw.replace(/<svg[^>]*>/, "").replace(/<\/svg>/, "").trim();
@@ -26,39 +24,33 @@ function parseDuotonePaths(inner) {
     const cleaned = el
       .replace(/\s*opacity\s*=\s*["'][^"']*["']/g, "")
       .replace(/\s*fill\s*=\s*["'][^"']*["']/g, "");
-    if (/opacity\s*=\s*["']0\.2["']/.test(el)) {
-      secondaryEls.push(cleaned);
-    } else {
-      primaryEls.push(cleaned);
-    }
+    if (/opacity\s*=\s*["']0\.2["']/.test(el)) secondaryEls.push(cleaned);
+    else primaryEls.push(cleaned);
   }
-  return {
-    primaryPaths:   primaryEls.join(""),
-    secondaryPaths: secondaryEls.join(""),
-  };
+  return { primary: primaryEls.join(""), secondary: secondaryEls.join("") };
 }
 
 function cleanFill(inner) {
   return inner.replace(/\s*fill\s*=\s*["']currentColor["']/g, "");
 }
 
+// ─── Leer iconos ──────────────────────────────────────────────────────────────
+
 const baseNames = fs
   .readdirSync(path.join(iconsDir, "duotone"))
   .filter((f) => f.endsWith(".svg"))
   .map((f) => f.replace("-duotone.svg", ""));
 
-console.log(chalk.grey(`\n${baseNames.length} iconos encontrados. Generando componentes...\n`));
-
+console.log(chalk.grey(`\n${baseNames.length} iconos encontrados. Generando...\n`));
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-let generated = 0;
-let skipped   = 0;
-const exportLines = [];
+// ─── Construir el mapa de datos ───────────────────────────────────────────────
+// { "address-book": { viewBox, duotone: {primary, secondary}, fill, light } }
+
+const iconMap = {};
+let skipped = 0;
 
 for (const base of baseNames) {
-  const componentName = toPascalCase(base);
-  const componentDir  = path.join(outDir, componentName);
-
   const svgData = {};
   let allExist = true;
 
@@ -73,86 +65,130 @@ for (const base of baseNames) {
   }
 
   if (!allExist) { skipped++; continue; }
-  if (!fs.existsSync(componentDir)) fs.mkdirSync(componentDir, { recursive: true });
 
   const parsed = {};
-  for (const v of variants) {
-    parsed[v] = extractSvgContent(svgData[v]);
-  }
+  for (const v of variants) parsed[v] = extractSvgContent(svgData[v]);
 
-  const viewBox = parsed["duotone"].viewBox;
-  const { primaryPaths, secondaryPaths } = parseDuotonePaths(parsed["duotone"].inner);
-  const fillInner  = cleanFill(parsed["fill"].inner);
-  const lightInner = cleanFill(parsed["light"].inner);
+  const { primary, secondary } = parseDuotonePaths(parsed["duotone"].inner);
 
-  // dangerouslySetInnerHTML is intentional here: SVG path strings are static
-  // build-time content from our own files, not user input.
-  // It is the only way to make the fill prop on the parent <g> re-apply
-  // correctly when primaryColor / secondaryColor props change at runtime.
-  const lines = [
-    `import { SVGProps } from "react";`,
-    ``,
-    `export type ${componentName}Variant = "duotone" | "fill" | "light";`,
-    ``,
-    `export interface ${componentName}Props extends SVGProps<SVGSVGElement> {`,
-    `  variant?: ${componentName}Variant;`,
-    `  primaryColor?: string;`,
-    `  secondaryColor?: string;`,
-    `}`,
-    ``,
-    `const FILL_INNER      = "${fillInner.replace(/"/g, '\\"')}";`,
-    `const LIGHT_INNER     = "${lightInner.replace(/"/g, '\\"')}";`,
-    `const PRIMARY_PATHS   = "${primaryPaths.replace(/"/g, '\\"')}";`,
-    `const SECONDARY_PATHS = "${secondaryPaths.replace(/"/g, '\\"')}";`,
-    ``,
-    `export const ${componentName} = ({`,
-    `  variant = "duotone",`,
-    `  primaryColor = "currentColor",`,
-    `  secondaryColor,`,
-    `  style,`,
-    `  ...props`,
-    `}: ${componentName}Props) => {`,
-    `  const svgStyle = { width: "1em", height: "1em", ...style };`,
-    ``,
-    `  if (variant === "fill") return (`,
-    `    <svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill={primaryColor} style={svgStyle} {...props}>`,
-    `      <g dangerouslySetInnerHTML={{ __html: FILL_INNER }} />`,
-    `    </svg>`,
-    `  );`,
-    ``,
-    `  if (variant === "light") return (`,
-    `    <svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill={primaryColor} style={svgStyle} {...props}>`,
-    `      <g dangerouslySetInnerHTML={{ __html: LIGHT_INNER }} />`,
-    `    </svg>`,
-    `  );`,
-    ``,
-    `  const secColor   = secondaryColor ?? primaryColor;`,
-    `  const secOpacity = secondaryColor ? 1 : 0.2;`,
-    `  return (`,
-    `    <svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="none" style={svgStyle} {...props}>`,
-    `      <g fill={secColor} opacity={secOpacity} dangerouslySetInnerHTML={{ __html: SECONDARY_PATHS }} />`,
-    `      <g fill={primaryColor} dangerouslySetInnerHTML={{ __html: PRIMARY_PATHS }} />`,
-    `    </svg>`,
-    `  );`,
-    `};`,
-    ``,
-  ];
-
-  const indexTs = [
-    `export { ${componentName} } from "./${componentName}";`,
-    `export type { ${componentName}Props, ${componentName}Variant } from "./${componentName}";`,
-    ``,
-  ].join("\n");
-
-  fs.writeFileSync(path.join(componentDir, `${componentName}.tsx`), lines.join("\n"));
-  fs.writeFileSync(path.join(componentDir, "index.ts"), indexTs);
-
-  exportLines.push(`export { ${componentName} } from "./${componentName}";`);
-  exportLines.push(`export type { ${componentName}Props, ${componentName}Variant } from "./${componentName}";`);
-  generated++;
+  iconMap[base] = {
+    viewBox:  parsed["duotone"].viewBox,
+    duotone:  { primary, secondary },
+    fill:     cleanFill(parsed["fill"].inner),
+    light:    cleanFill(parsed["light"].inner),
+  };
 }
 
-fs.writeFileSync(path.join(outDir, "index.ts"), exportLines.join("\n") + "\n");
+// ─── Escribir icons-data.ts ───────────────────────────────────────────────────
 
-console.log(chalk.green(`${generated} componentes generados en src/icons/`));
-if (skipped > 0) console.log(chalk.yellow(`${skipped} iconos omitidos por variantes faltantes.`));
+const dataLines = [
+  `// AUTO-GENERATED — do not edit manually. Run: npm run generate-icons`,
+  `export type IconVariant = "duotone" | "fill" | "light";`,
+  ``,
+  `export interface IconData {`,
+  `  viewBox: string;`,
+  `  duotone: { primary: string; secondary: string };`,
+  `  fill: string;`,
+  `  light: string;`,
+  `}`,
+  ``,
+  `export const iconsData: Record<string, IconData> = {`,
+];
+
+for (const [name, data] of Object.entries(iconMap)) {
+  // Escape backticks in SVG path strings
+  const esc = (s) => s.replace(/`/g, "\\`").replace(/\$/g, "\\$");
+  dataLines.push(`  "${name}": {`);
+  dataLines.push(`    viewBox: "${data.viewBox}",`);
+  dataLines.push(`    duotone: {`);
+  dataLines.push(`      primary:   \`${esc(data.duotone.primary)}\`,`);
+  dataLines.push(`      secondary: \`${esc(data.duotone.secondary)}\`,`);
+  dataLines.push(`    },`);
+  dataLines.push(`    fill:  \`${esc(data.fill)}\`,`);
+  dataLines.push(`    light: \`${esc(data.light)}\`,`);
+  dataLines.push(`  },`);
+}
+
+dataLines.push(`};`);
+dataLines.push(``);
+dataLines.push(`export const iconNames = Object.keys(iconsData) as string[];`);
+dataLines.push(``);
+
+fs.writeFileSync(path.join(outDir, "icons-data.ts"), dataLines.join("\n"));
+
+// ─── Escribir Icon.tsx ────────────────────────────────────────────────────────
+
+const iconTsx = `// AUTO-GENERATED — do not edit manually. Run: npm run generate-icons
+import { SVGProps } from "react";
+import { iconsData, IconVariant } from "./icons-data";
+
+export interface IconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
+  /** Icon name in kebab-case, e.g. "address-book" */
+  name: string;
+  variant?: IconVariant;
+  /** Primary color — applies to all variants */
+  primaryColor?: string;
+  /** Secondary color — only applies to variant="duotone" */
+  secondaryColor?: string;
+}
+
+export const Icon = ({
+  name,
+  variant = "duotone",
+  primaryColor = "currentColor",
+  secondaryColor,
+  style,
+  ...props
+}: IconProps) => {
+  const data = iconsData[name];
+
+  if (!data) {
+    console.warn(\`[Icon] Unknown icon: "\${name}"\`);
+    return null;
+  }
+
+  const svgStyle = { width: "1em", height: "1em", ...style };
+
+  if (variant === "fill") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox={data.viewBox} fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: data.fill }} />
+    </svg>
+  );
+
+  if (variant === "light") return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox={data.viewBox} fill={primaryColor} style={svgStyle} {...props}>
+      <g dangerouslySetInnerHTML={{ __html: data.light }} />
+    </svg>
+  );
+
+  // duotone
+  const secColor   = secondaryColor ?? primaryColor;
+  const secOpacity = secondaryColor ? 1 : 0.2;
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox={data.viewBox} fill="none" style={svgStyle} {...props}>
+      <g fill={secColor} opacity={secOpacity} dangerouslySetInnerHTML={{ __html: data.duotone.secondary }} />
+      <g fill={primaryColor} dangerouslySetInnerHTML={{ __html: data.duotone.primary }} />
+    </svg>
+  );
+};
+`;
+
+fs.writeFileSync(path.join(outDir, "Icon.tsx"), iconTsx);
+
+// ─── Escribir index.ts del barrel ────────────────────────────────────────────
+
+const indexTs = `// AUTO-GENERATED — do not edit manually. Run: npm run generate-icons
+export { Icon } from "./Icon";
+export type { IconProps } from "./Icon";
+export { iconsData, iconNames } from "./icons-data";
+export type { IconData, IconVariant } from "./icons-data";
+`;
+
+fs.writeFileSync(path.join(outDir, "index.ts"), indexTs);
+
+// ─── Resumen ─────────────────────────────────────────────────────────────────
+
+const total = Object.keys(iconMap).length;
+console.log(chalk.green(`✅ ${total} iconos generados → src/icons/icons-data.ts + Icon.tsx`));
+if (skipped > 0) console.log(chalk.yellow(`⚠️  ${skipped} iconos omitidos por variantes faltantes.`));
+console.log(chalk.grey(`\nUso: <Icon name="address-book" variant="duotone" />\n`));
