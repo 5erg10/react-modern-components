@@ -189,9 +189,6 @@ const ModalEntry: ComponentEntry = {
   },
 };
 
-/* -------------------------------------------------------
-   Registry — add new components here
-------------------------------------------------------- */
 /* AUTO-GENERATED: Badge — edit render/generateCode as needed */
 const BadgeEntry: ComponentEntry = {
   id: "badge",
@@ -309,12 +306,9 @@ const InputEntry: ComponentEntry = {
 
   ],
   render: ({ values }) => (
-    <Input
-
-    />
+    <Input/>
   ),
   generateCode: (values) => {
-
     return `<Input />`;
   },
 };
@@ -330,12 +324,9 @@ const TableEntry: ComponentEntry = {
 
   ],
   render: ({ values }) => (
-    <Table
-
-    />
+    <Table/>
   ),
   generateCode: (values) => {
-
     return `<Table />`;
   },
 };
@@ -351,12 +342,9 @@ const DropdownEntry: ComponentEntry = {
 
   ],
   render: ({ values }) => (
-    <Dropdown
-
-    />
+    <Dropdown/>
   ),
   generateCode: (values) => {
-
     return `<Dropdown />`;
   },
 };
