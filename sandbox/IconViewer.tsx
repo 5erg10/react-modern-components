@@ -1,10 +1,42 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo, useRef } from "react";
 import { Icon, iconNames } from "../src/icons";
 import type { IconVariant } from "../src/icons";
 
+// ── ColorControl ──────────────────────────────────────────────────────────────
+// Input type="color" en modo NO controlado (defaultValue + ref).
+// El estado solo se actualiza al soltar el picker (onChange del input nativo
+// dispara al cerrar en la mayoría de browsers, o como máximo al blur).
+// Así el preview no re-renderiza mientras arrastras el selector.
+interface ColorControlProps {
+  label: string;
+  badge?: string;
+  initialColor: string;
+  onCommit: (c: string) => void;
+}
+
+const ColorControl = ({ label, badge, initialColor, onCommit }: ColorControlProps) => {
+  const ref = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="sb-control">
+      <div className="sb-control-header">
+        <span className="sb-control-name">{label}</span>
+        {badge && <span className="sb-control-type">{badge}</span>}
+      </div>
+      <input
+        ref={ref}
+        type="color"
+        className="sb-color-picker sb-color-picker--large"
+        defaultValue={initialColor}
+        onChange={(e) => onCommit(e.target.value)}
+      />
+    </div>
+  );
+};
+
 // ── IconInspector ─────────────────────────────────────────────────────────────
-// Componente completamente aislado: tiene su propio estado de colores.
-// Cambiar el color aquí nunca provoca re-render del grid.
+// Estado de colores completamente aislado del grid.
+// Re-monta entero al cambiar de icono (key={selected}) para resetear colores.
 interface IconInspectorProps {
   selected: string;
   variant: IconVariant;
@@ -47,7 +79,6 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
       </div>
 
       <div className="sb-controls-body">
-        {/* Size */}
         <div className="sb-control">
           <div className="sb-control-header">
             <span className="sb-control-name">size</span>
@@ -63,33 +94,19 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
           />
         </div>
 
-        {/* Primary color */}
-        <div className="sb-control">
-          <div className="sb-control-header">
-            <span className="sb-control-name">primaryColor</span>
-          </div>
-          <input
-            type="color"
-            className="sb-color-picker sb-color-picker--large"
-            value={primaryColor}
-            onChange={(e) => setPrimary(e.target.value)}
-          />
-        </div>
+        <ColorControl
+          label="primaryColor"
+          initialColor="#6c63ff"
+          onCommit={setPrimary}
+        />
 
-        {/* Secondary color — solo duotone */}
         {variant === "duotone" && (
-          <div className="sb-control">
-            <div className="sb-control-header">
-              <span className="sb-control-name">secondaryColor</span>
-              <span className="sb-control-type">duotone only</span>
-            </div>
-            <input
-              type="color"
-              className="sb-color-picker sb-color-picker--large"
-              value={secondaryColor}
-              onChange={(e) => setSecond(e.target.value)}
-            />
-          </div>
+          <ColorControl
+            label="secondaryColor"
+            badge="duotone only"
+            initialColor="#c4c1ff"
+            onCommit={setSecond}
+          />
         )}
       </div>
 
@@ -107,8 +124,6 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
 };
 
 // ── IconGrid ──────────────────────────────────────────────────────────────────
-// Memoizado: solo re-renderiza si cambian filtered, selected o variant.
-// El estado de colores del inspector nunca llega aquí.
 interface IconGridProps {
   filtered: string[];
   selected: string | null;
@@ -144,8 +159,8 @@ const IconGrid = memo(({ filtered, selected, variant, search, onSelect }: IconGr
 
 // ── IconViewer ────────────────────────────────────────────────────────────────
 export const IconViewer = () => {
-  const [search, setSearch]   = useState("");
-  const [variant, setVariant] = useState<IconVariant>("duotone");
+  const [search, setSearch]     = useState("");
+  const [variant, setVariant]   = useState<IconVariant>("duotone");
   const [selected, setSelected] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
