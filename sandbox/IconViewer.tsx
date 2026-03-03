@@ -1,15 +1,18 @@
-import { useState, useMemo, useCallback, memo } from "react";
+import { useState, useMemo, useCallback, memo, useRef } from "react";
 import { Icon, iconNames } from "../src/icons";
 import type { IconVariant } from "../src/icons";
 
-// ── IconInspector ─────────────────────────────────────────────────────────────
-// Componente completamente aislado: tiene su propio estado de colores.
-// Cambiar el color aquí nunca provoca re-render del grid.
+// ── ColorControl ──────────────────────────────────────────────────────────────
+interface ColorControlProps {
+  label: string;
+  badge?: string;
+  initialColor: string;
+  onCommit: (c: string) => void;
+}
 interface IconInspectorProps {
   selected: string;
   variant: IconVariant;
 }
-
 interface IconGridProps {
   filtered: string[];
   selected: string | null;
@@ -18,10 +21,39 @@ interface IconGridProps {
   ambient: 'dark' | 'light'
   onSelect: (name: string) => void;
 }
-
+interface IconGridProps {
+  filtered: string[];
+  selected: string | null;
+  variant: IconVariant;
+  search: string;
+  onSelect: (name: string) => void;
+}
 interface IconViewerProps {
   ambient: 'dark' | 'light'
 }
+
+const ColorControl = ({ label, badge, initialColor, onCommit }: ColorControlProps) => {
+  const ref = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="sb-control">
+      <div className="sb-control-header">
+        <span className="sb-control-name">{label}</span>
+        {badge && <span className="sb-control-type">{badge}</span>}
+      </div>
+      <label>
+        <input
+          ref={ref}
+          type="color"
+          aria-label="colorSelector"
+          className="sb-color-picker sb-color-picker--large"
+          defaultValue={initialColor}
+          onChange={(e) => onCommit(e.target.value)}
+        />
+      </label>
+    </div>
+  );
+};
 
 const IconInspector = ({ selected, variant }: IconInspectorProps) => {
   const [primaryColor, setPrimary]  = useState("#6c63ff");
@@ -66,7 +98,6 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
       </div>
 
       <div className="sb-controls-body">
-        {/* Size */}
         <div className="sb-control">
           <label htmlFor="sizeRange" className="sb-control-header">
             <span className="sb-control-name">size</span>
@@ -83,35 +114,19 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
           />
         </div>
 
-        {/* Primary color */}
-        <div className="sb-control">
-          <label htmlFor="primaryColorSelector" className="sb-control-header">
-            <span className="sb-control-name">primaryColor</span>
-          </label>
-          <input
-            id="primaryColorSelector"
-            type="color"
-            className="sb-color-picker sb-color-picker--large"
-            value={primaryColor}
-            onChange={(e) => setPrimary(e.target.value)}
-          />
-        </div>
+        <ColorControl
+          label="primaryColor"
+          initialColor="#6c63ff"
+          onCommit={setPrimary}
+        />
 
-        {/* Secondary color — solo duotone */}
         {variant === "duotone" && (
-          <div className="sb-control">
-            <label htmlFor="secundaryColorSelector" className="sb-control-header">
-              <span className="sb-control-name">secondaryColor</span>
-              <span className="sb-control-type">duotone only</span>
-            </label>
-            <input
-              id="secundaryColorSelector"
-              type="color"
-              className="sb-color-picker sb-color-picker--large"
-              value={secondaryColor}
-              onChange={(e) => setSecond(e.target.value)}
-            />
-          </div>
+          <ColorControl
+            label="secondaryColor"
+            badge="duotone only"
+            initialColor="#c4c1ff"
+            onCommit={setSecond}
+          />
         )}
       </div>
 
@@ -127,6 +142,8 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
     </>
   );
 };
+
+// ── IconGrid ──────────────────────────────────────────────────────────────────
 
 const IconGrid = memo(({ filtered, selected, variant, search, ambient, onSelect }: IconGridProps) => {
   if (filtered.length === 0) return (
@@ -215,8 +232,8 @@ export const IconViewer = ({ambient}: IconViewerProps) => {
         {selected ? (
           <IconInspector key={selected} selected={selected} variant={variant}/>
         ) : (
-          <div className="sb-empty" style={{ flex: 1 }}>
-            <div className="sb-empty-icon" style={{ fontSize: 32 }}>👆</div>
+          <div className="sb-empty">
+            <div className="sb-empty-icon">👆</div>
             <div className="sb-empty-text">Select an icon to inspect it</div>
           </div>
         )}
