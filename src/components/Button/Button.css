@@ -119,19 +119,19 @@
   cursor: not-allowed;
 }
 
-[data-size = "sm"] {
+[data-button-size = "sm"] {
   max-width: 50px;
 }
 
-[data-size = "md"] {
+[data-button-size = "md"] {
   max-width: 150px;
 }
 
-[data-size = "l"] {
+[data-button-size = "l"] {
   max-width: 200px;
 }
 
-[data-size = "xl"] {
+[data-button-size = "xl"] {
   max-width: 250px;
 }
 

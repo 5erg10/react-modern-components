@@ -1,5 +1,6 @@
 import { BadgeProps } from "./Badge.types";
 import "./Badge.css";
+import { Icon } from "../../icons";
 
 export const Badge = ({
   variant = "default",
@@ -10,14 +11,14 @@ export const Badge = ({
   onDismiss,
 }: BadgeProps) => {
   return (
-    <span
+    <div
       className="badge"
       data-variant={variant}
-      data-size={size}
+      data-badge-size={size}
       role="status"
     >
-      {icon && <span className="badge__icon">{icon}</span>}
-      <span className="badge__label">{label}</span>
+      {icon && <Icon name={icon} style={{ fontSize: 8 }} variant="fill"></Icon>}
+      <div className="badge__label">{label}</div>
       {dismissible && (
         <button
           className="badge__dismiss"
@@ -25,9 +26,9 @@ export const Badge = ({
           aria-label={`Dismiss ${label}`}
           type="button"
         >
-          ×
+          <Icon name="x-circle" style={{fontSize: 12}} variant="light"></Icon>
         </button>
       )}
-    </span>
+    </div>
   );
 };
