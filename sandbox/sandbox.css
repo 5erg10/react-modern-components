@@ -166,10 +166,8 @@ body {
 
 .sb-canvas-topbar-sep { opacity: 0.4; }
 
-/* Icon topbar — buscador + variant selector integrados */
-.sb-icon-topbar {
-  gap: 10px;
-}
+/* Icon topbar */
+.sb-icon-topbar { gap: 10px; }
 
 .sb-topbar-select {
   background: var(--sb-bg-card);
@@ -209,7 +207,7 @@ body {
   color: var(--sb-text-muted);
 }
 
-/* Canvas area for components */
+/* Canvas area */
 .sb-canvas-area {
   flex: 1;
   display: flex;
@@ -551,7 +549,7 @@ body {
 }
 
 /* ============================================================
-   Icon Inspector — sidebar right panel
+   Icon Inspector — panel derecho
    ============================================================ */
 
 .sb-icon-preview {
@@ -573,13 +571,7 @@ body {
   font-family: "SF Mono", "Fira Code", monospace;
 }
 
-/* Color picker row */
-.sb-color-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
+/* Color picker — versión compacta */
 .sb-color-picker {
   width: 32px;
   height: 32px;
@@ -588,13 +580,15 @@ body {
   background: none;
   padding: 2px;
   cursor: pointer;
-  flex-shrink: 0;
 }
 
 .sb-color-picker::-webkit-color-swatch-wrapper { padding: 0; }
 .sb-color-picker::-webkit-color-swatch { border: none; border-radius: 4px; }
 
-.sb-color-hex {
-  flex: 1;
-  font-family: "SF Mono", "Fira Code", monospace;
+/* Color picker — versión ancha para el inspector */
+.sb-color-picker--large {
+  width: 100%;
+  height: 36px;
+  border-radius: 6px;
+  padding: 3px;
 }
