@@ -48,6 +48,12 @@
       "style": "./dist/components/Modal/Modal.css",
       "import": "./dist/components/Modal/index.es.js",
       "require": "./dist/components/Modal/index.cjs.js"
+    },
+    "./table": {
+      "types": "./dist/components/Table/index.d.ts",
+      "style": "./dist/components/Table/Table.css",
+      "import": "./dist/components/Table/index.es.js",
+      "require": "./dist/components/Table/index.cjs.js"
     }
   },
   "scripts": {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge } from "../src/components/Badge";
 import { DigitalClock } from "../src/components/DigitalClock";
 import { Input } from "../src/components/Input";
+import { Table } from "../src/components/Table";
 
 /* -------------------------------------------------------
    Types
@@ -46,9 +47,22 @@ const ButtonEntry: ComponentEntry = {
     {
       name: "variant",
       type: "select",
-      options: ["primary", "secondary"],
+      options: ["primary", "secondary", "cancel", "succes", "warning"],
       description: "Visual style of the button.",
       defaultValue: "primary",
+    },
+    {
+      name: "size",
+      type: "select",
+      options: ["sm", "md", "l", "xl", "no-limit"],
+      description: "Button Width limit.",
+      defaultValue: "primary",
+    },
+    {
+      name: "ellipsis",
+      type: "boolean",
+      description: "Trunk button text content with ellipsis",
+      defaultValue: false,
     },
     {
       name: "children",
@@ -65,7 +79,9 @@ const ButtonEntry: ComponentEntry = {
   ],
   render: ({ values }) => (
     <Button
-      variant={values["variant"] as "primary" | "secondary"}
+      variant={values["variant"] as "primary" | "secondary" | "succes" | "cancel" | "warning"}
+      size={values["size"] as "sm" | "md" | "l" | "xl" | "no-limit"}
+      ellipsis={values["ellipsis"] as boolean}
       disabled={values["disabled"] as boolean}
     >
       {String(values["children"])}
@@ -276,10 +292,32 @@ const InputEntry: ComponentEntry = {
   },
 };
 
+/* AUTO-GENERATED: Table — edit render/generateCode as needed */
+const TableEntry: ComponentEntry = {
+  id: "table",
+  name: "Table",
+  icon: "📋",
+  category: "tabla",
+  description: "Table component.",
+  props: [
+
+  ],
+  render: ({ values }) => (
+    <Table
+
+    />
+  ),
+  generateCode: (values) => {
+
+    return `<Table />`;
+  },
+};
+
 export const componentRegistry: ComponentEntry[] = [
   ButtonEntry,
   ModalEntry,
   BadgeEntry,
   DigitalClockEntry,
-  InputEntry
+  InputEntry,
+  TableEntry
 ];
