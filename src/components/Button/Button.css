@@ -1,48 +1,72 @@
 /* ============================================================
    Button
    ============================================================ */
-[data-variant="primary"] {
+:root {
+  --button-bg-color: #4767ac;
+  --button-color: #ffffff;
+  --button-icon-bg-color: #283a61;
+}
+
+.modern-button {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
+  justify-content: space-between;
   border: none;
-  background-color: #4767ac;
-  color: #ffffff;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   overflow: hidden;
   transition: background-color 0.2s ease;
+  background-color: var(--button-bg-color);
+  color: var(--button-color);
+  height: 40px;
+}
+
+.modern-button-icon {
+  border: none !important;
+  padding: 0.6rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--button-icon-bg-color);
+  height: 100%;
+}
+
+.modern-button-text {
+  padding: 0rem 1rem;
+  width: 100%;
+}
+
+.modern-button-decorator {
+  width: 5px;
+  background-color: var(--button-icon-bg-color);
+  height: 100%;
+}
+
+[data-variant="primary"] {
+  --button-bg-color: #4767ac;
+  --button-color: #ffffff:
 }
 
 [data-variant="primary"]:hover {
-  background-color: #395daa;
+  --button-bg-color: #395daa;
 }
 
 [data-variant="primary"]:disabled {
-  background-color: #93c5fd;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 [data-variant="secondary"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: #374151;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  overflow: hidden;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border: 1px solid var(--button-icon-bg-color);
+  --button-bg-color: #ffffff;
+  --button-icon-bg-color: #d1d5db;
+  --button-color: #374151;
 }
 
 [data-variant="secondary"]:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  --button-bg-color: #f9fafb;
 }
 
 [data-variant="secondary"]:disabled {
@@ -51,22 +75,13 @@
 }
 
 [data-variant="cancel"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
-  border: none;
-  background-color: #b15a5a;
-  color: #e4e4e4;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  overflow: hidden;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  --button-bg-color: #b15a5a;
+  --button-icon-bg-color: #703939;
+  --button-color: #e4e4e4;
 }
 
 [data-variant="cancel"]:hover {
-  background-color: #b34343;
+  --button-bg-color: #b34343;
 }
 
 [data-variant="cancel"]:disabled {
@@ -75,22 +90,13 @@
 }
 
 [data-variant="succes"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
-  border: none;
-  background-color: #56a34f;
-  color: #dbdbdb;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  overflow: hidden;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  --button-bg-color: #56a34f;
+  --button-color: #dbdbdb;
+  --button-icon-bg-color: #396d34;
 }
 
 [data-variant="succes"]:hover {
-  background-color: #4ba742;
+  --button-bg-color: #4ba742;
 }
 
 [data-variant="succes"]:disabled {
@@ -99,21 +105,13 @@
 }
 
 [data-variant="warning"] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
-  border: none;
-  background-color: #ccb94e;
-  color: #3b3b3b;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  --button-bg-color: #ccb94e;
+  --button-color: #3b3b3b;
+  --button-icon-bg-color: #a79641;
 }
 
 [data-variant="warning"]:hover {
-  background-color: #ccb63a;
+  --button-bg-color: #ccb63a;
 }
 
 [data-variant="warning"]:disabled {
@@ -141,4 +139,14 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+[data-icon-position = "right"] {
+  flex-direction: row-reverse;
+  border-left: solid 0.5rem var(--button-icon-bg-color);
+}
+
+[data-icon-position = "left"] {
+  flex-direction: row;
+  border-right: solid 0.5rem var(--button-icon-bg-color);
 }

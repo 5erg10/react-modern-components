@@ -57,7 +57,20 @@ const ButtonEntry: ComponentEntry = {
       type: "select",
       options: ["sm", "md", "l", "xl", "no-limit"],
       description: "Button Width limit.",
-      defaultValue: "primary",
+      defaultValue: "md",
+    },
+    {
+      name: "icon",
+      type: "string",
+      description: "Set an Icon Name to print icon.",
+      defaultValue: undefined,
+    },
+    {
+      name: "icon position",
+      type: "select",
+      options: ["right", "left"],
+      description: "Select right or left icon position",
+      defaultValue: "left",
     },
     {
       name: "ellipsis",
@@ -80,25 +93,32 @@ const ButtonEntry: ComponentEntry = {
   ],
   render: ({ values }) => (
     <Button
-      variant={values["variant"] as "primary" | "secondary" | "succes" | "cancel" | "warning"}
-      size={values["size"] as "sm" | "md" | "l" | "xl" | "no-limit"}
-      ellipsis={values["ellipsis"] as boolean}
-      disabled={values["disabled"] as boolean}
+      variant = {values["variant"] as "primary" | "secondary" | "succes" | "cancel" | "warning"}
+      size = {values["size"] as "sm" | "md" | "l" | "xl" | "no-limit"}
+      icon = {values["icon"] as "string"}
+      iconPosition = {values["icon position"] as "right" | "left"}
+      ellipsis = {values["ellipsis"] as boolean}
+      disabled = {values["disabled"] as boolean}
     >
       {String(values["children"])}
     </Button>
   ),
   generateCode: (values) => {
-    const variant = values["variant"];
-    const disabled = values["disabled"];
-    const size = values["size"];
-    const ellipsis = values["ellipsis"];
-    const children = values["children"];
-    const variantProp = variant !== "primary" ? ` variant="${variant}"` : "";
-    const disabledProp = disabled ? " disabled" : "";
-    const sizeProp = `size=${size || "md"}`;
-    const ellipsisProp = ellipsis ? "ellipsis=true" : "";
-    return `<Button${variantProp}${disabledProp}${sizeProp}${ellipsisProp}>${children}</Button>`;
+    const props = [
+      values["variant"] !== "primary" ? `variant="${values["variant"]}"` : "",
+      values["disabled"] ? "disabled" : "",
+      `size=${values["size"] ? '"'+ values["size"] + '"' : "md"}`,
+      values["ellipsis"] ? "ellipsis=" + '"'+ "true" + '"' : "",
+      values["icon"] ? "icon=" + '"' + values["icon"] + '"' : "",
+      values["icon position"] ? "iconPosition=" + '"' + values["icon position"] + '"' : "",
+    ]
+    .filter(prop => prop != null && prop !== "")
+    .join("\n  ");
+
+    return `<Button
+      ${props}>
+      ${values["children"]}
+    </Button>`;
   },
 };
 
