@@ -37,6 +37,12 @@
       "import": "./dist/components/DigitalClock/index.es.js",
       "require": "./dist/components/DigitalClock/index.cjs.js"
     },
+    "./dropdown": {
+      "types": "./dist/components/Dropdown/index.d.ts",
+      "style": "./dist/components/Dropdown/Dropdown.css",
+      "import": "./dist/components/Dropdown/index.es.js",
+      "require": "./dist/components/Dropdown/index.cjs.js"
+    },
     "./input": {
       "types": "./dist/components/Input/index.d.ts",
       "style": "./dist/components/Input/Input.css",

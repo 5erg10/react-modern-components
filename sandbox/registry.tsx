@@ -5,6 +5,7 @@ import { Badge } from "../src/components/Badge";
 import { DigitalClock } from "../src/components/DigitalClock";
 import { Input } from "../src/components/Input";
 import { Table } from "../src/components/Table";
+import { Dropdown } from "../src/components/Dropdown";
 
 /* -------------------------------------------------------
    Types
@@ -319,11 +320,33 @@ const TableEntry: ComponentEntry = {
   },
 };
 
+/* AUTO-GENERATED: Dropdown — edit render/generateCode as needed */
+const DropdownEntry: ComponentEntry = {
+  id: "dropdown",
+  name: "Dropdown",
+  icon: "📱",
+  category: "input",
+  description: "Dropdown component.",
+  props: [
+
+  ],
+  render: ({ values }) => (
+    <Dropdown
+
+    />
+  ),
+  generateCode: (values) => {
+
+    return `<Dropdown />`;
+  },
+};
+
 export const componentRegistry: ComponentEntry[] = [
   ButtonEntry,
   ModalEntry,
   BadgeEntry,
   DigitalClockEntry,
   InputEntry,
-  TableEntry
+  TableEntry,
+  DropdownEntry
 ];

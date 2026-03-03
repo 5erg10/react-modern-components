@@ -312,3 +312,13 @@ registrySrc =
 // ─── 10. Escribir ─────────────────────────────────────────────────────────────
 fs.writeFileSync(registryPath, registrySrc);
 console.log("✅ registry.tsx actualizado con:", newComponents.join(", "));
+
+// ─── 11. Actualizar src/index.ts ─────────────────────────────────────────────
+const indexPath = path.resolve("./src/index.ts");
+
+const indexContent = components
+  .map((name) => `export { ${name} } from "./components/${name}";`)
+  .join("\n") + "\n";
+
+fs.writeFileSync(indexPath, indexContent);
+console.log("✅ src/index.ts actualizado con:", components.join(", "));
