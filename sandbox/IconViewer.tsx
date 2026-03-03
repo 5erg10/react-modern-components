@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 
 type Variant = "duotone" | "fill" | "light";
 
@@ -17,6 +17,62 @@ interface Props {
   icons: IconEntry[];
 }
 
+// ── ColorControl ─────────────────────────────────────────────────────────────
+// El color picker actualiza el color en tiempo real (onChange).
+// El input de texto hex solo aplica al perder el foco o al pulsar Enter,
+// eliminando el lag de re-render del grid en cada pulsación de tecla.
+interface ColorControlProps {
+  label: string;
+  badge?: string;
+  color: string;
+  onChange: (c: string) => void;
+}
+
+const ColorControl = ({ label, badge, color, onChange }: ColorControlProps) => {
+  const hexRef = useRef<HTMLInputElement>(null);
+
+  const commitHex = useCallback(() => {
+    const val = hexRef.current?.value ?? "";
+    if (/^#[0-9a-fA-F]{6}$/.test(val)) onChange(val);
+    else if (hexRef.current) hexRef.current.value = color; // revert invalid
+  }, [color, onChange]);
+
+  // Keep hex input in sync when color changes from the color picker
+  const prevColor = useRef(color);
+  if (prevColor.current !== color) {
+    prevColor.current = color;
+    if (hexRef.current && document.activeElement !== hexRef.current) {
+      hexRef.current.value = color;
+    }
+  }
+
+  return (
+    <div className="sb-control">
+      <div className="sb-control-header">
+        <span className="sb-control-name">{label}</span>
+        {badge && <span className="sb-control-type">{badge}</span>}
+      </div>
+      <div className="sb-color-row">
+        <input
+          type="color"
+          className="sb-color-picker"
+          value={color}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <input
+          ref={hexRef}
+          className="sb-input sb-color-hex"
+          type="text"
+          defaultValue={color}
+          onBlur={commitHex}
+          onKeyDown={(e) => { if (e.key === "Enter") commitHex(); }}
+        />
+      </div>
+    </div>
+  );
+};
+
+// ── IconViewer ────────────────────────────────────────────────────────────────
 export const IconViewer = ({ icons }: Props) => {
   const [search, setSearch]         = useState("");
   const [variant, setVariant]       = useState<Variant>("duotone");
@@ -32,33 +88,37 @@ export const IconViewer = ({ icons }: Props) => {
     return icons.filter((i) => i.baseName.includes(q) || i.name.toLowerCase().includes(q));
   }, [icons, search]);
 
-  const handleSelect = (icon: IconEntry) => {
+  const handleSelect = useCallback((icon: IconEntry) => {
     setSelected(icon);
     setCopied(false);
-  };
+  }, []);
 
-  const generatedCode = selected
-    ? variant === "duotone"
-      ? [
-          `import { ${selected.name} } from 'react-modern-components/icons/${selected.name.toLowerCase()}';`,
-          ``,
-          `<${selected.name}`,
-          `  variant="duotone"`,
-          `  primaryColor="${primaryColor}"`,
-          `  secondaryColor="${secondaryColor}"`,
-          `  style={{ fontSize: ${size} }}`,
-          `/>`,
-        ].join("\n")
-      : [
-          `import { ${selected.name} } from 'react-modern-components/icons/${selected.name.toLowerCase()}';`,
-          ``,
-          `<${selected.name}`,
-          `  variant="${variant}"`,
-          `  primaryColor="${primaryColor}"`,
-          `  style={{ fontSize: ${size} }}`,
-          `/>`,
-        ].join("\n")
-    : "";
+  const generatedCode = useMemo(() => {
+    if (!selected) return "";
+    const lines = [
+      `import { ${selected.name} } from 'react-modern-components/icons/${selected.name.toLowerCase()}';`,
+      ``,
+    ];
+    if (variant === "duotone") {
+      lines.push(
+        `<${selected.name}`,
+        `  variant="duotone"`,
+        `  primaryColor="${primaryColor}"`,
+        `  secondaryColor="${secondaryColor}"`,
+        `  style={{ fontSize: ${size} }}`,
+        `/>`,
+      );
+    } else {
+      lines.push(
+        `<${selected.name}`,
+        `  variant="${variant}"`,
+        `  primaryColor="${primaryColor}"`,
+        `  style={{ fontSize: ${size} }}`,
+        `/>`,
+      );
+    }
+    return lines.join("\n");
+  }, [selected, variant, primaryColor, secondaryColor, size]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedCode).then(() => {
@@ -73,7 +133,7 @@ export const IconViewer = ({ icons }: Props) => {
     <>
       {/* Canvas */}
       <main className="sb-canvas">
-        {/* Topbar con búsqueda y selector de variante */}
+        {/* Topbar */}
         <div className="sb-canvas-topbar sb-icon-topbar">
           <span>Icons</span>
           <span className="sb-canvas-topbar-sep">/</span>
@@ -97,7 +157,7 @@ export const IconViewer = ({ icons }: Props) => {
           <span className="sb-icon-count">{filtered.length} icons</span>
         </div>
 
-        {/* Grid de iconos */}
+        {/* Grid */}
         <div className="sb-icon-viewer">
           {filtered.length === 0 ? (
             <div className="sb-empty">
@@ -135,9 +195,9 @@ export const IconViewer = ({ icons }: Props) => {
       <aside className="sb-controls">
         <div className="sb-controls-header">Icon Inspector</div>
 
-        {/* Preview del icono seleccionado */}
         {selected && SelectedIcon ? (
           <>
+            {/* Preview */}
             <div className="sb-icon-preview">
               <SelectedIcon
                 variant={variant}
@@ -165,50 +225,19 @@ export const IconViewer = ({ icons }: Props) => {
                 />
               </div>
 
-              {/* Primary color */}
-              <div className="sb-control">
-                <div className="sb-control-header">
-                  <span className="sb-control-name">primaryColor</span>
-                  <span className="sb-control-type">color</span>
-                </div>
-                <div className="sb-color-row">
-                  <input
-                    type="color"
-                    className="sb-color-picker"
-                    value={primaryColor}
-                    onChange={(e) => setPrimary(e.target.value)}
-                  />
-                  <input
-                    className="sb-input sb-color-hex"
-                    type="text"
-                    value={primaryColor}
-                    onChange={(e) => setPrimary(e.target.value)}
-                  />
-                </div>
-              </div>
+              <ColorControl
+                label="primaryColor"
+                color={primaryColor}
+                onChange={setPrimary}
+              />
 
-              {/* Secondary color — solo duotone */}
               {variant === "duotone" && (
-                <div className="sb-control">
-                  <div className="sb-control-header">
-                    <span className="sb-control-name">secondaryColor</span>
-                    <span className="sb-control-type">color · duotone only</span>
-                  </div>
-                  <div className="sb-color-row">
-                    <input
-                      type="color"
-                      className="sb-color-picker"
-                      value={secondaryColor}
-                      onChange={(e) => setSecond(e.target.value)}
-                    />
-                    <input
-                      className="sb-input sb-color-hex"
-                      type="text"
-                      value={secondaryColor}
-                      onChange={(e) => setSecond(e.target.value)}
-                    />
-                  </div>
-                </div>
+                <ColorControl
+                  label="secondaryColor"
+                  badge="duotone only"
+                  color={secondaryColor}
+                  onChange={setSecond}
+                />
               )}
             </div>
 
