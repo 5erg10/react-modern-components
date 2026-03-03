@@ -70,7 +70,8 @@
     "prepublishOnly": "npm run build",
     "generate-exports": "node scripts/generate-exports.js",
     "create-component": "node scripts/generate-component.js && node scripts/generate-exports.js",
-    "delete-component": "node scripts/delete-component.js"
+    "delete-component": "node scripts/delete-component.js",
+    "sync-components": "node scripts/sync-components.js"
   },
   "keywords": [
     "react",
