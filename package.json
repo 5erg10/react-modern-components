@@ -69,7 +69,8 @@
     "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build",
     "generate-exports": "node scripts/generate-exports.js",
-    "create-component": "node scripts/generate-component.js && node scripts/generate-exports.js"
+    "create-component": "node scripts/generate-component.js && node scripts/generate-exports.js",
+    "delete-component": "node scripts/delete-component.js"
   },
   "keywords": [
     "react",
