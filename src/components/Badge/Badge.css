@@ -30,31 +30,35 @@
 .badge[data-badge-size="lg"] { font-size: 0.875rem; }
 
 /* --- Variants --- */
-.badge[data-variant="default"] { 
+.badge[data-badge-variant="default"] { 
   --badge-bg-color: #f3f4f6;
   --badge-text-color: #374151;
   --badge-bordcer-color: #374151;
 }
 
-.badge[data-variant="success"] {
+.badge[data-badge-variant="success"] {
   --badge-bg-color: #dcfce7;
   --badge-text-color: #15803d;
   --badge-bordcer-color: #15803d;
 }
-.badge[data-variant="warning"] {
+.badge[data-badge-variant="warning"] {
   --badge-bg-color: #fef9c3;
   --badge-text-color: #a16207;
   --badge-bordcer-color: #a16207;
 }
-.badge[data-variant="error"] {
+.badge[data-badge-variant="error"] {
   --badge-bg-color: #fee2e2;
   --badge-text-color: #b91c1c;
   --badge-bordcer-color: #b91c1c;
 }
-.badge[data-variant="info"] {
+.badge[data-badge-variant="info"] {
   --badge-bg-color: #d8e2ff;
   --badge-text-color: #3c5cb4;
   --badge-bordcer-color: #3c5cb4;
+}
+
+.badge[data-badge-outline] {
+  --badge-bg-color: transparent !important;
 }
 
 /* --- Parts --- */

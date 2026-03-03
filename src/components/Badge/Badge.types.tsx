@@ -12,6 +12,8 @@ export interface BadgeProps {
   icon?: string;
   /** When true, shows a dismiss (×) button and calls onDismiss when clicked */
   dismissible?: boolean;
+  /** When true, badge have transparent background */
+  outline?: boolean;
   /** Called when the dismiss button is clicked */
   onDismiss?: () => void;
 }

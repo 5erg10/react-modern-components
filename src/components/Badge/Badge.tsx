@@ -7,14 +7,16 @@ export const Badge = ({
   size = "md",
   label,
   icon,
+  outline,
   dismissible = false,
   onDismiss,
 }: BadgeProps) => {
   return (
     <div
       className="badge"
-      data-variant={variant}
+      data-badge-variant={variant}
       data-badge-size={size}
+      data-badge-outline={outline}
       role="status"
     >
       {icon && <Icon name={icon} style={{ fontSize: 8 }} variant="fill"></Icon>}

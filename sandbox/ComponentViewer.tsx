@@ -14,6 +14,7 @@ export const ComponentViewer = ({ component }: Props) => {
   const [copied, setCopied] = useState(false);
 
   const set = useCallback((name: string, value: unknown) => {
+    console.log('llama a set: ', value)
     setValues((prev) => ({ ...prev, [name]: value }));
   }, []);
 
@@ -164,6 +165,20 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
           aria-label="text-input"
           className="sb-textarea"
           value={String(value ?? "")}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </label>
+    );
+  }
+
+  if (prop.type === "array") {
+    return (
+      <label htmlFor="textInput">
+        <textarea
+          id="textInput"
+          aria-label="text-input"
+          className="sb-textarea"
+          value={value as string[]}
           onChange={(e) => onChange(e.target.value)}
         />
       </label>

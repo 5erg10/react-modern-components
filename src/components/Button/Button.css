@@ -39,7 +39,6 @@
 }
 
 .modern-button-decorator {
-  width: 5px;
   background-color: var(--button-icon-bg-color);
   height: 100%;
 }

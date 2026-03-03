@@ -12,13 +12,14 @@ import { Dropdown } from "../src/components/Dropdown";
 ------------------------------------------------------- */
 export interface PropDef {
   name: string;
-  type: "string" | "boolean" | "number" | "select" | "range";
+  type: "string" | "boolean" | "number" | "select" | "range" | "array";
   description: string;
   defaultValue: unknown;
   required?: boolean;
   options?: string[];  // for type === "select"
   range?: number[];  // for type === "range"
   multiline?: boolean;  // for long strings
+  step?: string | number
 }
 
 export interface ComponentEntry {
@@ -225,6 +226,12 @@ const BadgeEntry: ComponentEntry = {
       defaultValue: "icon",
     },
     {
+      name: "outline",
+      type: "boolean",
+      description: "Set true to transparent background badge.",
+      defaultValue: false,
+    },
+    {
       name: "dismissible",
       type: "boolean",
       description: "",
@@ -237,16 +244,23 @@ const BadgeEntry: ComponentEntry = {
       size={values["size"] as any}
       label={String(values["label"])}
       icon={String(values["icon"])}
+      outline={values["outline"] as boolean}
       dismissible={values["dismissible"] as boolean}
-    />
+      />
   ),
   generateCode: (values) => {
-    const variantProp = ` variant="${values["variant"]}"`;
-    const sizeProp = ` size="${values["size"]}"`;
-    const labelProp = values["label"] ? ` label="${String(values["label"])}"` : "";
-    const iconProp = values["icon"] ? ` icon="${String(values["icon"])}"` : "";
-    const dismissibleProp = values["dismissible"] ? " dismissible" : "";
-    return `<Badge${variantProp}${sizeProp}${labelProp}${iconProp}${dismissibleProp} />`;
+    const props = [
+      `variant="${values["variant"]}`,
+      `size="${values["size"]}"`,
+      values["label"] ? `label="${String(values["label"])}"` : "",
+      values["icon"] ? `icon="${String(values["icon"])}"` : "",
+      values["outline"] ? "outline" : "",
+      values["dismissible"] ? "dismissible" : "",
+    ]
+    .filter(prop => prop != null && prop !== "")
+    .join("\n  ");
+    return `<Badge
+      ${props}/>`;
   },
 };
 
@@ -263,21 +277,21 @@ const DigitalClockEntry: ComponentEntry = {
       type: "select",
       options: ["large", "medium", "small"],
       description: "clock size",
-      defaultValue: "medium",
+      defaultValue: "small",
     },
     {
       name: "Ambient",
       type: "select",
       options: ["light", "dark"],
       description: "clock ambient theme",
-      defaultValue: "light",
+      defaultValue: "dark",
     },
     {
       name: "Mask opacity",
       type: "range",
       range: [0,1],
       description: "Opacity of clock mask",
-      defaultValue: 0.5,
+      defaultValue: 0.8,
     }
   ],
   render: ({ values }) => (
@@ -288,10 +302,16 @@ const DigitalClockEntry: ComponentEntry = {
     />
   ),
   generateCode: (values) => {
-    const sizeProp = ` size="${values["Size"]}"`;
-    const ambientProp = ` ambient="${values["Ambient"]}"`;
-    const maskProp = values["Mask opacity"] ? ` maskOpacity="${values["Mask opacity"]}"` : "0.5";
-    return `<Button${sizeProp}${ambientProp}>${maskProp}</Button>`;
+    const props = [
+      `size="${values["Size"]}"`,
+      `ambient="${values["Ambient"]}"`,
+      values["Mask opacity"] ? ` maskOpacity="${values["Mask opacity"]}"` : "0.8"
+    ]
+    .filter(prop => prop != null && prop !== "")
+    .join("\n  ");
+    return `<Button
+      ${props}>
+    </Button>`;
   },
 };
 
@@ -303,13 +323,34 @@ const InputEntry: ComponentEntry = {
   category: "input",
   description: "Input component.",
   props: [
-
+    {
+      name: "type",
+      type: "select",
+      options: ["text", "number", "select", "range"],
+      description: "clock size",
+      defaultValue: "small",
+    },
+    {
+      name: "options list",
+      type: "array",
+      description: "List options to select.",
+      defaultValue: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
+    },
   ],
   render: ({ values }) => (
-    <Input/>
+    <Input
+      type={values["type"] as any}
+      options={values["options list"] as any}/>
   ),
   generateCode: (values) => {
-    return `<Input />`;
+    const props = [
+      `type=${values["type"]}`,
+      `options=${values["options list"]}`
+    ]
+    .filter(prop => prop != null && prop !== "")
+    .join("\n  ");
+    return `<Input 
+    ${props}/>`;
   },
 };
 
