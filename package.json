@@ -19,6 +19,16 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "import": "./dist/icons/index.es.js",
+      "require": "./dist/icons/index.cjs.js"
+    },
+    "./icons/*": {
+      "types": "./dist/icons/*/index.d.ts",
+      "import": "./dist/icons/*/index.es.js",
+      "require": "./dist/icons/*/index.cjs.js"
+    },
     "./badge": {
       "types": "./dist/components/Badge/index.d.ts",
       "style": "./dist/components/Badge/Badge.css",
@@ -71,7 +81,8 @@
     "generate-exports": "node scripts/generate-exports.js",
     "create-component": "node scripts/generate-component.js && node scripts/generate-exports.js",
     "delete-component": "node scripts/delete-component.js",
-    "sync-components": "node scripts/sync-components.js"
+    "sync-components": "node scripts/sync-components.js",
+    "generate-icons": "node scripts/generate-icons.js"
   },
   "keywords": [
     "react",
