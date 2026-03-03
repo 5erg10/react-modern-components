@@ -10,11 +10,25 @@ interface IconInspectorProps {
   variant: IconVariant;
 }
 
+interface IconGridProps {
+  filtered: string[];
+  selected: string | null;
+  variant: IconVariant;
+  search: string;
+  ambient: 'dark' | 'light'
+  onSelect: (name: string) => void;
+}
+
+interface IconViewerProps {
+  ambient: 'dark' | 'light'
+}
+
 const IconInspector = ({ selected, variant }: IconInspectorProps) => {
   const [primaryColor, setPrimary]  = useState("#6c63ff");
   const [secondaryColor, setSecond] = useState("#c4c1ff");
   const [size, setSize]             = useState(48);
   const [copied, setCopied]         = useState(false);
+  const [previewAmbient, setPreviewAmbient] = useState<"light" | "dark">("dark");
 
   const generatedCode = useMemo(() => {
     const lines = [`import { Icon } from 'react-modern-components/icons';`, ``];
@@ -35,7 +49,12 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
 
   return (
     <>
-      <div className="sb-icon-preview">
+      <div className="sb-icon-preview" data-preview-visualizer-ambient={previewAmbient}>
+        <div className="sb-controls-preview-ambient-selector" onClick={() => setPreviewAmbient( previewAmbient == 'dark' ? 'light' : 'dark' )}>
+          <Icon name="sun" variant="fill" primaryColor={previewAmbient == 'light' ? '#333333' : '#eeeeee'} style={{fontSize: 12, opacity: previewAmbient == 'dark' ? 0.5 : 1}}/>
+          <span>/</span>
+          <Icon name="moon" variant="fill" primaryColor={previewAmbient == 'light' ? '#333333' : '#eeeeee'} style={{fontSize: 12, opacity: previewAmbient == 'light' ? 0.5 : 1}}/>
+        </div>
         <Icon
           name={selected}
           variant={variant}
@@ -49,11 +68,12 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
       <div className="sb-controls-body">
         {/* Size */}
         <div className="sb-control">
-          <div className="sb-control-header">
+          <label htmlFor="sizeRange" className="sb-control-header">
             <span className="sb-control-name">size</span>
             <span className="sb-control-type">{size}px</span>
-          </div>
+          </label>
           <input
+            id="sizeRange"
             type="range"
             className="sb-range"
             min={16}
@@ -65,10 +85,11 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
 
         {/* Primary color */}
         <div className="sb-control">
-          <div className="sb-control-header">
+          <label htmlFor="primaryColorSelector" className="sb-control-header">
             <span className="sb-control-name">primaryColor</span>
-          </div>
+          </label>
           <input
+            id="primaryColorSelector"
             type="color"
             className="sb-color-picker sb-color-picker--large"
             value={primaryColor}
@@ -79,11 +100,12 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
         {/* Secondary color — solo duotone */}
         {variant === "duotone" && (
           <div className="sb-control">
-            <div className="sb-control-header">
+            <label htmlFor="secundaryColorSelector" className="sb-control-header">
               <span className="sb-control-name">secondaryColor</span>
               <span className="sb-control-type">duotone only</span>
-            </div>
+            </label>
             <input
+              id="secundaryColorSelector"
               type="color"
               className="sb-color-picker sb-color-picker--large"
               value={secondaryColor}
@@ -106,18 +128,7 @@ const IconInspector = ({ selected, variant }: IconInspectorProps) => {
   );
 };
 
-// ── IconGrid ──────────────────────────────────────────────────────────────────
-// Memoizado: solo re-renderiza si cambian filtered, selected o variant.
-// El estado de colores del inspector nunca llega aquí.
-interface IconGridProps {
-  filtered: string[];
-  selected: string | null;
-  variant: IconVariant;
-  search: string;
-  onSelect: (name: string) => void;
-}
-
-const IconGrid = memo(({ filtered, selected, variant, search, onSelect }: IconGridProps) => {
+const IconGrid = memo(({ filtered, selected, variant, search, ambient, onSelect }: IconGridProps) => {
   if (filtered.length === 0) return (
     <div className="sb-empty">
       <div className="sb-empty-icon">🔍</div>
@@ -134,7 +145,7 @@ const IconGrid = memo(({ filtered, selected, variant, search, onSelect }: IconGr
           title={name}
           onClick={() => onSelect(name)}
         >
-          <Icon name={name} variant={variant} style={{ fontSize: "2rem" }} />
+          <Icon name={name} variant={variant} primaryColor={ambient == 'dark' ? '#eeeeee' : '#333333'} style={{ fontSize: "2rem" }} />
           <span className="sb-icon-label">{name}</span>
         </div>
       ))}
@@ -143,7 +154,7 @@ const IconGrid = memo(({ filtered, selected, variant, search, onSelect }: IconGr
 });
 
 // ── IconViewer ────────────────────────────────────────────────────────────────
-export const IconViewer = () => {
+export const IconViewer = ({ambient}: IconViewerProps) => {
   const [search, setSearch]   = useState("");
   const [variant, setVariant] = useState<IconVariant>("duotone");
   const [selected, setSelected] = useState<string | null>(null);
@@ -160,9 +171,12 @@ export const IconViewer = () => {
     <>
       <main className="sb-canvas">
         <div className="sb-canvas-topbar sb-icon-topbar">
-          <span>Icons</span>
-          <span className="sb-canvas-topbar-sep">/</span>
+          <label htmlFor="iconVariantSelector">
+            <span>Icons</span>
+            <span className="sb-canvas-topbar-sep">/</span>
+          </label>
           <select
+            id="iconVariantSelector"
             className="sb-topbar-select"
             value={variant}
             onChange={(e) => setVariant(e.target.value as IconVariant)}
@@ -188,15 +202,18 @@ export const IconViewer = () => {
             selected={selected}
             variant={variant}
             search={search}
+            ambient={ambient}
             onSelect={handleSelect}
           />
         </div>
       </main>
 
       <aside className="sb-controls">
-        <div className="sb-controls-header">Icon Inspector</div>
+        <div className="sb-controls-header">
+          <span>Icon Inspector</span>
+        </div>
         {selected ? (
-          <IconInspector key={selected} selected={selected} variant={variant} />
+          <IconInspector key={selected} selected={selected} variant={variant}/>
         ) : (
           <div className="sb-empty" style={{ flex: 1 }}>
             <div className="sb-empty-icon" style={{ fontSize: 32 }}>👆</div>

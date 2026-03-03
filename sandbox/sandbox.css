@@ -22,6 +22,7 @@
   --sb-sidebar-width: 260px;
   --sb-controls-width: 300px;
   --sb-header-height: 56px;
+  --icon-preview-bg-color: #13161f;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
   color: var(--sb-text-primary);
@@ -31,6 +32,21 @@
 body {
   min-height: 100vh;
   overflow: hidden;
+}
+
+[data-ambient="light"] {
+  --sb-bg: #eeeeee;
+  --sb-bg-surface: #dfdfdf;
+  --sb-bg-card: #dfdfdf;
+  --sb-bg-hover: #c2c2c2;
+  --sb-border: #c2c2c2;
+  --sb-accent: #6c63ff;
+  --sb-accent-hover: #8b84ff;
+  --sb-text-primary: #3d3d3d;
+  --sb-text-secondary: #8b90b8;
+  --sb-text-muted: #5a5f7d;
+  --sb-canvas: #e9e9e9;
+  --icon-preview-bg-color: #dddddd;
 }
 
 /* Layout */
@@ -70,10 +86,10 @@ body {
 
 .sb-header-badge {
   font-size: 11px;
-  padding: 2px 8px;
+  padding: 0.3rem 0.6rem;
   background: var(--sb-accent);
   color: white;
-  border-radius: 20px;
+  border-radius: 0px;
   font-weight: 500;
 }
 
@@ -92,6 +108,7 @@ body {
   text-transform: uppercase;
   color: var(--sb-text-muted);
   padding: 0 16px 8px;
+  margin-top: 0.5rem;
 }
 
 .sb-sidebar-item {
@@ -103,6 +120,7 @@ body {
   border-left: 3px solid transparent;
   transition: all 0.15s ease;
   color: var(--sb-text-secondary);
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -131,9 +149,8 @@ body {
 
 .sb-sidebar-item-tag {
   margin-left: auto;
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 4px;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.5rem;
   background: var(--sb-bg-card);
   color: var(--sb-text-muted);
   border: 1px solid var(--sb-border);
@@ -242,7 +259,6 @@ body {
   padding: 60px 40px;
   background: var(--sb-bg-surface);
   border: 1px solid var(--sb-border);
-  border-radius: 12px;
   min-height: 200px;
   position: relative;
 }
@@ -274,6 +290,9 @@ body {
   text-transform: uppercase;
   color: var(--sb-text-muted);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .sb-controls-body {
@@ -285,11 +304,10 @@ body {
 
 /* Description block */
 .sb-description {
-  margin: 0 16px 16px;
+  margin: 16px 16px;
   padding: 12px 14px;
   background: var(--sb-bg-card);
   border: 1px solid var(--sb-border);
-  border-radius: 8px;
 }
 
 .sb-description-title {
@@ -328,12 +346,13 @@ body {
 }
 
 .sb-control-type {
-  font-size: 10px;
+  font-size: 0.8rem;
   color: var(--sb-accent);
+  border: solid 1px var(--sb-accent);
   font-family: "SF Mono", "Fira Code", monospace;
   background: rgba(108, 99, 255, 0.12);
   padding: 1px 5px;
-  border-radius: 3px;
+  margin: 0rem 0.5rem;
 }
 
 .sb-control-required {
@@ -357,7 +376,6 @@ body {
   padding: 6px 10px;
   background: var(--sb-bg-card);
   border: 1px solid var(--sb-border);
-  border-radius: 6px;
   color: var(--sb-text-primary);
   font-size: 12px;
   font-family: inherit;
@@ -390,7 +408,6 @@ body {
   height: 20px;
   background: var(--sb-bg-card);
   border: 1px solid var(--sb-border);
-  border-radius: 10px;
   cursor: pointer;
   position: relative;
   transition: background 0.2s ease;
@@ -407,8 +424,7 @@ body {
   position: absolute;
   width: 14px;
   height: 14px;
-  background: white;
-  border-radius: 50%;
+  background: var(--sb-text-primary);
   top: 2px;
   left: 2px;
   transition: left 0.2s ease;
@@ -442,7 +458,6 @@ body {
   background: var(--sb-bg-card);
   border: 1px solid var(--sb-border);
   border-bottom: none;
-  border-radius: 6px 6px 0 0;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -469,7 +484,6 @@ body {
 .sb-code-block {
   background: var(--sb-bg-card);
   border: 1px solid var(--sb-border);
-  border-radius: 0 0 6px 6px;
   padding: 12px;
   font-family: "SF Mono", "Fira Code", monospace;
   font-size: 11px;
@@ -525,6 +539,7 @@ body {
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -553,6 +568,7 @@ body {
    ============================================================ */
 
 .sb-icon-preview {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -560,9 +576,37 @@ body {
   gap: 12px;
   padding: 28px 20px 20px;
   border-bottom: 1px solid var(--sb-border);
-  background: var(--sb-canvas);
+  background-color: var(--icon-preview-bg-color);
   flex-shrink: 0;
-  min-height: 140px;
+  min-height: 220px;
+}
+
+[data-preview-visualizer-ambient="dark"] {
+  --icon-preview-bg-color: #13161f;
+}
+
+[data-preview-visualizer-ambient="light"] {
+  --icon-preview-bg-color: #dddddd;
+}
+
+.sb-controls-main-ambient-selector {
+  margin-left: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.1rem;
+  cursor: pointer;
+}
+
+.sb-controls-preview-ambient-selector {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.1rem;
+  cursor: pointer;
 }
 
 .sb-icon-preview-name {

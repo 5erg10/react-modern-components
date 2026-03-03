@@ -108,8 +108,9 @@ const PropControl = ({ prop, value, onChange }: PropControlProps) => (
 const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
   if (prop.type === "boolean") {
     return (
-      <label className="sb-toggle">
+      <label htmlFor="booleanInput" className="sb-toggle">
         <input
+          id="booleanInput"
           type="checkbox"
           checked={!!value}
           onChange={(e) => onChange(e.target.checked)}
@@ -121,9 +122,11 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
 
   if(prop.type == "range") {
     return (
-      <label className="sb-toggle">
-        <input 
+      <label htmlFor="rangeInput" className="sb-toggle">
+        <input
+          id="rangeInput"
           type="range"
+          aria-label="range-selector"
           min={prop.range?.[0] || 0}
           max={prop.range?.[1] || 1}
           step="0.1"
@@ -135,38 +138,50 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
 
   if (prop.options) {
     return (
-      <select
-        className="sb-select"
-        value={String(value)}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {prop.options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
+      <label htmlFor="dropdownInput">
+        <select
+          id="dropdownInput"
+          aria-label="dropdown-selector"
+          className="sb-select"
+          value={String(value)}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {prop.options.map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+      </label>
     );
   }
 
   if (prop.type === "string" && prop.multiline) {
     return (
-      <textarea
-        className="sb-textarea"
-        value={String(value ?? "")}
-        onChange={(e) => onChange(e.target.value)}
-      />
+      <label htmlFor="textInput">
+        <textarea
+          id="textInput"
+          aria-label="text-input"
+          className="sb-textarea"
+          value={String(value ?? "")}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </label>
     );
   }
 
   return (
-    <input
-      className="sb-input"
-      type={prop.type === "number" ? "number" : "text"}
-      value={String(value ?? "")}
-      onChange={(e) =>
-        onChange(prop.type === "number" ? Number(e.target.value) : e.target.value)
-      }
-    />
+    <label htmlFor="genericInput">
+      <input
+        id="genericInput"
+        className="sb-input"
+        aria-label="generic-input"
+        type={prop.type === "number" ? "number" : "text"}
+        value={String(value ?? "")}
+        onChange={(e) =>
+          onChange(prop.type === "number" ? Number(e.target.value) : e.target.value)
+        }
+      />
+    </label>
   );
 };
