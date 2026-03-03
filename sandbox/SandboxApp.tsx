@@ -2,23 +2,9 @@ import { useState } from "react";
 import { componentRegistry } from "./registry";
 import { ComponentViewer } from "./ComponentViewer";
 import { IconViewer } from "./IconViewer";
-import * as Icons from "../src/icons";
+import { iconNames } from "../src/icons";
 
 type View = { kind: "component"; id: string } | { kind: "icons" };
-
-// Construir la lista de iconos para el IconViewer a partir del barrel de icons
-const iconEntries = Object.entries(Icons)
-  .filter(([, val]) => typeof val === "function")
-  // Filtrar solo los componentes (no los tipos), uno por nombre de icono
-  .filter(([key]) => !key.endsWith("Variant") && !key.endsWith("Props"))
-  // Deduplicar: nos quedamos solo con el componente (no los re-exports de tipos)
-  .map(([name, component]) => ({
-    name,
-    baseName: name
-      .replace(/([A-Z])/g, (m, l, offset) => (offset > 0 ? "-" : "") + l.toLowerCase())
-      .replace(/^-/, ""),
-    component: component as React.ComponentType<any>,
-  }));
 
 export const SandboxApp = () => {
   const [view, setView] = useState<View>({
@@ -33,18 +19,15 @@ export const SandboxApp = () => {
 
   return (
     <div className="sb-layout">
-      {/* Header */}
       <header className="sb-header">
         <span className="sb-header-logo">🧩</span>
         <span className="sb-header-title">Component Sandbox</span>
         <span className="sb-header-badge">{componentRegistry.length} components</span>
-        <span className="sb-header-badge">{iconEntries.length} icons</span>
+        <span className="sb-header-badge">{iconNames.length} icons</span>
         <span className="sb-header-subtitle">modern-react-components</span>
       </header>
 
-      {/* Sidebar */}
       <aside className="sb-sidebar">
-        {/* Components section */}
         <div className="sb-sidebar-section-title">Components</div>
         {componentRegistry.map((comp) => (
           <div
@@ -58,7 +41,6 @@ export const SandboxApp = () => {
           </div>
         ))}
 
-        {/* Icons section */}
         <div className="sb-sidebar-section-title" style={{ marginTop: "1rem" }}>Icons</div>
         <div
           className={`sb-sidebar-item ${view.kind === "icons" ? "active" : ""}`}
@@ -66,13 +48,12 @@ export const SandboxApp = () => {
         >
           <span className="sb-sidebar-item-icon">🎨</span>
           <span className="sb-sidebar-item-name">Icon Library</span>
-          <span className="sb-sidebar-item-tag">{iconEntries.length}</span>
+          <span className="sb-sidebar-item-tag">{iconNames.length}</span>
         </div>
       </aside>
 
-      {/* Main content */}
       {view.kind === "icons" ? (
-        <IconViewer icons={iconEntries} />
+        <IconViewer />
       ) : activeComponent ? (
         <ComponentViewer key={activeComponent.id} component={activeComponent} />
       ) : (
