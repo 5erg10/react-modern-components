@@ -2,34 +2,34 @@
     --mask-opacity: 0.5;
 }
 
-[clock-size='small'] {
+[data-clock-size='small'] {
     --main-size: 200;
     --hour-font-size: 0.8rem;
     --minuts-marker-rotation: 0deg;
     --indicator-height: 20;
 }
 
-[clock-size='medium'] {
+[data-clock-size='medium'] {
     --main-size: 400;
     --hour-font-size: 1rem;
     --minuts-marker-rotation: 270deg;
     --indicator-height: 25;
 }
 
-[clock-size='large'] {
+[data-clock-size='large'] {
     --main-size: 600;
     --hour-font-size: 1.2rem;
     --minuts-marker-rotation: 270deg;
     --indicator-height: 25;
 }
 
-[ambient-mode='light'] {
+[data-ambient-mode='light'] {
     --main-background-color: #fff;
     --markers-color: #333;
     --indicator-color: rgb(160, 155, 81);
 }
 
-[ambient-mode='dark'] {
+[data-ambient-mode='dark'] {
     --main-background-color: #333;
     --markers-color: #fff;
     --indicator-color: rgb(248, 240, 122);

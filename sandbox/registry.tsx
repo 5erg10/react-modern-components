@@ -90,10 +90,14 @@ const ButtonEntry: ComponentEntry = {
   generateCode: (values) => {
     const variant = values["variant"];
     const disabled = values["disabled"];
+    const size = values["size"];
+    const ellipsis = values["ellipsis"];
     const children = values["children"];
     const variantProp = variant !== "primary" ? ` variant="${variant}"` : "";
     const disabledProp = disabled ? " disabled" : "";
-    return `<Button${variantProp}${disabledProp}>${children}</Button>`;
+    const sizeProp = `size=${size || "md"}`;
+    const ellipsisProp = ellipsis ? "ellipsis=true" : "";
+    return `<Button${variantProp}${disabledProp}${sizeProp}${ellipsisProp}>${children}</Button>`;
   },
 };
 
@@ -266,8 +270,10 @@ const DigitalClockEntry: ComponentEntry = {
     />
   ),
   generateCode: (values) => {
-
-    return `<DigitalClock />`;
+    const sizeProp = ` size="${values["Size"]}"`;
+    const ambientProp = ` ambient="${values["Ambient"]}"`;
+    const maskProp = values["Mask opacity"] ? ` maskOpacity="${values["Mask opacity"]}"` : "0.5";
+    return `<Button${sizeProp}${ambientProp}>${maskProp}</Button>`;
   },
 };
 
