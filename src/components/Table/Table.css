@@ -1,0 +1,256 @@
+/* ============================================================
+   Table
+   ============================================================ */
+
+.modern-table-wrapper {
+  --table-bg:            #1f2937;
+  --table-surface:       #374151;
+  --table-surface-alt:   #2d3a4a;
+  --table-border:        #4b5563;
+  --table-header-bg:     #283a61;
+  --table-header-color:  #e2e8f0;
+  --table-cell-color:    #d1d5db;
+  --table-accent:        #4767ac;
+  --table-accent-hover:  #395daa;
+  --table-input-bg:      #374151;
+  --table-input-border:  #6a7d9b;
+  --table-input-color:   #f3f4f6;
+  --table-radius:        4px;
+  --table-col-min-width: 120px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  background-color: var(--table-bg);
+  border: 1px solid var(--table-border);
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  color: var(--table-cell-color);
+}
+
+/* ── Toolbar ── */
+
+.modern-table-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: var(--table-surface);
+  border-bottom: 1px solid var(--table-border);
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.modern-table-search-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Shared form controls ── */
+
+.modern-table-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0.45rem 2rem 0.45rem 0.75rem;
+  background-color: var(--table-input-bg);
+  color: var(--table-input-color);
+  border: 2px solid var(--table-input-border);
+  border-right: none;
+  outline: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236a7d9b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  height: 38px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.modern-table-select:focus {
+  border-color: #8ea9d4;
+}
+
+.modern-table-search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.75rem;
+  background-color: var(--table-input-bg);
+  color: var(--table-input-color);
+  border: 2px solid var(--table-input-border);
+  outline: none;
+  font-size: 0.875rem;
+  height: 38px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.modern-table-search-input::placeholder {
+  color: #6b7280;
+}
+
+.modern-table-search-input:focus {
+  border-color: #8ea9d4;
+  background-color: #2f3846;
+}
+
+/* ── Scroll container ── */
+
+.modern-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+/* ── Table element ── */
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+/* ── Header ── */
+
+.modern-table-th {
+  min-width: var(--table-col-min-width);
+  padding: 0.65rem 1rem;
+  background-color: var(--table-header-bg);
+  color: var(--table-header-color);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 2px solid var(--table-accent);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* ── Rows ── */
+
+.modern-table-row:nth-child(even) {
+  background-color: var(--table-surface-alt);
+}
+
+.modern-table-row:hover {
+  background-color: #2d3e55;
+}
+
+.modern-table-td {
+  min-width: var(--table-col-min-width);
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--table-border);
+  color: var(--table-cell-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+/* ── Empty states ── */
+
+.modern-table-empty,
+.modern-table-no-results {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* ── Footer ── */
+
+.modern-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background-color: var(--table-surface);
+  border-top: 1px solid var(--table-border);
+}
+
+.modern-table-footer-info {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.modern-table-total {
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.modern-table-total strong {
+  color: var(--table-header-color);
+}
+
+.modern-table-page-size-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modern-table-page-size-group .modern-table-select {
+  border-right: 2px solid var(--table-input-border);
+}
+
+.modern-table-page-size-label {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* ── Pagination ── */
+
+.modern-table-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modern-table-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: var(--table-accent);
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.modern-table-page-btn:hover:not(:disabled) {
+  background-color: var(--table-accent-hover);
+}
+
+.modern-table-page-btn:disabled {
+  background-color: var(--table-surface-alt);
+  color: #4b5563;
+  cursor: not-allowed;
+}
+
+.modern-table-page-info {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.modern-table-page-info strong {
+  color: var(--table-header-color);
+}
