@@ -1,13 +1,13 @@
-:root {
+/* CSS custom properties scoped to .slider to avoid collisions
+   when the library is consumed inside a larger project. */
+.slider {
   --slider-track-bg: #374151;
   --slider-progress-bg: #8ea9d4;
   --slider-thumb-bg: #f3f4f6;
   --slider-thumb-size: 20px;
   --slider-track-height: 8px;
   --slider-thumb-active-scale: 1.3;
-}
 
-.slider {
   position: relative;
   width: 100%;
   height: 32px;
@@ -47,7 +47,8 @@
 .slider__thumb {
   position: absolute;
   top: 50%;
-  /* left is set via JS as calc(% - offset) to prevent overflow at edges */
+  /* left is set via JS using var(--slider-thumb-size) so there is
+     a single source of truth between CSS and the offset calculation. */
   transform: translateY(-50%);
   width: var(--slider-thumb-size);
   height: var(--slider-thumb-size);
