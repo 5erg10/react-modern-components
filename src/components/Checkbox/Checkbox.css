@@ -4,35 +4,35 @@
     --checkbox-bg-color: #374151;
     --checkbox-border-color: #6a7d9b;
 
+    --checkbox-check-icon-display: block;
+    --checkbox-circle-icon-display: none;
+    --checkbox-input-cursor-style: pointer;
+
+    position: relative;
     box-sizing: border-box;
-    display: inline-block;              /* inline-block respeta width y height */
+    display: inline-block;
     width: var(--checkbox--size);
     height: var(--checkbox--size);
     background-color: var(--checkbox-bg-color);
     color: var(--checkbox-text-color);
     border: solid 2px var(--checkbox-border-color);
-    border-radius: 4px;
+    opacity: 1;
 }
 
-/* El label es el contenedor posicionado real:
-   el input absoluto se ancla a él, no al div externo */
-.modern-input-checkbox label {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
+.modern-input-checkbox[ data-checkbox-input-type="radio"] {
+    border-radius: 50%;
+    --checkbox-check-icon-display: none;
+    --checkbox-circle-icon-display: block;
 }
 
-/* Input invisible pero ocupa todo el label para ser clickeable */
 .modern-input-checkbox input {
     position: absolute;
     inset: 0;
-    opacity: 0;
-    margin: 0;
     width: 100%;
     height: 100%;
-    cursor: pointer;
+    opacity: 0;
+    margin: 0;
+    cursor: var(--checkbox-input-cursor-style);
     z-index: 1;
 }
 
@@ -42,31 +42,24 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;  /* los clics pasan al input que está encima */
-}
-
-/* Icono oculto por defecto */
-.modern-input-checkbox__check > * {
     opacity: 0;
     transition: opacity 0.15s ease;
+    pointer-events: none;
 }
 
-/* Cuando el input nativo está checked, el combinador + activa el icono */
-.modern-input-checkbox input:checked + .modern-input-checkbox__check > * {
+.modern-input-checkbox input:checked ~ .modern-input-checkbox__check {
     opacity: 1;
 }
 
-/* Foco accesible */
-.modern-input-checkbox input:focus-visible + .modern-input-checkbox__check {
-    outline: 2px solid var(--checkbox-border-color);
-    outline-offset: 2px;
+.modern-input-checkbox__check_icon {
+    display: var(--checkbox-check-icon-display);
 }
 
-/* Disabled */
-.modern-input-checkbox input:disabled {
-    cursor: not-allowed;
+.modern-input-checkbox__radio_icon {
+    display: var(--checkbox-circle-icon-display);
 }
 
-.modern-input-checkbox input:disabled + .modern-input-checkbox__check {
-    opacity: 0.5;
+.modern-input-checkbox__disabled {
+    opacity: 0.3;
+    --checkbox-input-cursor-style: not-allowed;
 }

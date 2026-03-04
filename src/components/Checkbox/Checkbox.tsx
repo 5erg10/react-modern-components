@@ -1,14 +1,14 @@
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef } from "react";
 import { CheckboxProps } from "./Checkbox.types";
 import "./Checkbox.css";
 import { Icon } from "../../icons";
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ type = "checkbox", name, value, onChange, ...props }, ref) => {
+  ({ type = "checkbox", name, value, disabled, onChange, ...props }, ref) => {
     return (
-      <div className="modern-input-checkbox">
-        <label>
+      <div className={`modern-input-checkbox ${disabled ? 'modern-input-checkbox__disabled' : ''}`}  data-checkbox-input-type={type}>
           <input
+            disabled={disabled}
             ref={ref}
             type={type}
             name={name}
@@ -18,9 +18,8 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           />
           <div className="modern-input-checkbox__check">
             <Icon className="modern-input-checkbox__check_icon" name='check' variant='light'/>
-            {/* <Icon className="modern-input-checkbox__radio_icon" data-checkbox-input-type={type} name='circle' variant='fill'/> */}
+            <Icon className="modern-input-checkbox__radio_icon" name='circle' variant='fill'/>
           </div>
-        </label>
       </div>
     );
   }

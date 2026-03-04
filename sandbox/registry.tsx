@@ -514,10 +514,10 @@ const CheckboxEntry: ComponentEntry = {
       defaultValue: "azul"
     },
     {
-      name: 'checked',
+      name: 'disabled',
       type: "boolean",
       description: "",
-      defaultValue: true
+      defaultValue: false
     }
   ],
   render: ({ values }) => {
@@ -527,18 +527,20 @@ const CheckboxEntry: ComponentEntry = {
       }
       return (
         <>
-        <Checkbox
-          type={values["type"] as "checkbox" | "radio"}
-          checked={values["checked"] as boolean}
-          name={values["name"] as string}
-          value={values["value"] as string}
-          onChange={(e) => onChangeRefresh(e)}/>
-          <Checkbox
-          type={values["type"] as "checkbox" | "radio"}
-          checked={values["checked"] as boolean}
-          name={values["name"] as string}
-          value="rojo"
-          onChange={(e) => onChangeRefresh(e)}/>
+          <div style={{display: "flex", gap: "2rem"}}>
+            <Checkbox
+              disabled={values["disabled"] as boolean}
+              type={values["type"] as "checkbox" | "radio"}
+              name={values["name"] as string}
+              value={values["value"] as string}
+              onChange={(e) => onChangeRefresh(e)}/>
+              <Checkbox
+              disabled={values["disabled"] as boolean}
+              type={values["type"] as "checkbox" | "radio"}
+              name={values["name"] as string}
+              value="rojo"
+              onChange={(e) => onChangeRefresh(e)}/>
+          </div>
         </>
       );
     };
@@ -547,6 +549,7 @@ const CheckboxEntry: ComponentEntry = {
   generateCode: (values) => {
     const props = [
       values['checked'] ? 'checked' : '',
+      values['disabled'] ? 'disabled' : '',
       `type="${values["type"]}"`,
       `name="${values["name"]}"`,
       `value="${values["value"]}"`
