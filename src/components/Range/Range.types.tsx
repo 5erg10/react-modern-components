@@ -1,10 +1,3 @@
-
-export interface RangeProps {
-    min?: number;
-    max?: number;
-    step?: number;
-    value: number;
-    onChange?: (value: number) => void;
-    disabled?: boolean;
-    showTooltip?: boolean;
-}
+// This file is kept for backwards compatibility only.
+// The canonical types file is Range.types.ts (no JSX extension needed).
+export type { RangeProps } from "./Range.types";
