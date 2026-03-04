@@ -134,6 +134,45 @@
   z-index: 1;
 }
 
+.modern-table-th--sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.modern-table-th--sortable:hover {
+  background-color: #2f4a7a;
+}
+
+.modern-table-th--active {
+  background-color: #2f4a7a;
+  border-bottom-color: #7ca4e0;
+}
+
+.modern-table-th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.modern-table-th-label {
+  flex: 1;
+}
+
+.modern-table-sort-icon {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: #6a7d9b;
+  transition: color 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.modern-table-sort-icon--active {
+  color: #7ca4e0;
+}
+
 /* ── Rows ── */
 
 .modern-table-row:nth-child(even) {
