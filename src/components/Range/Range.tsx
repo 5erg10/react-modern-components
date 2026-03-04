@@ -3,21 +3,11 @@ import { RangeProps } from "./Range.types";
 import "./Range.css";
 
 export const Range = forwardRef<HTMLDivElement, RangeProps>(
-    (props, ref) => {
-        const {
-            min = 0,
-            max = 100,
-            step = 1,
-            value,
-            onChange,
-            disabled = false,
-            showTooltip = false,
-            label,
-        } = props;
+    ({ min = 0, max = 100, step = 1, value, onChange, disabled = false, showTooltip = false, label }, ref) => {
 
         const trackRef = useRef<HTMLDivElement>(null);
         const [isDragging, setIsDragging] = useState(false);
-        
+
         const moveHandlerRef = useRef<((event: MouseEvent | TouchEvent) => void) | null>(null);
         const upHandlerRef = useRef<(() => void) | null>(null);
 
@@ -131,18 +121,9 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
                     onMouseDown={handlePointerDown}
                     onTouchStart={handlePointerDown}
                     onKeyDown={handleKeyDown}>
-                    <div
-                        className="slider__progress"
-                        style={{ width: `${percentage}%` }}
-                    />
-                    <div
-                        className={`slider__thumb ${
-                            isDragging ? "slider__thumb--active" : ""
-                        }`}
-                        style={{
-                            left: `calc(${percentage}% - ${percentage / 100} * var(--slider-thumb-size))`
-                        }}
-                    >
+                    <div className="slider__progress" style={{ width: `${percentage}%` }}/>
+                    <div className={`slider__thumb ${isDragging ? "slider__thumb--active" : ""}`}
+                        style={{ left: `calc(${percentage}% - ${percentage / 100} * var(--slider-thumb-size))` }}>
                         {showTooltip && (
                             <span className="slider__tooltip">{value}</span>
                         )}

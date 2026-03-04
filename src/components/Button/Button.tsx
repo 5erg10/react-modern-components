@@ -12,8 +12,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         data-variant={variant}
         data-button-size={size}
         data-icon-position={iconPosition}
-        {...props}
-      >
+        {...props}>
         {!!icon ? (
           <div className="modern-button-icon" data-variant={variant}>
             <Icon name={icon} variant="fill" style={{ fontSize: 15 }} />

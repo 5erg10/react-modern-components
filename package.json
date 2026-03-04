@@ -31,6 +31,12 @@
       "import": "./dist/components/Button/index.es.js",
       "require": "./dist/components/Button/index.cjs.js"
     },
+    "./checkbox": {
+      "types": "./dist/components/Checkbox/index.d.ts",
+      "style": "./dist/components/Checkbox/Checkbox.css",
+      "import": "./dist/components/Checkbox/index.es.js",
+      "require": "./dist/components/Checkbox/index.cjs.js"
+    },
     "./digitalclock": {
       "types": "./dist/components/DigitalClock/index.d.ts",
       "style": "./dist/components/DigitalClock/DigitalClock.css",

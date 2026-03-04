@@ -1,5 +1,6 @@
 export { Badge } from "./components/Badge";
 export { Button } from "./components/Button";
+export { Checkbox } from "./components/Checkbox";
 export { DigitalClock } from "./components/DigitalClock";
 export { Dropdown } from "./components/Dropdown";
 export { Input } from "./components/Input";

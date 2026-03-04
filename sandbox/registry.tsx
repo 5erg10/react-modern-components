@@ -7,6 +7,7 @@ import { Input } from "../src/components/Input";
 import { Table } from "../src/components/Table";
 import { Dropdown } from "../src/components/Dropdown";
 import { Range } from "../src/components/Range";
+import { Checkbox } from "../src/components/Checkbox";
 
 /* -------------------------------------------------------
    Types
@@ -117,10 +118,11 @@ const ButtonEntry: ComponentEntry = {
     .filter(prop => prop != null && prop !== "")
     .join("\n  ");
 
-    return `<Button
-      ${props}>
-      ${values["children"]}
-    </Button>`;
+    return `
+<Button
+  ${props}>
+  ${values["children"]}
+</Button>`;
   },
 };
 
@@ -181,11 +183,16 @@ const ModalEntry: ComponentEntry = {
   },
   generateCode: (values) => {
     const children = values["children"];
-    return `const [isOpen, setIsOpen] = useState(false);
+    return `
+const [isOpen, setIsOpen] = useState(false);
 
-<Button onClick={() => setIsOpen(true)}>Open Modal</Button>
+<Button onClick={() => setIsOpen(true)}>
+  Open Modal
+</Button>
 
-<Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+<Modal 
+  isOpen={isOpen}
+  onClose={() => setIsOpen(false)}>
   ${children}
 </Modal>`;
   },
@@ -306,13 +313,14 @@ const DigitalClockEntry: ComponentEntry = {
     const props = [
       `size="${values["Size"]}"`,
       `ambient="${values["Ambient"]}"`,
-      values["Mask opacity"] ? ` maskOpacity="${values["Mask opacity"]}"` : "0.8"
+      values["Mask opacity"] ? `maskOpacity="${values["Mask opacity"]}"` : "0.8"
     ]
     .filter(prop => prop != null && prop !== "")
     .join("\n  ");
-    return `<Button
-      ${props}>
-    </Button>`;
+    return `
+<DigitalClock
+  ${props}>
+</DigitalClock>`;
   },
 };
 
@@ -327,7 +335,7 @@ const InputEntry: ComponentEntry = {
     {
       name: "type",
       type: "select",
-      options: ['text', 'number', 'checkbox', 'radio', 'password', 'email', 'tel', 'search', 'date', 'color'],
+      options: ['text', 'number', 'password', 'email', 'tel', 'search', 'date', 'color'],
       description: "Type of input",
       defaultValue: "text",
     },
@@ -341,7 +349,7 @@ const InputEntry: ComponentEntry = {
   render: ({ values }) => (
     <Input
       disabled={values["disabled"] as boolean}
-      type={values["type"] as 'text' | 'number' | 'password' | 'email' | 'tel' | 'search' | 'date' | 'checkbox' | 'radio' | 'color'}/>
+      type={values["type"] as 'text' | 'number' | 'password' | 'email' | 'tel' | 'search' | 'date' | 'color'}/>
   ),
   generateCode: (values) => {
     const props = [
@@ -350,8 +358,10 @@ const InputEntry: ComponentEntry = {
     ]
     .filter(prop => prop != null && prop !== "")
     .join("\n  ");
-    return `<Input 
-    ${props}/>`;
+    return `
+<Input 
+  ${props}
+/>`;
   },
 };
 
@@ -387,7 +397,8 @@ const DropdownEntry: ComponentEntry = {
     <Dropdown/>
   ),
   generateCode: (values) => {
-    return `<Dropdown />`;
+    return `
+<Dropdown />`;
   },
 };
 
@@ -411,13 +422,13 @@ const RangeEntry: ComponentEntry = {
       name: "max",
       type: "number",
       description: "Maximum allowed value.",
-      defaultValue: 100,
+      defaultValue: 1,
     },
     {
       name: "step",
       type: "number",
       description: "Step increment between values.",
-      defaultValue: 1,
+      defaultValue: 0.1,
     },
     {
       name: "disabled",
@@ -434,7 +445,7 @@ const RangeEntry: ComponentEntry = {
   ],
   render: ({ values }) => {
     const RangePreview = () => {
-      const [val, setVal] = useState<number>(50);
+      const [val, setVal] = useState<number>((values['max'] as number) / 2);
       return (
         <div style={{ width: "100%", maxWidth: 400, padding: "2rem 1rem" }}>
           <Range
@@ -456,9 +467,9 @@ const RangeEntry: ComponentEntry = {
   },
   generateCode: (values) => {
     const props = [
-      `min={${values["min"]}}`,
-      `max={${values["max"]}}`,
-      `step={${values["step"]}}`,
+      `min=${values["min"]}`,
+      `max=${values["max"]}`,
+      `step=${values["step"]}`,
       values["disabled"] ? "disabled" : "",
       values["showTooltip"] ? "showTooltip" : "",
       `value={value}`,
@@ -467,11 +478,84 @@ const RangeEntry: ComponentEntry = {
     .filter(prop => prop != null && prop !== "")
     .join("\n  ");
 
-    return `const [value, setValue] = useState(${values["min"]});
+    return `
+const [value, setValue] = useState(${values["min"]});
 
 <Range
-  ${props}
-/>`;
+  ${props}/>`;
+  },
+};
+
+/* AUTO-GENERATED: Checkbox — edit render/generateCode as needed */
+const CheckboxEntry: ComponentEntry = {
+  id: "checkbox",
+  name: "Checkbox",
+  icon: "📱",
+  category: "input",
+  description: "Checkbox component.",
+  props: [
+    {
+      name: "type",
+      type: "select",
+      options: ["checkbox", "radio"],
+      description: "Type of input",
+      defaultValue: "checkbox",
+    },
+    {
+      name: 'name',
+      type: "string",
+      description: "",
+      defaultValue: "color"
+    },
+    {
+      name: 'value',
+      type: "string",
+      description: "",
+      defaultValue: "azul"
+    },
+    {
+      name: 'checked',
+      type: "boolean",
+      description: "",
+      defaultValue: true
+    }
+  ],
+  render: ({ values }) => {
+    const CheckboxCompPreview = () => {
+      const onChangeRefresh = (value: any) => {
+        console.log('checkbutton pressed: ', value)
+      }
+      return (
+        <>
+        <Checkbox
+          type={values["type"] as "checkbox" | "radio"}
+          checked={values["checked"] as boolean}
+          name={values["name"] as string}
+          value={values["value"] as string}
+          onChange={(e) => onChangeRefresh(e)}/>
+          <Checkbox
+          type={values["type"] as "checkbox" | "radio"}
+          checked={values["checked"] as boolean}
+          name={values["name"] as string}
+          value="rojo"
+          onChange={(e) => onChangeRefresh(e)}/>
+        </>
+      );
+    };
+    return <CheckboxCompPreview/>;
+  },
+  generateCode: (values) => {
+    const props = [
+      values['checked'] ? 'checked' : '',
+      `type="${values["type"]}"`,
+      `name="${values["name"]}"`,
+      `value="${values["value"]}"`
+    ]
+    .filter(prop => prop != null && prop !== "")
+    .join("\n  ");
+    return `
+<Checkbox 
+  ${props}/>`;
   },
 };
 
@@ -483,5 +567,6 @@ export const componentRegistry: ComponentEntry[] = [
   InputEntry,
   TableEntry,
   DropdownEntry,
-  RangeEntry
+  RangeEntry,
+  CheckboxEntry
 ];
