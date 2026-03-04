@@ -4,6 +4,13 @@ import "./Table.css";
 
 const PAGE_SIZE_OPTIONS = [10, 50, 100] as const;
 
+type SortDirection = "asc" | "desc";
+
+interface SortState {
+  column: string;
+  direction: SortDirection;
+}
+
 /* ── Inner component: hooks only run when data is a valid array ── */
 
 interface TableInnerProps {
@@ -24,7 +31,20 @@ const TableInner = ({ data, containerRef }: TableInnerProps) => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [pageSize, setPageSize] = useState<10 | 50 | 100>(10);
   const [page, setPage] = useState<number>(1);
+  const [sort, setSort] = useState<SortState | null>(null);
 
+  /* ── Sorting handler ── */
+  const handleSortColumn = useCallback((col: string) => {
+    setSort((prev) => {
+      if (prev?.column === col) {
+        return { column: col, direction: prev.direction === "asc" ? "desc" : "asc" };
+      }
+      return { column: col, direction: "asc" };
+    });
+    setPage(1);
+  }, []);
+
+  /* ── Filter ── */
   const filteredData = useMemo(() => {
     if (!searchValue.trim() || !searchField) return data;
     return data.filter((row) =>
@@ -34,15 +54,34 @@ const TableInner = ({ data, containerRef }: TableInnerProps) => {
     );
   }, [data, searchField, searchValue]);
 
-  const totalRows = filteredData.length;
+  /* ── Sort ── */
+  const sortedData = useMemo(() => {
+    if (!sort) return filteredData;
+    return [...filteredData].sort((a, b) => {
+      const aVal = a[sort.column];
+      const bVal = b[sort.column];
+      const aNum = Number(aVal);
+      const bNum = Number(bVal);
+      const isNumeric = !isNaN(aNum) && !isNaN(bNum);
+      let cmp: number;
+      if (isNumeric) {
+        cmp = aNum - bNum;
+      } else {
+        cmp = String(aVal ?? "").localeCompare(String(bVal ?? ""), undefined, { sensitivity: "base" });
+      }
+      return sort.direction === "asc" ? cmp : -cmp;
+    });
+  }, [filteredData, sort]);
+
+  const totalRows = sortedData.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   const safePage = Math.min(page, totalPages);
   const firstIndex = (safePage - 1) * pageSize;
   const lastIndex = Math.min(firstIndex + pageSize, totalRows);
 
   const visibleRows = useMemo(
-    () => filteredData.slice(firstIndex, lastIndex),
-    [filteredData, firstIndex, lastIndex]
+    () => sortedData.slice(firstIndex, lastIndex),
+    [sortedData, firstIndex, lastIndex]
   );
 
   const handleSearchFieldChange = useCallback(
@@ -105,11 +144,27 @@ const TableInner = ({ data, containerRef }: TableInnerProps) => {
         <table className="modern-table">
           <thead>
             <tr>
-              {columns.map((col) => (
-                <th key={col} className="modern-table-th">
-                  {col}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const isActive = sort?.column === col;
+                const arrow = isActive
+                  ? sort!.direction === "asc" ? " ↑" : " ↓"
+                  : "";
+                return (
+                  <th
+                    key={col}
+                    className={`modern-table-th modern-table-th--sortable${isActive ? " modern-table-th--active" : ""}`}
+                    onClick={() => handleSortColumn(col)}
+                    aria-sort={isActive ? (sort!.direction === "asc" ? "ascending" : "descending") : "none"}
+                  >
+                    <span className="modern-table-th-content">
+                      <span className="modern-table-th-label">{col}</span>
+                      <span className={`modern-table-sort-icon${isActive ? " modern-table-sort-icon--active" : ""}`}>
+                        {isActive ? arrow : " ↕"}
+                      </span>
+                    </span>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
