@@ -22,6 +22,10 @@
   flex-direction: column;
   gap: 0;
   width: 100%;
+  /* Fill the parent: works whether parent gives an explicit height,
+     uses flexbox/grid, or the wrapper sits directly in a 100dvh container */
+  height: 100%;
+  min-height: 0;
   background-color: var(--table-bg);
   border: 1px solid var(--table-border);
   box-sizing: border-box;
@@ -39,6 +43,8 @@
   border-bottom: 1px solid var(--table-border);
   gap: 0.75rem;
   flex-wrap: wrap;
+  /* Fixed — never shrinks */
+  flex-shrink: 0;
 }
 
 .modern-table-search-group {
@@ -103,8 +109,11 @@
 
 .modern-table-scroll {
   width: 100%;
+  /* Grows to fill remaining vertical space between toolbar and footer */
+  flex: 1 1 0;
+  min-height: 0;
   overflow-x: auto;
-  overflow-y: visible;
+  overflow-y: auto;
 }
 
 /* ── Table element ── */
@@ -115,7 +124,7 @@
   table-layout: auto;
 }
 
-/* ── Header ── */
+/* ── Header — sticky inside the scrollable area ── */
 
 .modern-table-th {
   min-width: var(--table-col-min-width);
@@ -129,6 +138,7 @@
   letter-spacing: 0.04em;
   border-bottom: 2px solid var(--table-accent);
   white-space: nowrap;
+  /* Sticks to the top of .modern-table-scroll, not the page */
   position: sticky;
   top: 0;
   z-index: 1;
@@ -215,6 +225,8 @@
   padding: 0.65rem 1rem;
   background-color: var(--table-surface);
   border-top: 1px solid var(--table-border);
+  /* Fixed — never shrinks */
+  flex-shrink: 0;
 }
 
 .modern-table-footer-info {
