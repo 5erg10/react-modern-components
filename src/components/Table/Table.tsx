@@ -4,9 +4,15 @@ import "./Table.css";
 
 const PAGE_SIZE_OPTIONS = [10, 50, 100] as const;
 
-export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
+/* ── Inner component: hooks only run when data is a valid array ── */
+
+interface TableInnerProps {
+  data: Record<string, unknown>[];
+  containerRef: React.ForwardedRef<HTMLDivElement>;
+}
+
+const TableInner = ({ data, containerRef }: TableInnerProps) => {
   const columns = useMemo<string[]>(() => {
-    if (!data || data.length === 0) return [];
     const keySets = data.map((row) => new Set(Object.keys(row)));
     const common = [...keySets[0]].filter((key) =>
       keySets.every((set) => set.has(key))
@@ -14,26 +20,23 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
     return common;
   }, [data]);
 
-  const [searchField, setSearchField] = useState<string>(() => columns[0] ?? "");
+  const [searchField, setSearchField] = useState<string>(columns[0] ?? "");
   const [searchValue, setSearchValue] = useState<string>("");
   const [pageSize, setPageSize] = useState<10 | 50 | 100>(10);
   const [page, setPage] = useState<number>(1);
 
   const filteredData = useMemo(() => {
     if (!searchValue.trim() || !searchField) return data;
-    return data.filter((row) => {
-      const cellValue = row[searchField];
-      return String(cellValue ?? "")
+    return data.filter((row) =>
+      String(row[searchField] ?? "")
         .toLowerCase()
-        .includes(searchValue.toLowerCase());
-    });
+        .includes(searchValue.toLowerCase())
+    );
   }, [data, searchField, searchValue]);
 
   const totalRows = filteredData.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
-
   const safePage = Math.min(page, totalPages);
-
   const firstIndex = (safePage - 1) * pageSize;
   const lastIndex = Math.min(firstIndex + pageSize, totalRows);
 
@@ -68,16 +71,8 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
 
   const hasPagination = totalRows > pageSize;
 
-  if (!data || data.length === 0) {
-    return (
-      <div ref={ref} className="modern-table-wrapper">
-        <p className="modern-table-empty">No hay datos para mostrar.</p>
-      </div>
-    );
-  }
-
   return (
-    <div ref={ref} className="modern-table-wrapper">
+    <div ref={containerRef} className="modern-table-wrapper">
 
       {/* ── Toolbar ── */}
       <div className="modern-table-toolbar">
@@ -146,7 +141,10 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
             Total: <strong>{totalRows}</strong> registros
           </span>
           <div className="modern-table-page-size-group">
-            <label htmlFor="modern-table-page-size" className="modern-table-page-size-label">
+            <label
+              htmlFor="modern-table-page-size"
+              className="modern-table-page-size-label"
+            >
               Mostrar
             </label>
             <select
@@ -176,13 +174,11 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
             >
               ‹
             </button>
-
             <span className="modern-table-page-info">
               Página <strong>{safePage}</strong> · registros del{" "}
               <strong>{firstIndex + 1}</strong> al{" "}
               <strong>{lastIndex}</strong>
             </span>
-
             <button
               className="modern-table-page-btn"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -196,6 +192,13 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
       </div>
     </div>
   );
+};
+
+/* ── Public component: guard before hooks ── */
+
+export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
+  if (!Array.isArray(data) || data.length === 0) return null;
+  return <TableInner data={data} containerRef={ref} />;
 });
 
 Table.displayName = "Table";
