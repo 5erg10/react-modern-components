@@ -4,7 +4,7 @@ export interface RangeProps {
     max: number,
     step: number,
     value: number,
-    onChange: (value: number) => void,
-    disabled: boolean,
-    showTooltip: boolean
+    onChange?: (value: number) => void,
+    disabled?: boolean,
+    showTooltip?: boolean
 }

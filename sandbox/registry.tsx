@@ -363,10 +363,10 @@ const TableEntry: ComponentEntry = {
   category: "tabla",
   description: "Table component.",
   props: [
-
   ],
   render: ({ values }) => (
-    <Table/>
+    <Table
+    />
   ),
   generateCode: (values) => {
     return `<Table />`;
@@ -399,16 +399,67 @@ const RangeEntry: ComponentEntry = {
   category: "input",
   description: "Range component.",
   props: [
-
+    {
+      name: "min",
+      type: "number",
+      description: "Min value",
+      defaultValue: 0,
+    },
+    {
+      name: "max",
+      type: "number",
+      description: "Max value",
+      defaultValue: 1,
+    },
+    {
+      name: "value",
+      type: "number",
+      description: "value",
+      defaultValue: 0.1,
+    },
+    {
+      name: "step",
+      type: "number",
+      description: "step between values",
+      defaultValue: 0.1,
+    },
+    {
+      name: "disabled",
+      type: "boolean",
+      description: "Max value",
+      defaultValue: false,
+    },
+    {
+      name: "showTooltip",
+      type: "boolean",
+      description: "Max value",
+      defaultValue: false,
+    }
   ],
   render: ({ values }) => (
     <Range
-
+      min={values['min'] as number}
+      max={values['min'] as number}
+      value={values['value'] as number}
+      step={values['min'] as number}
+      disabled={values['min'] as boolean}
+      showTooltip={values['min'] as boolean}
     />
   ),
   generateCode: (values) => {
+    const props = [
+      `min=${values['min']}`,
+      `max=${values['max']}`,
+      `value=${values['value']}`,
+      `step=${values['step']}`,
+      `disabled=${values['disabled']}`,
+      `showTooltip=${values['showTooltip']}`
+    ]
+    .filter(prop => prop != null && prop !== "")
+    .join("\n  ");
 
-    return `<Range />`;
+    return `<Range 
+    ${props}/>`;
   },
 };
 
