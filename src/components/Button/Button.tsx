@@ -4,7 +4,7 @@ import "./Button.css";
 import { Icon } from "../../icons";
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", size = "md", ellipsis = false, icon, iconPosition = "left", children, ...props }, ref) => {
+  ({ variant = "primary", size = "md", ellipsis = false, icon, iconPosition = "left", outline, onClick,  children, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -12,6 +12,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         data-variant={variant}
         data-button-size={size}
         data-icon-position={iconPosition}
+        data-button-outline={outline}
+        onClick={onClick}
         {...props}>
         {!!icon ? (
           <div className="modern-button-icon" data-variant={variant}>

@@ -56,6 +56,12 @@ const ButtonEntry: ComponentEntry = {
       defaultValue: "primary",
     },
     {
+      name: "outline",
+      type: "boolean",
+      description: "When true, the button change to outline style.",
+      defaultValue: false,
+    },
+    {
       name: "size",
       type: "select",
       options: ["sm", "md", "l", "xl", "no-limit"],
@@ -82,33 +88,47 @@ const ButtonEntry: ComponentEntry = {
       defaultValue: false,
     },
     {
-      name: "children",
-      type: "string",
-      description: "Label text displayed inside the button.",
-      defaultValue: "Click me",
-    },
-    {
       name: "disabled",
       type: "boolean",
       description: "When true, the button is non-interactive and visually dimmed.",
       defaultValue: false,
     },
+    {
+      name: "children",
+      type: "string",
+      description: "Label text displayed inside the button.",
+      defaultValue: "Click me",
+    },
   ],
-  render: ({ values }) => (
-    <Button
-      variant = {values["variant"] as "primary" | "secondary" | "succes" | "cancel" | "warning"}
-      size = {values["size"] as "sm" | "md" | "l" | "xl" | "no-limit"}
-      icon = {values["icon"] as "string"}
-      iconPosition = {values["icon position"] as "right" | "left"}
-      ellipsis = {values["ellipsis"] as boolean}
-      disabled = {values["disabled"] as boolean}
-    >
-      {String(values["children"])}
-    </Button>
-  ),
+  render: ({ values }) => {
+    const ButtonComponentPreview = () => {
+      const [buttonpressed, setButtonPressed] = useState(false);
+      return (
+        <div>
+            <Button
+              variant = {values["variant"] as "primary" | "secondary" | "succes" | "cancel" | "warning"}
+              size = {values["size"] as "sm" | "md" | "l" | "xl" | "no-limit"}
+              icon = {values["icon"] as "string"}
+              iconPosition = {values["icon position"] as "right" | "left"}
+              ellipsis = {values["ellipsis"] as boolean}
+              disabled = {values["disabled"] as boolean}
+              outline = { values["outline"] as boolean }
+              onClick={() => {
+                setButtonPressed(true);
+                setTimeout(() => setButtonPressed(false), 3000);
+              }}>
+           {String(values["children"])}
+         </Button>
+         {buttonpressed && (<div style={{ position: "absolute", bottom: "3rem", right: "5rem",color: "#6b7280", textAlign: "center" }}>button pressed!!</div>)}
+        </div>
+      )
+    };
+    return <ButtonComponentPreview/>
+  },
   generateCode: (values) => {
     const props = [
       values["variant"] !== "primary" ? `variant="${values["variant"]}"` : "",
+      values["outline"] ? "outline" : '',
       values["disabled"] ? "disabled" : "",
       `size=${values["size"] ? '"'+ values["size"] + '"' : "md"}`,
       values["ellipsis"] ? "ellipsis=" + '"'+ "true" + '"' : "",
@@ -120,7 +140,8 @@ const ButtonEntry: ComponentEntry = {
 
     return `
 <Button
-  ${props}>
+  ${props}
+  onClick: () => {}>
   ${values["children"]}
 </Button>`;
   },
@@ -346,11 +367,24 @@ const InputEntry: ComponentEntry = {
       defaultValue: false,
     }
   ],
-  render: ({ values }) => (
-    <Input
-      disabled={values["disabled"] as boolean}
-      type={values["type"] as 'text' | 'number' | 'password' | 'email' | 'tel' | 'search' | 'date' | 'color'}/>
-  ),
+  render: ({ values }) => {
+    const InputEntryPreview = () => {
+      const [inputValue, setInputValue] = useState('');
+      const receiveInputValue = (e) => {
+        setInputValue(e.target.value);
+      }
+      return (
+        <>
+          <Input
+            disabled={values["disabled"] as boolean}
+            type={values["type"] as 'text' | 'number' | 'password' | 'email' | 'tel' | 'search' | 'date' | 'color'}
+            onChange={receiveInputValue}/>
+            <div style={{ position: "absolute", bottom: "3rem", left: "5rem",color: "#6b7280", textAlign: "center" }}>Input value: {inputValue}</div>
+        </>
+      )
+    }
+    return <InputEntryPreview/>
+  },
   generateCode: (values) => {
     const props = [
       values['disabled'] ? 'disabled' : '',
@@ -361,6 +395,7 @@ const InputEntry: ComponentEntry = {
     return `
 <Input 
   ${props}
+  onchange=() => {}
 />`;
   },
 };
@@ -522,8 +557,10 @@ const CheckboxEntry: ComponentEntry = {
   ],
   render: ({ values }) => {
     const CheckboxCompPreview = () => {
+      const [chekboxValue, setChexboxValue] = useState('');
       const onChangeRefresh = (value: any) => {
-        console.log('checkbutton pressed: ', value)
+        console.log('checkbutton pressed: ', value);
+        setChexboxValue(JSON.stringify(value));
       }
       return (
         <>
@@ -541,6 +578,7 @@ const CheckboxEntry: ComponentEntry = {
               value="rojo"
               onChange={(e) => onChangeRefresh(e)}/>
           </div>
+           <div style={{ position: "absolute", bottom: "3rem", left: "5rem",color: "#6b7280", textAlign: "center" }}>Checkbox value: {chekboxValue}</div>
         </>
       );
     };
@@ -558,7 +596,8 @@ const CheckboxEntry: ComponentEntry = {
     .join("\n  ");
     return `
 <Checkbox 
-  ${props}/>`;
+  ${props}
+  onChange= () => {}s/>`;
   },
 };
 

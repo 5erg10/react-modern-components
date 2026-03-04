@@ -5,5 +5,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | "md" | "l" | "xl" | "no-limit";
   ellipsis?: boolean,
   icon?: string,
-  iconPosition?: "right" | "left"
+  iconPosition?: "right" | "left",
+  outline?: boolean,
+  onClick?: () => void
 }
