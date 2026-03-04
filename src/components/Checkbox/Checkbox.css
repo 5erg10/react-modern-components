@@ -1,37 +1,72 @@
 .modern-input-checkbox {
     --checkbox--size: 2rem;
-    --chackbox-text-color: #f3f4f6;
-    --chackbox-bg-color: #374151;
-    --chackbox-border-color: #6a7d9b;
-    position: relative;
+    --checkbox-text-color: #f3f4f6;
+    --checkbox-bg-color: #374151;
+    --checkbox-border-color: #6a7d9b;
+
     box-sizing: border-box;
-    display: inline;
+    display: inline-block;              /* inline-block respeta width y height */
     width: var(--checkbox--size);
     height: var(--checkbox--size);
-    background-color: var(--chackbox-bg-color);
-    color: var(--chackbox-text-color);
-    border: solid 2px var(--chackbox-border-color);
+    background-color: var(--checkbox-bg-color);
+    color: var(--checkbox-text-color);
+    border: solid 2px var(--checkbox-border-color);
+    border-radius: 4px;
 }
 
+/* El label es el contenedor posicionado real:
+   el input absoluto se ancla a él, no al div externo */
+.modern-input-checkbox label {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Input invisible pero ocupa todo el label para ser clickeable */
 .modern-input-checkbox input {
     position: absolute;
-    cursor: default;
+    inset: 0;
     opacity: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 1;
 }
 
 .modern-input-checkbox__check {
-    width: 100%;
-    height: 100%;
-    display: inline-flex;
+    position: absolute;
+    inset: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;  /* los clics pasan al input que está encima */
 }
 
+/* Icono oculto por defecto */
 .modern-input-checkbox__check > * {
     opacity: 0;
     transition: opacity 0.15s ease;
 }
 
+/* Cuando el input nativo está checked, el combinador + activa el icono */
 .modern-input-checkbox input:checked + .modern-input-checkbox__check > * {
     opacity: 1;
+}
+
+/* Foco accesible */
+.modern-input-checkbox input:focus-visible + .modern-input-checkbox__check {
+    outline: 2px solid var(--checkbox-border-color);
+    outline-offset: 2px;
+}
+
+/* Disabled */
+.modern-input-checkbox input:disabled {
+    cursor: not-allowed;
+}
+
+.modern-input-checkbox input:disabled + .modern-input-checkbox__check {
+    opacity: 0.5;
 }
