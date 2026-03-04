@@ -2,24 +2,16 @@
 import { InputProps } from "./Input.types";
 import "./Input.css";
 
-export const Input = ({type = 'text', options = []}: InputProps ) => {
+export const Input = ({type = 'text', ...props}: InputProps ) => {
     return (
         <>
             <label>
-                <span>label</span>
-                { type == 'select' ? <>
-                    <select>
-                        {options.map((o) => (
-                            <option key={o} value={o}>
-                            {o}
-                            </option>
-                        ))}
-                    </select>
-                </> : 
                 <input
+                    data-input-type={type}
                     aria-label="input-type-aria-label"
-                    type={type}/>
-                }
+                    className="modern-input"
+                    type={type}
+                    {...props}/>
             </label>
         </>
     )    

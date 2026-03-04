@@ -179,7 +179,7 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
           aria-label="text-input"
           className="sb-textarea"
           value={value as string[]}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange(e.target.value.split(','))}
         />
       </label>
     );

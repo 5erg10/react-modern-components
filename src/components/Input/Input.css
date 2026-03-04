@@ -1,0 +1,37 @@
+:root {
+    --input-text-color: #f3f4f6;
+    --input-bg-color: #374151;
+    --input-border-color: #6a7d9b;
+}
+
+.modern-input {
+    position: relative;
+    display: inline;
+    padding: 0.5rem 1rem;
+    border: solid 2px var(--input-border-color);
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    outline: none;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.modern-input[type='checkbox'],
+.modern-input[type='radio'] {
+    position: relative;
+}
+
+/* ---- FOCUS STYLES ------*/
+
+.modern-input:focus {
+    border-color: #8ea9d4;
+    background-color: #2f3846;
+}
+
+/* ------- DISABLED STYLES -----*/
+    
+.modern-input:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}

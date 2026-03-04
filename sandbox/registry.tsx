@@ -6,6 +6,7 @@ import { DigitalClock } from "../src/components/DigitalClock";
 import { Input } from "../src/components/Input";
 import { Table } from "../src/components/Table";
 import { Dropdown } from "../src/components/Dropdown";
+import { Range } from "../src/components/Range";
 
 /* -------------------------------------------------------
    Types
@@ -321,31 +322,31 @@ const InputEntry: ComponentEntry = {
   name: "Input",
   icon: "📱",
   category: "input",
-  description: "Input component.",
+  description: "Input element, available types: text, number",
   props: [
     {
       name: "type",
       type: "select",
-      options: ["text", "number", "select", "range"],
-      description: "clock size",
-      defaultValue: "small",
+      options: ['text', 'number', 'checkbox', 'radio', 'password', 'email', 'tel', 'search', 'date', 'color'],
+      description: "Type of input",
+      defaultValue: "text",
     },
     {
-      name: "options list",
-      type: "array",
-      description: "List options to select.",
-      defaultValue: ['Option 1', 'Option 2', 'Option 3', 'Option 4'],
-    },
+      name: "disabled",
+      type: "boolean",
+      description: "When true, input is non-interactive and visually dimmed.",
+      defaultValue: false,
+    }
   ],
   render: ({ values }) => (
     <Input
-      type={values["type"] as any}
-      options={values["options list"] as any}/>
+      disabled={values["disabled"] as boolean}
+      type={values["type"] as 'text' | 'number' | 'password' | 'email' | 'tel' | 'search' | 'date' | 'checkbox' | 'radio' | 'color'}/>
   ),
   generateCode: (values) => {
     const props = [
+      values['disabled'] ? 'disabled' : '',
       `type=${values["type"]}`,
-      `options=${values["options list"]}`
     ]
     .filter(prop => prop != null && prop !== "")
     .join("\n  ");
@@ -390,6 +391,27 @@ const DropdownEntry: ComponentEntry = {
   },
 };
 
+/* AUTO-GENERATED: Range — edit render/generateCode as needed */
+const RangeEntry: ComponentEntry = {
+  id: "range",
+  name: "Range",
+  icon: "📱",
+  category: "input",
+  description: "Range component.",
+  props: [
+
+  ],
+  render: ({ values }) => (
+    <Range
+
+    />
+  ),
+  generateCode: (values) => {
+
+    return `<Range />`;
+  },
+};
+
 export const componentRegistry: ComponentEntry[] = [
   ButtonEntry,
   ModalEntry,
@@ -397,5 +419,6 @@ export const componentRegistry: ComponentEntry[] = [
   DigitalClockEntry,
   InputEntry,
   TableEntry,
-  DropdownEntry
+  DropdownEntry,
+  RangeEntry
 ];

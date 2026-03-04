@@ -19,16 +19,6 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
-    "./icons": {
-      "types": "./dist/icons/index.d.ts",
-      "import": "./dist/icons/index.es.js",
-      "require": "./dist/icons/index.cjs.js"
-    },
-    "./icons/*": {
-      "types": "./dist/icons/*/index.d.ts",
-      "import": "./dist/icons/*/index.es.js",
-      "require": "./dist/icons/*/index.cjs.js"
-    },
     "./badge": {
       "types": "./dist/components/Badge/index.d.ts",
       "style": "./dist/components/Badge/Badge.css",
@@ -64,6 +54,12 @@
       "style": "./dist/components/Modal/Modal.css",
       "import": "./dist/components/Modal/index.es.js",
       "require": "./dist/components/Modal/index.cjs.js"
+    },
+    "./range": {
+      "types": "./dist/components/Range/index.d.ts",
+      "style": "./dist/components/Range/Range.css",
+      "import": "./dist/components/Range/index.es.js",
+      "require": "./dist/components/Range/index.cjs.js"
     },
     "./table": {
       "types": "./dist/components/Table/index.d.ts",

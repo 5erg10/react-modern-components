@@ -5,6 +5,14 @@ import "./Dropdown.css";
 export const Dropdown = ({
 }: DropdownProps ) => {
     return (
-        <div>Dropdown works!!</div>
+        <>
+            {/* <select className="modern-input" {...props}>
+                {options.map((o) => (
+                    <option key={o} value={o}>
+                    {o}
+                    </option>
+                ))}
+            </select> */}
+        </> 
     )    
 };

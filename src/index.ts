@@ -4,4 +4,5 @@ export { DigitalClock } from "./components/DigitalClock";
 export { Dropdown } from "./components/Dropdown";
 export { Input } from "./components/Input";
 export { Modal } from "./components/Modal";
+export { Range } from "./components/Range";
 export { Table } from "./components/Table";
