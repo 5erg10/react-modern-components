@@ -391,75 +391,90 @@ const DropdownEntry: ComponentEntry = {
   },
 };
 
-/* AUTO-GENERATED: Range — edit render/generateCode as needed */
+/* -------------------------------------------------------
+   Range
+------------------------------------------------------- */
 const RangeEntry: ComponentEntry = {
   id: "range",
   name: "Range",
-  icon: "📱",
+  icon: "🎚️",
   category: "input",
-  description: "Range component.",
+  description: "A fully controlled custom range/slider component. Supports mouse and touch drag, keyboard navigation (arrow keys), optional tooltip, and disabled state.",
   props: [
     {
       name: "min",
       type: "number",
-      description: "Min value",
+      description: "Minimum allowed value.",
       defaultValue: 0,
     },
     {
       name: "max",
       type: "number",
-      description: "Max value",
-      defaultValue: 1,
-    },
-    {
-      name: "value",
-      type: "number",
-      description: "value",
-      defaultValue: 0.1,
+      description: "Maximum allowed value.",
+      defaultValue: 100,
     },
     {
       name: "step",
       type: "number",
-      description: "step between values",
-      defaultValue: 0.1,
+      description: "Step increment between values.",
+      defaultValue: 1,
     },
     {
       name: "disabled",
       type: "boolean",
-      description: "Max value",
+      description: "When true, the slider is non-interactive and visually dimmed.",
       defaultValue: false,
     },
     {
       name: "showTooltip",
       type: "boolean",
-      description: "Max value",
-      defaultValue: false,
-    }
+      description: "When true, shows the current value above the thumb while dragging.",
+      defaultValue: true,
+    },
   ],
-  render: ({ values }) => (
-    <Range
-      min={values['min'] as number}
-      max={values['min'] as number}
-      value={values['value'] as number}
-      step={values['min'] as number}
-      disabled={values['min'] as boolean}
-      showTooltip={values['min'] as boolean}
-    />
-  ),
+  // Range is a controlled component: it needs its own local state so that
+  // onChange can update the displayed value. Without this the thumb snaps
+  // back on every render because `value` would never change.
+  render: ({ values }) => {
+    const RangePreview = () => {
+      const [val, setVal] = useState<number>(50);
+      return (
+        <div style={{ width: "100%", maxWidth: 400, padding: "2rem 1rem" }}>
+          <Range
+            min={values["min"] as number}
+            max={values["max"] as number}
+            step={values["step"] as number}
+            disabled={values["disabled"] as boolean}
+            showTooltip={values["showTooltip"] as boolean}
+            value={val}
+            onChange={setVal}
+          />
+          <div style={{ marginTop: 8, fontSize: 13, color: "#6b7280", textAlign: "center" }}>
+            value: {val}
+          </div>
+        </div>
+      );
+    };
+    return <RangePreview />;
+  },
   generateCode: (values) => {
     const props = [
-      `min=${values['min']}`,
-      `max=${values['max']}`,
-      `value=${values['value']}`,
-      `step=${values['step']}`,
-      `disabled=${values['disabled']}`,
-      `showTooltip=${values['showTooltip']}`
+      `min={${values["min"]}}`,
+      `max={${values["max"]}}`,
+      `step={${values["step"]}}`,
+      values["disabled"] ? "disabled" : "",
+      values["showTooltip"] ? "showTooltip" : "",
+      `value={value}`,
+      `onChange={setValue}`,
     ]
     .filter(prop => prop != null && prop !== "")
     .join("\n  ");
 
-    return `<Range 
-    ${props}/>`;
+    return `const [value, setValue] = useState(${values["min"]});
+
+<Range
+  ${props}
+/>`;
   },
 };
 
