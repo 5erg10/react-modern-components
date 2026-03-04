@@ -19,6 +19,7 @@
   position: absolute;
   opacity: 0;
   pointer-events: none;
+  width: 100%;
 }
 
 .slider__track {
@@ -28,6 +29,11 @@
   background: var(--slider-track-bg);
   border-radius: 999px;
   cursor: pointer;
+  outline: none;
+}
+
+.slider__track:focus-visible {
+  box-shadow: 0 0 0 3px rgba(142, 169, 212, 0.5);
 }
 
 .slider__progress {
@@ -35,12 +41,14 @@
   height: 100%;
   background: var(--slider-progress-bg);
   border-radius: 999px;
+  pointer-events: none;
 }
 
 .slider__thumb {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
+  /* left is set via JS as calc(% - offset) to prevent overflow at edges */
+  transform: translateY(-50%);
   width: var(--slider-thumb-size);
   height: var(--slider-thumb-size);
   background: var(--slider-thumb-bg);
@@ -50,16 +58,19 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.15s ease;
+  pointer-events: none;
 }
 
 .slider__thumb--active {
-  transform: translate(-50%, -50%) scale(var(--slider-thumb-active-scale));
+  transform: translateY(-50%) scale(var(--slider-thumb-active-scale));
   cursor: grabbing;
 }
 
 .slider__tooltip {
   position: absolute;
   top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
   padding: 2px 6px;
   font-size: 0.75rem;
   background: var(--slider-progress-bg);
