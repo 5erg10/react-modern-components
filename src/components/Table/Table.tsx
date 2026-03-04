@@ -15,10 +15,11 @@ interface SortState {
 
 interface TableInnerProps {
   data: Record<string, unknown>[];
+  onRowClick?: (row: Record<string, unknown>) => void;
   containerRef: React.ForwardedRef<HTMLDivElement>;
 }
 
-const TableInner = ({ data, containerRef }: TableInnerProps) => {
+const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
   const columns = useMemo<string[]>(() => {
     const keySets = data.map((row) => new Set(Object.keys(row)));
     const common = [...keySets[0]].filter((key) =>
@@ -109,6 +110,7 @@ const TableInner = ({ data, containerRef }: TableInnerProps) => {
   );
 
   const hasPagination = totalRows > pageSize;
+  const isClickable = typeof onRowClick === "function";
 
   return (
     <div ref={containerRef} className="modern-table-wrapper">
@@ -176,7 +178,15 @@ const TableInner = ({ data, containerRef }: TableInnerProps) => {
               </tr>
             ) : (
               visibleRows.map((row, rowIdx) => (
-                <tr key={rowIdx} className="modern-table-row">
+                <tr
+                  key={rowIdx}
+                  className={`modern-table-row${isClickable ? " modern-table-row--clickable" : ""}`}
+                  onClick={isClickable ? () => onRowClick!(row) : undefined}
+                  tabIndex={isClickable ? 0 : undefined}
+                  onKeyDown={isClickable ? (e) => { if (e.key === "Enter" || e.key === " ") onRowClick!(row); } : undefined}
+                  role={isClickable ? "button" : undefined}
+                  aria-label={isClickable ? `Fila ${rowIdx + 1}` : undefined}
+                >
                   {columns.map((col) => (
                     <td key={col} className="modern-table-td">
                       {String(row[col] ?? "")}
@@ -251,9 +261,9 @@ const TableInner = ({ data, containerRef }: TableInnerProps) => {
 
 /* ── Public component: guard before hooks ── */
 
-export const Table = forwardRef<HTMLDivElement, TableProps>(({ data }, ref) => {
+export const Table = forwardRef<HTMLDivElement, TableProps>(({ data, onRowClick }, ref) => {
   if (!Array.isArray(data) || data.length === 0) return null;
-  return <TableInner data={data} containerRef={ref} />;
+  return <TableInner data={data} onRowClick={onRowClick} containerRef={ref} />;
 });
 
 Table.displayName = "Table";
