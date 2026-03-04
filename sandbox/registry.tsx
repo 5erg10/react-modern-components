@@ -432,9 +432,6 @@ const RangeEntry: ComponentEntry = {
       defaultValue: true,
     },
   ],
-  // Range is a controlled component: it needs its own local state so that
-  // onChange can update the displayed value. Without this the thumb snaps
-  // back on every render because `value` would never change.
   render: ({ values }) => {
     const RangePreview = () => {
       const [val, setVal] = useState<number>(50);

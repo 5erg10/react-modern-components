@@ -17,20 +17,14 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
 
         const trackRef = useRef<HTMLDivElement>(null);
         const [isDragging, setIsDragging] = useState(false);
-
-        // Refs to hold the active drag handlers so we can clean them up
-        // if the component unmounts while a drag is in progress.
+        
         const moveHandlerRef = useRef<((event: MouseEvent | TouchEvent) => void) | null>(null);
         const upHandlerRef = useRef<(() => void) | null>(null);
 
-        // Always keep a fresh reference to updateValueFromPointer so that
-        // drag handlers created on pointerDown never close over stale props.
         const updateValueFromPointerRef = useRef<(clientX: number) => void>(() => {});
 
         const percentage = ((value - min) / (max - min)) * 100;
 
-        // Derive decimal precision directly from the step prop so we never
-        // produce floating-point noise (e.g. 0.30000000000000004).
         const stepPrecision = (step.toString().split(".")[1] ?? "").length;
 
         const updateValueFromPointer = useCallback(
@@ -49,12 +43,10 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
             [disabled, min, max, step, stepPrecision, onChange]
         );
 
-        // Keep the ref in sync with the latest version of the callback.
         useEffect(() => {
             updateValueFromPointerRef.current = updateValueFromPointer;
         });
 
-        // Cleanup listeners if the component unmounts while a drag is in progress.
         useEffect(() => {
             return () => {
                 if (moveHandlerRef.current) {
@@ -76,7 +68,6 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
                 const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
                 updateValueFromPointerRef.current(clientX);
 
-                // Explicitly typed native handlers — no cast needed.
                 const moveHandler = (event: MouseEvent | TouchEvent): void => {
                     const x =
                         "touches" in event
@@ -121,11 +112,7 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
         );
 
         return (
-            <div
-                ref={ref}
-                className={`slider ${disabled ? "slider--disabled" : ""}`}
-            >
-                {/* Native input kept for form compatibility only */}
+            <div ref={ref} className={`slider ${disabled ? "slider--disabled" : ""}`}>
                 <input
                     type="range"
                     min={min}
@@ -134,26 +121,16 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
                     value={value}
                     disabled={disabled}
                     onChange={(e) => onChange(Number(e.target.value))}
-                    aria-hidden="true"
+                    aria-label={label}
                     tabIndex={-1}
-                    className="slider__native"
-                />
-
+                    className="slider__native"/>
                 <div
                     ref={trackRef}
                     className="slider__track"
-                    role="slider"
-                    aria-valuemin={min}
-                    aria-valuemax={max}
-                    aria-valuenow={value}
-                    aria-readonly={disabled}
-                    aria-label={label}
-                    aria-orientation="horizontal"
                     tabIndex={disabled ? -1 : 0}
                     onMouseDown={handlePointerDown}
                     onTouchStart={handlePointerDown}
-                    onKeyDown={handleKeyDown}
-                >
+                    onKeyDown={handleKeyDown}>
                     <div
                         className="slider__progress"
                         style={{ width: `${percentage}%` }}
@@ -163,7 +140,6 @@ export const Range = forwardRef<HTMLDivElement, RangeProps>(
                             isDragging ? "slider__thumb--active" : ""
                         }`}
                         style={{
-                            // Offset derived purely from CSS var — no JS magic number.
                             left: `calc(${percentage}% - ${percentage / 100} * var(--slider-thumb-size))`
                         }}
                     >
