@@ -1,4 +1,4 @@
-import { forwardRef, useState, useMemo, useCallback } from "react";
+import { forwardRef, useState, useMemo, useCallback, useEffect } from "react";
 import { TableProps } from "./Table.types";
 import "./Table.css";
 
@@ -20,19 +20,28 @@ interface TableInnerProps {
 }
 
 const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
+
+  /* ── Columns: intersection of all row keys ── */
   const columns = useMemo<string[]>(() => {
-    const keySets = data.map((row) => new Set(Object.keys(row)));
-    const common = [...keySets[0]].filter((key) =>
-      keySets.every((set) => set.has(key))
-    );
-    return common;
+    if (data.length === 0) return [];
+    const first = Object.keys(data[0]);
+    if (data.length === 1) return first;
+    const rest = data.slice(1).map((row) => new Set(Object.keys(row)));
+    return first.filter((key) => rest.every((set) => set.has(key)));
   }, [data]);
 
-  const [searchField, setSearchField] = useState<string>(columns[0] ?? "");
+  const [searchField, setSearchField] = useState<string>(() => columns[0] ?? "");
   const [searchValue, setSearchValue] = useState<string>("");
   const [pageSize, setPageSize] = useState<10 | 50 | 100>(10);
   const [page, setPage] = useState<number>(1);
   const [sort, setSort] = useState<SortState | null>(null);
+
+  /* ── Keep searchField in sync if columns array changes ── */
+  useEffect(() => {
+    if (columns.length > 0 && !columns.includes(searchField)) {
+      setSearchField(columns[0]);
+    }
+  }, [columns, searchField]);
 
   /* ── Sorting handler ── */
   const handleSortColumn = useCallback((col: string) => {
