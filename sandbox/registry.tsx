@@ -8,6 +8,7 @@ import { Table } from "../src/components/Table";
 import { Dropdown } from "../src/components/Dropdown";
 import { Range } from "../src/components/Range";
 import { Checkbox } from "../src/components/Checkbox";
+import { tableData } from "./componentsData";
 
 /* -------------------------------------------------------
    Types
@@ -240,23 +241,7 @@ const InputEntry: ComponentEntry = {
 /* -------------------------------------------------------
    Table
 ------------------------------------------------------- */
-const TABLE_SAMPLE_DATA = [
-  { id: 1,  nombre: "Ana García",       departamento: "Ingeniería", cargo: "Dev Frontend",     salario: 42000, activo: "Sí"  },
-  { id: 2,  nombre: "Carlos López",     departamento: "Diseño",     cargo: "UI/UX Designer",   salario: 38000, activo: "Sí"  },
-  { id: 3,  nombre: "Marta Sánchez",    departamento: "Producto",   cargo: "Product Manager",  salario: 55000, activo: "No"  },
-  { id: 4,  nombre: "David Martínez",   departamento: "Ingeniería", cargo: "Dev Backend",      salario: 46000, activo: "Sí"  },
-  { id: 5,  nombre: "Lucía Fernández",  departamento: "RRHH",       cargo: "HR Specialist",    salario: 34000, activo: "Sí"  },
-  { id: 6,  nombre: "Pablo Ruiz",       departamento: "Ingeniería", cargo: "DevOps",           salario: 50000, activo: "Sí"  },
-  { id: 7,  nombre: "Sara Torres",      departamento: "Marketing",  cargo: "SEO Analyst",      salario: 31000, activo: "No"  },
-  { id: 8,  nombre: "Javier Moreno",    departamento: "Ventas",     cargo: "Sales Lead",       salario: 44000, activo: "Sí"  },
-  { id: 9,  nombre: "Elena Jiménez",    departamento: "Ingeniería", cargo: "QA Engineer",      salario: 39000, activo: "Sí"  },
-  { id: 10, nombre: "Raúl Díaz",        departamento: "Finanzas",   cargo: "Controller",       salario: 52000, activo: "Sí"  },
-  { id: 11, nombre: "Isabel Romero",    departamento: "Diseño",     cargo: "Motion Designer",  salario: 36000, activo: "No"  },
-  { id: 12, nombre: "Miguel Álvarez",   departamento: "Producto",   cargo: "Scrum Master",     salario: 49000, activo: "Sí"  },
-  { id: 13, nombre: "Nuria Vega",       departamento: "Marketing",  cargo: "Content Manager",  salario: 33000, activo: "Sí"  },
-  { id: 14, nombre: "Tomás Castillo",   departamento: "Ingeniería", cargo: "Tech Lead",        salario: 62000, activo: "Sí"  },
-  { id: 15, nombre: "Beatriz Molina",   departamento: "RRHH",       cargo: "Talent Recruiter", salario: 35000, activo: "No"  },
-];
+const TABLE_SAMPLE_DATA: any[] = tableData;
 
 const TableEntry: ComponentEntry = {
   id: "table",
