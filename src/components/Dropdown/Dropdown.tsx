@@ -2,17 +2,17 @@
 import { DropdownProps } from "./Dropdown.types";
 import "./Dropdown.css";
 
-export const Dropdown = ({
-}: DropdownProps ) => {
+export const Dropdown = (
+{ options, ...props }: DropdownProps ) => {
     return (
         <>
-            {/* <select className="modern-input" {...props}>
+            <select className="modern-input" {...props}>
                 {options.map((o) => (
-                    <option key={o} value={o}>
-                    {o}
+                    <option>
+                        {o}
                     </option>
                 ))}
-            </select> */}
+            </select>
         </> 
     )    
 };

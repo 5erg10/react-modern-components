@@ -1,2 +1,4 @@
 
-export interface DropdownProps {}
+export interface DropdownProps {
+    options: String[]
+}
