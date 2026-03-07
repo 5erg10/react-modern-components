@@ -13,8 +13,8 @@ export const ModalEntry: ComponentEntry = {
     "Clicking the backdrop calls onClose — clicks inside the content " +
     "do not propagate, preventing accidental dismissal.",
   props: [
-    { name: "isOpen", type: "boolean", description: "Controls whether the modal is visible.", defaultValue: false, required: true },
-    { name: "children", type: "string", description: "Content rendered inside the modal.", defaultValue: "Modal content goes here", multiline: true },
+    { name: "isOpen", propName: 'isOpen', type: "boolean", description: "Controls whether the modal is visible.", defaultValue: false, required: true },
+    { name: "children", propName: 'native', type: "string", description: "Content rendered inside the modal.", defaultValue: "Modal content goes here", multiline: true },
   ],
   render: ({ values }) => {
     const ModalPreview = () => {

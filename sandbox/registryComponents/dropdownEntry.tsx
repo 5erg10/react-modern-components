@@ -8,6 +8,6 @@ export const DropdownEntry: ComponentEntry = {
   category: "input",
   description: "Dropdown component.",
   props: [],
-  render: () => <Dropdown />,
+  render: () => <Dropdown options={['option 1', 'option 2', 'option 3']}/>,
   generateCode: () => `\n<Dropdown />`,
 };

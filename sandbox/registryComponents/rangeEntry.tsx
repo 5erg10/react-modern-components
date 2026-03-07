@@ -9,11 +9,11 @@ export const RangeEntry: ComponentEntry = {
   category: "input",
   description: "A fully controlled custom range/slider component. Supports mouse and touch drag, keyboard navigation (arrow keys), optional tooltip, and disabled state.",
   props: [
-    { name: "min", type: "number", description: "Minimum allowed value.", defaultValue: 0 },
-    { name: "max", type: "number", description: "Maximum allowed value.", defaultValue: 1 },
-    { name: "step", type: "number", description: "Step increment between values.", defaultValue: 0.1 },
-    { name: "disabled", type: "boolean", description: "When true, the slider is non-interactive and visually dimmed.", defaultValue: false },
-    { name: "showTooltip", type: "boolean", description: "When true, shows the current value above the thumb while dragging.", defaultValue: true },
+    { name: "min", propName: 'min', type: "number", description: "Minimum allowed value.", defaultValue: 0 },
+    { name: "max", propName: 'max', type: "number", description: "Maximum allowed value.", defaultValue: 1 },
+    { name: "step", propName: 'step', type: "number", description: "Step increment between values.", defaultValue: 0.1 },
+    { name: "disabled", propName: 'native', type: "boolean", description: "When true, the slider is non-interactive and visually dimmed.", defaultValue: false },
+    { name: "showTooltip", propName: 'showTooltip', type: "boolean", description: "When true, shows the current value above the thumb while dragging.", defaultValue: true },
   ],
   render: ({ values }) => {
     const RangePreview = () => {

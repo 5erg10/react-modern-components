@@ -9,10 +9,10 @@ export const CheckboxEntry: ComponentEntry = {
   category: "input",
   description: "Checkbox component.",
   props: [
-    { name: "type", type: "select", options: ["checkbox", "radio"], description: "Type of input", defaultValue: "checkbox" },
-    { name: "name", type: "string", description: "", defaultValue: "color" },
-    { name: "value", type: "string", description: "", defaultValue: "azul" },
-    { name: "disabled", type: "boolean", description: "", defaultValue: false },
+    { name: "type", propName: 'type', type: "select", options: ["checkbox", "radio"], description: "Type of input", defaultValue: "checkbox" },
+    { name: "name", propName: 'name', type: "string", description: "", defaultValue: "color" },
+    { name: "value", propName: 'value', type: "string", description: "", defaultValue: "azul" },
+    { name: "disabled", propName: 'native', type: "boolean", description: "", defaultValue: false },
   ],
   render: ({ values }) => {
     const CheckboxCompPreview = () => {

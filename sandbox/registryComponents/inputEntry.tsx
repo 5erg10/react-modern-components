@@ -9,8 +9,8 @@ export const InputEntry: ComponentEntry = {
   category: "input",
   description: "Input element, available types: text, number",
   props: [
-    { name: "type", type: "select", options: ["text", "number", "password", "email", "tel", "search", "date", "color"], description: "Type of input", defaultValue: "text" },
-    { name: "disabled", type: "boolean", description: "When true, input is non-interactive and visually dimmed.", defaultValue: false },
+    { name: "type", propName: "type", type: "select", options: ["text", "number", "password", "email", "tel", "search", "date", "color"], description: "Type of input", defaultValue: "text" },
+    { name: "disabled", propName: "native", type: "boolean", description: "When true, input is non-interactive and visually dimmed.", defaultValue: false },
   ],
   render: ({ values }) => {
     const InputEntryPreview = () => {

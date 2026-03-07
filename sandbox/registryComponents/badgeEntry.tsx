@@ -8,12 +8,12 @@ export const BadgeEntry: ComponentEntry = {
   category: "ui",
   description: "Badge component.",
   props: [
-    { name: "variant", type: "select", options: ["default", "success", "warning", "error", "info"], description: "", defaultValue: "default" },
-    { name: "size", type: "select", options: ["sm", "md", "lg"], description: "", defaultValue: "sm" },
-    { name: "label", type: "string", description: "", defaultValue: "label", required: true },
-    { name: "icon", type: "string", description: "", defaultValue: "icon" },
-    { name: "outline", type: "boolean", description: "Set true to transparent background badge.", defaultValue: false },
-    { name: "dismissible", type: "boolean", description: "", defaultValue: false },
+    { name: "variant", propName: 'variant', type: "select", options: ["default", "success", "warning", "error", "info"], description: "", defaultValue: "default" },
+    { name: "size", propName: 'size', type: "select", options: ["sm", "md", "lg"], description: "", defaultValue: "sm" },
+    { name: "label", propName: 'label', type: "string", description: "", defaultValue: "label", required: true },
+    { name: "icon", propName: 'icon', type: "string", description: "", defaultValue: "icon" },
+    { name: "outline", propName: 'outline', type: "boolean", description: "Set true to transparent background badge.", defaultValue: false },
+    { name: "dismissible", propName: 'dismissible', type: "boolean", description: "", defaultValue: false },
   ],
   render: ({ values }) => (
     <Badge

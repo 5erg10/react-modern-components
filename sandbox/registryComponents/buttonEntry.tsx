@@ -12,14 +12,14 @@ export const ButtonEntry: ComponentEntry = {
     "Supports primary and secondary visual variants, disabled state, and any " +
     "standard button prop (onClick, type, aria-*, etc.).",
   props: [
-    { name: "variant", type: "select", options: ["primary", "secondary", "cancel", "succes", "warning"], description: "Visual style of the button.", defaultValue: "primary" },
-    { name: "outline", type: "boolean", description: "When true, the button change to outline style.", defaultValue: false },
-    { name: "size", type: "select", options: ["sm", "md", "l", "xl", "no-limit"], description: "Button Width limit.", defaultValue: "md" },
-    { name: "icon", type: "string", description: "Set an Icon Name to print icon.", defaultValue: undefined },
-    { name: "icon position", type: "select", options: ["right", "left"], description: "Select right or left icon position", defaultValue: "left" },
-    { name: "ellipsis", type: "boolean", description: "Trunk button text content with ellipsis", defaultValue: false },
-    { name: "disabled", type: "boolean", description: "When true, the button is non-interactive and visually dimmed.", defaultValue: false },
-    { name: "children", type: "string", description: "Label text displayed inside the button.", defaultValue: "Click me" },
+    { name: "variant", propName: 'variant', type: "select", options: ["primary", "secondary", "cancel", "succes", "warning"], description: "Visual style of the button.", defaultValue: "primary" },
+    { name: "outline", propName: 'outline',  type: "boolean", description: "When true, the button change to outline style.", defaultValue: false },
+    { name: "size", propName: 'size',type: "select", options: ["sm", "md", "l", "xl", "no-limit"], description: "Button Width limit.", defaultValue: "md" },
+    { name: "icon", propName: 'icon', type: "string", description: "Set an Icon Name to print icon.", defaultValue: undefined },
+    { name: "icon position", propName: '', type: "select", options: ["right", "left"], description: "Select right or left icon position", defaultValue: "left" },
+    { name: "ellipsis", propName: 'iconPosition', type: "boolean", description: "Trunk button text content with ellipsis", defaultValue: false },
+    { name: "disabled", propName: 'native', type: "boolean", description: "When true, the button is non-interactive and visually dimmed.", defaultValue: false },
+    { name: "children", propName: 'native', type: "string", description: "Label text displayed inside the button.", defaultValue: "Click me" },
   ],
   render: ({ values }) => {
     const ButtonComponentPreview = () => {
