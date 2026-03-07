@@ -26,14 +26,16 @@ function resolveType(raw, aliases) {
   return aliases[raw.trim()] ?? raw.trim();
 }
 
+// Devuelve un Map<propName, { type, options, required }>
+// donde propName es el nombre real de la prop en el componente (igual que en .types.tsx).
 function parsePropsFromTypes(name) {
   const typesFile = path.join(componentsDir, name, `${name}.types.tsx`);
-  if (!fs.existsSync(typesFile)) return [];
+  if (!fs.existsSync(typesFile)) return new Map();
 
   const raw     = fs.readFileSync(typesFile, "utf-8");
   const src     = stripComments(raw);
   const aliases = extractTypeAliases(src);
-  const props   = [];
+  const map     = new Map();
 
   const ifaceMatch = src.match(/interface\s+\w+Props[^{]*\{([\s\S]*?)\}/);
   const body = ifaceMatch ? ifaceMatch[1] : src;
@@ -48,27 +50,30 @@ function parsePropsFromTypes(name) {
     if (resolved.includes("=>") || resolved.startsWith("React.")) continue;
 
     if (propName === "children") {
-      props.push({ name: "children", type: "string", required: false, options: null });
+      map.set("children", { type: "string", required: false, options: null });
       continue;
     }
 
     if (resolved.includes('"')) {
       const options = [...resolved.matchAll(/"([^"]+)"/g)].map((x) => x[1]);
       if (options.length > 0) {
-        props.push({ name: propName, type: "select", options, required: !optional });
+        map.set(propName, { type: "select", options, required: !optional });
         continue;
       }
     }
 
-    if (resolved === "boolean") { props.push({ name: propName, type: "boolean", required: !optional, options: null }); continue; }
-    if (resolved === "number")  { props.push({ name: propName, type: "number",  required: !optional, options: null }); continue; }
-    if (resolved === "string")  { props.push({ name: propName, type: "string",  required: !optional, options: null }); continue; }
+    if (resolved === "boolean") { map.set(propName, { type: "boolean", required: !optional, options: null }); continue; }
+    if (resolved === "number")  { map.set(propName, { type: "number",  required: !optional, options: null }); continue; }
+    if (resolved === "string")  { map.set(propName, { type: "string",  required: !optional, options: null }); continue; }
   }
 
-  return props;
+  return map;
 }
 
 // ─── 2. Parsear props existentes en el Entry file ────────────────────────────
+// Devuelve un Map<name, { propName, type, options, required, description, defaultValue, multiline }>
+// La clave del mapa es `name` (el label UI), pero guardamos `propName` (la prop real del componente)
+// para poder hacer el match contra el .types.tsx.
 
 function parseExistingProps(entrySrc) {
   const propsMatch = entrySrc.match(/\bprops:\s*\[([\s\S]*?)\],\s*\n\s*render:/);
@@ -88,10 +93,12 @@ function parseExistingProps(entrySrc) {
   }
 
   for (const block of blocks) {
-    const nameMatch = block.match(/\bname:\s*"([^"]+)"/);
+    const nameMatch = block.match(/\bname:\s*["']([^"']+)["']/);
     if (!nameMatch) continue;
-    const propName = nameMatch[1];
+    const entryName = nameMatch[1];
 
+    // propName: puede ir con comillas simples o dobles
+    const propNameMatch  = block.match(/\bpropName:\s*["']([^"']*)["']/);
     const typeMatch      = block.match(/\btype:\s*"([^"]+)"/);
     const optionsMatch   = block.match(/\boptions:\s*\[([^\]]*)\]/);
     const descMatch      = block.match(/\bdescription:\s*"([^"]*)"/);
@@ -103,13 +110,14 @@ function parseExistingProps(entrySrc) {
       ? [...optionsMatch[1].matchAll(/"([^"]+)"/g)].map((x) => x[1])
       : null;
 
-    map.set(propName, {
-      type:         typeMatch      ? typeMatch[1]                  : "string",
+    map.set(entryName, {
+      propName:     propNameMatch  ? propNameMatch[1]               : entryName,
+      type:         typeMatch      ? typeMatch[1]                   : "string",
       options,
-      required:     requiredMatch  ? requiredMatch[1] === "true"   : false,
-      description:  descMatch      ? descMatch[1]                  : "",
-      defaultValue: defaultMatch   ? defaultMatch[1].trim()        : '""',
-      multiline:    multilineMatch ? multilineMatch[1] === "true"  : false,
+      required:     requiredMatch  ? requiredMatch[1] === "true"    : false,
+      description:  descMatch      ? descMatch[1]                   : "",
+      defaultValue: defaultMatch   ? defaultMatch[1].trim()         : '""',
+      multiline:    multilineMatch ? multilineMatch[1] === "true"   : false,
     });
   }
 
@@ -117,70 +125,137 @@ function parseExistingProps(entrySrc) {
 }
 
 // ─── 3. Comparación ──────────────────────────────────────────────────────────
+// La comparación entre Entry y types.tsx se hace vía propName:
+//   - Una prop del Entry se considera MODIFICADA si su propName existe en el types.tsx
+//     pero type/options/required han cambiado.
+//   - Una prop del Entry se considera HUÉRFANA (eliminar) si su propName NO existe
+//     en el types.tsx Y no está vacío (propName='' indica prop manual, no se toca).
+//   - Una prop del types.tsx se considera NUEVA si ningún Entry la referencia en propName.
 
-function propNeedsUpdate(fresh, existing) {
-  if (!existing) return true;
-  if (fresh.type !== existing.type) return true;
-  if (fresh.required !== existing.required) return true;
-  const fOpts = fresh.options    ? [...fresh.options].sort().join(",")    : "";
-  const eOpts = existing.options ? [...existing.options].sort().join(",") : "";
+function propNeedsUpdate(entryProp, freshFromTypes) {
+  if (entryProp.type !== freshFromTypes.type) return true;
+  if (entryProp.required !== freshFromTypes.required) return true;
+  const fOpts = freshFromTypes.options ? [...freshFromTypes.options].sort().join(",") : "";
+  const eOpts = entryProp.options      ? [...entryProp.options].sort().join(",")      : "";
   return fOpts !== eOpts;
 }
 
-function collectChanges(freshProps, existingMap) {
+function collectChanges(typesMap, existingMap) {
   const changes = [];
-  for (const fp of freshProps) {
-    const ex = existingMap.get(fp.name);
-    if (!ex) {
-      changes.push({ kind: "add", prop: fp });
-    } else if (propNeedsUpdate(fp, ex)) {
-      changes.push({ kind: "update", prop: fp, existing: ex });
+
+  // Propiedades del Entry: ¿siguen existiendo en types? ¿han cambiado?
+  for (const [entryName, entryProp] of existingMap) {
+    const pn = entryProp.propName;
+
+    // propName vacío → prop manual del sandbox, no se gestiona
+    if (pn === "" || pn === undefined) continue;
+
+    const fromTypes = typesMap.get(pn);
+    if (!fromTypes) {
+      // La prop real ya no existe en el types.tsx → marcar para eliminar
+      changes.push({ kind: "remove", name: entryName, propName: pn });
+    } else if (propNeedsUpdate(entryProp, fromTypes)) {
+      changes.push({ kind: "update", name: entryName, propName: pn, fresh: fromTypes, existing: entryProp });
     }
   }
-  for (const eName of existingMap.keys()) {
-    if (!freshProps.find((fp) => fp.name === eName)) {
-      changes.push({ kind: "remove", name: eName });
+
+  // Propiedades nuevas en types.tsx que ningún Entry referencia todavía
+  const referencedPropNames = new Set(
+    [...existingMap.values()].map((p) => p.propName).filter(Boolean)
+  );
+  for (const [typePropName, freshProp] of typesMap) {
+    if (!referencedPropNames.has(typePropName)) {
+      changes.push({ kind: "add", propName: typePropName, fresh: freshProp });
     }
   }
+
   return changes;
 }
 
 // ─── 4. Helpers de valores por defecto y descripción ─────────────────────────
 
-function defaultValueFor(p) {
-  if (p.type === "boolean")    return "false";
-  if (p.type === "number")     return "0";
-  if (p.type === "select")     return '"' + (p.options?.[0] ?? "") + '"';
-  if (p.name === "children")   return '"content"';
-  return '"' + p.name + '"';
+function defaultValueFor(propName, p) {
+  if (p.type === "boolean")        return "false";
+  if (p.type === "number")         return "0";
+  if (p.type === "select")         return '"' + (p.options?.[0] ?? "") + '"';
+  if (propName === "children")     return '"content"';
+  return '"' + propName + '"';
 }
 
-function descriptionFor(p) {
-  if (p.name === "children") return "Content rendered inside the component.";
-  if (p.type === "boolean")  return "When true, enables the " + p.name + " behaviour.";
-  if (p.type === "select")   return "Controls the " + p.name + " of the component.";
-  if (p.type === "number")   return "Numeric value for " + p.name + ".";
-  return "Value for the " + p.name + " prop.";
+function descriptionFor(propName, p) {
+  if (propName === "children") return "Content rendered inside the component.";
+  if (p.type === "boolean")    return "When true, enables the " + propName + " behaviour.";
+  if (p.type === "select")     return "Controls the " + propName + " of the component.";
+  if (p.type === "number")     return "Numeric value for " + propName + ".";
+  return "Value for the " + propName + " prop.";
 }
 
-// ─── 5. Constructores de secciones ───────────────────────────────────────────
+// ─── 5. Construir el Map final de props para regenerar las secciones ──────────
+// Produce un array ordenado de props tal como deben quedar en el Entry,
+// aplicando los cambios detectados sobre el existingMap.
 
-function buildPropsSection(freshProps, existingMap) {
-  const lines = freshProps.map((p) => {
-    const existing  = existingMap.get(p.name);
-    const sameType  = existing && existing.type === p.type;
-    const desc      = sameType ? existing.description  : descriptionFor(p);
-    const defVal    = sameType ? existing.defaultValue  : defaultValueFor(p);
-    const multiline = p.name === "children" || (sameType && (existing?.multiline ?? false));
+function applyChangesToPropsArray(typesMap, existingMap, changes) {
+  // Partir del orden existente, aplicar updates/removes, añadir nuevas al final
+  const removeSet = new Set(changes.filter((c) => c.kind === "remove").map((c) => c.name));
+  const updateMap = new Map(
+    changes.filter((c) => c.kind === "update").map((c) => [c.name, c])
+  );
+  const addList   = changes.filter((c) => c.kind === "add");
 
+  const result = [];
+
+  for (const [entryName, entryProp] of existingMap) {
+    if (removeSet.has(entryName)) continue;
+
+    const upd = updateMap.get(entryName);
+    if (upd) {
+      // Actualizar type/options/required; preservar name, propName, description (si mismo tipo), defaultValue
+      const sameType = upd.fresh.type === entryProp.type;
+      result.push({
+        name:         entryName,
+        propName:     upd.propName,
+        type:         upd.fresh.type,
+        options:      upd.fresh.options,
+        required:     upd.fresh.required,
+        description:  sameType ? entryProp.description  : descriptionFor(upd.propName, upd.fresh),
+        defaultValue: sameType ? entryProp.defaultValue  : defaultValueFor(upd.propName, upd.fresh),
+        multiline:    entryProp.multiline,
+      });
+    } else {
+      result.push({ name: entryName, ...entryProp });
+    }
+  }
+
+  // Props nuevas: name = propName (se puede editar a mano después)
+  for (const c of addList) {
+    result.push({
+      name:         c.propName,
+      propName:     c.propName,
+      type:         c.fresh.type,
+      options:      c.fresh.options,
+      required:     c.fresh.required,
+      description:  descriptionFor(c.propName, c.fresh),
+      defaultValue: defaultValueFor(c.propName, c.fresh),
+      multiline:    c.propName === "children",
+    });
+  }
+
+  return result;
+}
+
+// ─── 6. Constructores de secciones ───────────────────────────────────────────
+
+function buildPropsSection(propsArray) {
+  const lines = propsArray.map((p) => {
     let s = "    { ";
     s += 'name: "' + p.name + '", ';
+    s += "propName: '" + p.propName + "', ";
     s += 'type: "' + p.type + '", ';
     if (p.options) s += "options: [" + p.options.map((o) => '"' + o + '"').join(", ") + "], ";
-    s += 'description: "' + desc + '", ';
-    s += "defaultValue: " + defVal;
+    s += 'description: "' + p.description + '", ';
+    s += "defaultValue: " + p.defaultValue;
     if (p.required)  s += ", required: true";
-    if (multiline)   s += ", multiline: true";
+    if (p.multiline) s += ", multiline: true";
     s += " }";
     return s;
   });
@@ -188,15 +263,19 @@ function buildPropsSection(freshProps, existingMap) {
   return "  props: [\n" + lines.join(",\n") + "\n  ]";
 }
 
-function buildRenderSection(name, freshProps) {
-  const nonChildren  = freshProps.filter((p) => p.name !== "children");
-  const childrenProp = freshProps.find((p) => p.name === "children");
+function buildRenderSection(name, propsArray) {
+  const nonChildren  = propsArray.filter((p) => p.name !== "children");
+  const childrenProp = propsArray.find((p) => p.name === "children");
 
   const spreadLines = nonChildren.map((p) => {
-    if (p.type === "boolean") return "      " + p.name + "={values[\"" + p.name + "\"] as boolean}";
-    if (p.type === "number")  return "      " + p.name + "={values[\"" + p.name + "\"] as number}";
-    if (p.type === "select")  return "      " + p.name + "={values[\"" + p.name + "\"] as any}";
-    return                           "      " + p.name + "={String(values[\"" + p.name + "\"])}";
+    // En el render usamos `name` (el label del sandbox) como key de values[]
+    // y propName como nombre de la prop del componente real
+    const valuePart =
+      p.type === "boolean" ? 'values["' + p.name + '"] as boolean' :
+      p.type === "number"  ? 'values["' + p.name + '"] as number'  :
+      p.type === "select"  ? 'values["' + p.name + '"] as any'     :
+                             'String(values["' + p.name + '"])';
+    return "      " + p.propName + "={" + valuePart + "}";
   }).join("\n");
 
   let inner;
@@ -209,19 +288,20 @@ function buildRenderSection(name, freshProps) {
   return "  render: ({ values }) => (\n    " + inner + "\n  )";
 }
 
-function buildGenerateCodeSection(name, freshProps) {
-  const nonChildren  = freshProps.filter((p) => p.name !== "children");
-  const childrenProp = freshProps.find((p) => p.name === "children");
+function buildGenerateCodeSection(name, propsArray) {
+  const nonChildren  = propsArray.filter((p) => p.name !== "children");
+  const childrenProp = propsArray.find((p) => p.name === "children");
 
+  // En generateCode el nombre de variable usa propName, pero el key de values[] usa name
   const propVarLines = nonChildren.map((p) => {
     if (p.type === "boolean")
-      return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? \" " + p.name + "\" : \"\";";
+      return "    const " + p.propName + "Prop = values[\"" + p.name + "\"] ? \" " + p.propName + "\" : \"\";";
     if (p.type === "select")
-      return "    const " + p.name + "Prop = ` " + p.name + "=\"$" + "{values[\"" + p.name + "\"]}\"`;";
-    return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? ` " + p.name + "=\"$" + "{String(values[\"" + p.name + "\"])}\"` : \"\";";
+      return "    const " + p.propName + "Prop = ` " + p.propName + "=\"$" + "{values[\"" + p.name + "\"]}\"`;";
+    return "    const " + p.propName + "Prop = values[\"" + p.name + "\"] ? ` " + p.propName + "=\"$" + "{String(values[\"" + p.name + "\"])}\"` : \"\";";
   }).join("\n");
 
-  const interpolations = nonChildren.map((p) => "$" + "{" + p.name + "Prop}").join("");
+  const interpolations = nonChildren.map((p) => "$" + "{" + p.propName + "Prop}").join("");
 
   const returnLine = childrenProp
     ? "    return `<" + name + interpolations + ">$" + "{values[\"children\"]}</" + name + ">`;"
@@ -230,7 +310,7 @@ function buildGenerateCodeSection(name, freshProps) {
   return "  generateCode: (values) => {\n" + (propVarLines ? propVarLines + "\n" : "") + returnLine + "\n  }";
 }
 
-// ─── 6. Reemplazos en el fichero ─────────────────────────────────────────────
+// ─── 7. Reemplazos en el fichero ─────────────────────────────────────────────
 
 function replacePropsSectionInFile(src, newPropsSection) {
   const propsStart = src.indexOf("  props: [");
@@ -273,7 +353,7 @@ function replaceGenerateCodeSectionInFile(src, newGcSection) {
   return src.slice(0, gcStart) + newGcSection + src.slice(gcEnd);
 }
 
-// ─── 7. Main ─────────────────────────────────────────────────────────────────
+// ─── 8. Main ─────────────────────────────────────────────────────────────────
 
 const components = fs
   .readdirSync(componentsDir, { withFileTypes: true })
@@ -297,11 +377,11 @@ for (const name of components) {
     continue;
   }
 
-  const entryPath  = path.join(registryComponentsDir, entryFile);
-  const freshProps = parsePropsFromTypes(name);
-  const entrySrc   = fs.readFileSync(entryPath, "utf-8");
+  const entryPath   = path.join(registryComponentsDir, entryFile);
+  const typesMap    = parsePropsFromTypes(name);
+  const entrySrc    = fs.readFileSync(entryPath, "utf-8");
   const existingMap = parseExistingProps(entrySrc);
-  const changes    = collectChanges(freshProps, existingMap);
+  const changes     = collectChanges(typesMap, existingMap);
 
   if (changes.length === 0) {
     console.log(chalk.grey("⏭️  " + name + ": sin cambios."));
@@ -315,21 +395,28 @@ for (const name of components) {
     if (c.kind === "add") {
       console.log(
         chalk.green("  ➕ Nueva prop: ") +
-        chalk.white(c.prop.name) +
-        chalk.grey(" (type: " + c.prop.type + (c.prop.options ? ", options: [" + c.prop.options.join(", ") + "]" : "") + ")")
+        chalk.white(c.propName) +
+        chalk.grey(" (type: " + c.fresh.type + (c.fresh.options ? ", options: [" + c.fresh.options.join(", ") + "]" : "") + ")")
       );
     } else if (c.kind === "update") {
-      const typeChanged    = c.prop.type !== c.existing.type;
-      const optionsChanged = JSON.stringify((c.prop.options ?? []).sort()) !== JSON.stringify((c.existing.options ?? []).sort());
-      const reqChanged     = c.prop.required !== c.existing.required;
+      const typeChanged    = c.fresh.type !== c.existing.type;
+      const optionsChanged = JSON.stringify((c.fresh.options ?? []).sort()) !== JSON.stringify((c.existing.options ?? []).sort());
+      const reqChanged     = c.fresh.required !== c.existing.required;
       const details = [
-        typeChanged    ? chalk.grey("type: ") + chalk.yellow(c.existing.type) + chalk.grey(" → ") + chalk.white(c.prop.type) : null,
-        optionsChanged ? chalk.grey("options: ") + chalk.yellow("[" + (c.existing.options ?? []).join(", ") + "]") + chalk.grey(" → ") + chalk.white("[" + (c.prop.options ?? []).join(", ") + "]") : null,
-        reqChanged     ? chalk.grey("required: ") + chalk.yellow(String(c.existing.required)) + chalk.grey(" → ") + chalk.white(String(c.prop.required)) : null,
+        typeChanged    ? chalk.grey("type: ")     + chalk.yellow(c.existing.type)                          + chalk.grey(" → ") + chalk.white(c.fresh.type)                         : null,
+        optionsChanged ? chalk.grey("options: ")  + chalk.yellow("[" + (c.existing.options ?? []).join(", ") + "]") + chalk.grey(" → ") + chalk.white("[" + (c.fresh.options ?? []).join(", ") + "]") : null,
+        reqChanged     ? chalk.grey("required: ") + chalk.yellow(String(c.existing.required))              + chalk.grey(" → ") + chalk.white(String(c.fresh.required))              : null,
       ].filter(Boolean).join("  ");
-      console.log(chalk.yellow("  ✏️  Prop modificada: ") + chalk.white(c.prop.name) + "  " + details);
+      console.log(
+        chalk.yellow("  ✏️  Prop modificada: ") +
+        chalk.white(c.name) + chalk.grey(" (propName: " + c.propName + ")") +
+        "  " + details
+      );
     } else if (c.kind === "remove") {
-      console.log(chalk.red("  ➖ Prop eliminada: ") + chalk.white(c.name));
+      console.log(
+        chalk.red("  ➖ Prop eliminada: ") +
+        chalk.white(c.name) + chalk.grey(" (propName: " + c.propName + " ya no existe en types.tsx)")
+      );
     }
   }
 
@@ -348,9 +435,10 @@ for (const name of components) {
   }
 
   // ── Aplicar ────────────────────────────────────────────────────────────
-  const newPropsSection  = buildPropsSection(freshProps, existingMap);
-  const newRenderSection = buildRenderSection(name, freshProps);
-  const newGcSection     = buildGenerateCodeSection(name, freshProps);
+  const propsArray       = applyChangesToPropsArray(typesMap, existingMap, changes);
+  const newPropsSection  = buildPropsSection(propsArray);
+  const newRenderSection = buildRenderSection(name, propsArray);
+  const newGcSection     = buildGenerateCodeSection(name, propsArray);
 
   let updatedSrc = entrySrc;
   updatedSrc = replacePropsSectionInFile(updatedSrc, newPropsSection);
@@ -362,7 +450,7 @@ for (const name of components) {
   console.log(chalk.green("  ✅ " + entryFile + " actualizado.\n"));
 }
 
-// ─── 8. Resumen final ────────────────────────────────────────────────────────
+// ─── 9. Resumen final ────────────────────────────────────────────────────────
 console.log(chalk.bold("\n──────────────────────────────────────────────────"));
 if (totalUpdated > 0) {
   console.log(chalk.green("✅ Sync completado: " + totalUpdated + " componente(s) actualizado(s)" + (totalSkipped > 0 ? ", " + totalSkipped + " omitido(s)" : "") + "."));
