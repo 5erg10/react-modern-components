@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import { confirm } from "@inquirer/prompts";
+import chalk from "chalk";
 
 const componentsDir         = path.resolve("./src/components");
 const registryComponentsDir = path.resolve("./sandbox/registryComponents");
@@ -24,7 +26,6 @@ function resolveType(raw, aliases) {
   return aliases[raw.trim()] ?? raw.trim();
 }
 
-// Parsea el .types.tsx y devuelve un array de props con type, options y required.
 function parsePropsFromTypes(name) {
   const typesFile = path.join(componentsDir, name, `${name}.types.tsx`);
   if (!fs.existsSync(typesFile)) return [];
@@ -68,18 +69,14 @@ function parsePropsFromTypes(name) {
 }
 
 // ─── 2. Parsear props existentes en el Entry file ────────────────────────────
-// Devuelve un Map<propName, { type, options, required, description, defaultValue, multiline }>
-// para poder preservar description/defaultValue y detectar cambios de type/options.
 
 function parseExistingProps(entrySrc) {
-  // Extraer el bloque props: [ ... ],
   const propsMatch = entrySrc.match(/\bprops:\s*\[([\s\S]*?)\],\s*\n\s*render:/);
   if (!propsMatch) return new Map();
 
   const body = propsMatch[1];
   const map  = new Map();
 
-  // Dividir en bloques de objeto { ... } al nivel superior
   const blocks = [];
   let depth = 0, start = -1;
   for (let i = 0; i < body.length; i++) {
@@ -107,60 +104,62 @@ function parseExistingProps(entrySrc) {
       : null;
 
     map.set(propName, {
-      type:         typeMatch     ? typeMatch[1]                     : "string",
+      type:         typeMatch      ? typeMatch[1]                  : "string",
       options,
-      required:     requiredMatch ? requiredMatch[1] === "true"      : false,
-      description:  descMatch     ? descMatch[1]                     : "",
-      defaultValue: defaultMatch  ? defaultMatch[1].trim()           : '""',
-      multiline:    multilineMatch ? multilineMatch[1] === "true"    : false,
+      required:     requiredMatch  ? requiredMatch[1] === "true"   : false,
+      description:  descMatch      ? descMatch[1]                  : "",
+      defaultValue: defaultMatch   ? defaultMatch[1].trim()        : '""',
+      multiline:    multilineMatch ? multilineMatch[1] === "true"  : false,
     });
   }
 
   return map;
 }
 
-// ─── 3. Comparación: detectar props nuevas o modificadas ─────────────────────
-// Considera un cambio en: type, options (conjunto) o required.
-// description/defaultValue se preservan, NO provocan sync.
+// ─── 3. Comparación ──────────────────────────────────────────────────────────
 
 function propNeedsUpdate(fresh, existing) {
-  if (!existing) return true; // prop nueva
+  if (!existing) return true;
   if (fresh.type !== existing.type) return true;
   if (fresh.required !== existing.required) return true;
-  // Comparar options como conjuntos ordenados
-  const fOpts = fresh.options   ? [...fresh.options].sort().join(",")   : "";
+  const fOpts = fresh.options    ? [...fresh.options].sort().join(",")    : "";
   const eOpts = existing.options ? [...existing.options].sort().join(",") : "";
-  if (fOpts !== eOpts) return true;
-  return false;
+  return fOpts !== eOpts;
 }
 
-function hasChanges(freshProps, existingMap) {
-  // Prop nueva o modificada
+function collectChanges(freshProps, existingMap) {
+  const changes = [];
   for (const fp of freshProps) {
-    if (propNeedsUpdate(fp, existingMap.get(fp.name))) return true;
+    const ex = existingMap.get(fp.name);
+    if (!ex) {
+      changes.push({ kind: "add", prop: fp });
+    } else if (propNeedsUpdate(fp, ex)) {
+      changes.push({ kind: "update", prop: fp, existing: ex });
+    }
   }
-  // Prop eliminada
   for (const eName of existingMap.keys()) {
-    if (!freshProps.find((fp) => fp.name === eName)) return true;
+    if (!freshProps.find((fp) => fp.name === eName)) {
+      changes.push({ kind: "remove", name: eName });
+    }
   }
-  return false;
+  return changes;
 }
 
-// ─── 4. Defaultvalue y description para props nuevas ─────────────────────────
+// ─── 4. Helpers de valores por defecto y descripción ─────────────────────────
 
 function defaultValueFor(p) {
-  if (p.type === "boolean") return "false";
-  if (p.type === "number")  return "0";
-  if (p.type === "select")  return '"' + (p.options?.[0] ?? "") + '"';
-  if (p.name === "children") return '"content"';
+  if (p.type === "boolean")    return "false";
+  if (p.type === "number")     return "0";
+  if (p.type === "select")     return '"' + (p.options?.[0] ?? "") + '"';
+  if (p.name === "children")   return '"content"';
   return '"' + p.name + '"';
 }
 
 function descriptionFor(p) {
-  if (p.name === "children")   return "Content rendered inside the component.";
-  if (p.type === "boolean")    return "When true, enables the " + p.name + " behaviour.";
-  if (p.type === "select")     return "Controls the " + p.name + " of the component.";
-  if (p.type === "number")     return "Numeric value for " + p.name + ".";
+  if (p.name === "children") return "Content rendered inside the component.";
+  if (p.type === "boolean")  return "When true, enables the " + p.name + " behaviour.";
+  if (p.type === "select")   return "Controls the " + p.name + " of the component.";
+  if (p.type === "number")   return "Numeric value for " + p.name + ".";
   return "Value for the " + p.name + " prop.";
 }
 
@@ -168,18 +167,17 @@ function descriptionFor(p) {
 
 function buildPropsSection(freshProps, existingMap) {
   const lines = freshProps.map((p) => {
-    const existing    = existingMap.get(p.name);
-    // Preservar description y defaultValue si la prop ya existía Y el tipo no cambió
-    const sameType    = existing && existing.type === p.type;
-    const description = sameType ? existing.description  : descriptionFor(p);
-    const defVal      = sameType ? existing.defaultValue  : defaultValueFor(p);
-    const multiline   = p.name === "children" || (sameType && (existing?.multiline ?? false));
+    const existing  = existingMap.get(p.name);
+    const sameType  = existing && existing.type === p.type;
+    const desc      = sameType ? existing.description  : descriptionFor(p);
+    const defVal    = sameType ? existing.defaultValue  : defaultValueFor(p);
+    const multiline = p.name === "children" || (sameType && (existing?.multiline ?? false));
 
     let s = "    { ";
     s += 'name: "' + p.name + '", ';
     s += 'type: "' + p.type + '", ';
     if (p.options) s += "options: [" + p.options.map((o) => '"' + o + '"').join(", ") + "], ";
-    s += 'description: "' + description + '", ';
+    s += 'description: "' + desc + '", ';
     s += "defaultValue: " + defVal;
     if (p.required)  s += ", required: true";
     if (multiline)   s += ", multiline: true";
@@ -232,33 +230,23 @@ function buildGenerateCodeSection(name, freshProps) {
   return "  generateCode: (values) => {\n" + (propVarLines ? propVarLines + "\n" : "") + returnLine + "\n  }";
 }
 
-// ─── 6. Reemplazar secciones en el fichero Entry ──────────────────────────────
-// Estrategia: reemplazar cada sección (props, render, generateCode) usando
-// búsqueda de marcadores textuales robustos, sin regex frágiles sobre el
-// cuerpo completo del fichero.
+// ─── 6. Reemplazos en el fichero ─────────────────────────────────────────────
 
 function replacePropsSectionInFile(src, newPropsSection) {
-  // Localizar "  props: [" hasta el "]," que precede a "  render:"
   const propsStart = src.indexOf("  props: [");
   if (propsStart === -1) return src;
 
-  // Buscar el cierre "]," seguido de "\n  render:" desde propsStart
   const renderMarker = "\n  render:";
   const renderIdx = src.indexOf(renderMarker, propsStart);
   if (renderIdx === -1) return src;
 
-  // El cierre del array está justo antes del renderMarker: "  ],"
-  // Retroceder desde renderIdx hasta encontrar "]"
   let closingBracket = renderIdx - 1;
   while (closingBracket > propsStart && src[closingBracket] !== "]") closingBracket--;
 
-  // Slice: de propsStart hasta closingBracket+1 (incluye el "]")
-  const oldPropsSection = src.slice(propsStart, closingBracket + 1);
   return src.slice(0, propsStart) + newPropsSection + src.slice(closingBracket + 1);
 }
 
 function replaceRenderSectionInFile(src, newRenderSection) {
-  // Localizar "  render: " hasta la "," que precede a "  generateCode:"
   const renderStart = src.indexOf("  render: ");
   if (renderStart === -1) return src;
 
@@ -266,34 +254,26 @@ function replaceRenderSectionInFile(src, newRenderSection) {
   const gcIdx = src.indexOf(gcMarker, renderStart);
   if (gcIdx === -1) return src;
 
-  // Retroceder desde gcIdx hasta la coma que separa render de generateCode
   let comma = gcIdx - 1;
   while (comma > renderStart && src[comma] !== ",") comma--;
 
-  const oldRenderSection = src.slice(renderStart, comma);
   return src.slice(0, renderStart) + newRenderSection + src.slice(comma);
 }
 
 function replaceGenerateCodeSectionInFile(src, newGcSection) {
-  // Localizar "  generateCode: " hasta el "}," o "}" final del objeto Entry
   const gcStart = src.indexOf("  generateCode: ");
   if (gcStart === -1) return src;
 
-  // Buscar el "};" que cierra el ComponentEntry (al nivel raíz del fichero)
   const entryClose = src.lastIndexOf("\n};");
   if (entryClose === -1) return src;
 
-  // Entre gcStart y entryClose hay "  generateCode: (values) => { ... },"
-  // Buscamos la "," o el final antes del "\n};"
   let gcEnd = entryClose;
-  // Retroceder cualquier coma o espacios antes del cierre
   while (gcEnd > gcStart && (src[gcEnd - 1] === "," || src[gcEnd - 1] === "\n")) gcEnd--;
 
-  const oldGcSection = src.slice(gcStart, gcEnd);
   return src.slice(0, gcStart) + newGcSection + src.slice(gcEnd);
 }
 
-// ─── 7. Main: recorrer componentes y sincronizar ─────────────────────────────
+// ─── 7. Main ─────────────────────────────────────────────────────────────────
 
 const components = fs
   .readdirSync(componentsDir, { withFileTypes: true })
@@ -301,9 +281,9 @@ const components = fs
   .map((d) => d.name);
 
 let totalUpdated = 0;
+let totalSkipped = 0;
 
 for (const name of components) {
-  // Buscar el fichero Entry en registryComponents/
   const entryFile = fs
     .readdirSync(registryComponentsDir)
     .find(
@@ -313,43 +293,65 @@ for (const name of components) {
     );
 
   if (!entryFile) {
-    console.log("⚠️  " + name + ": no se encontró fichero Entry en registryComponents/, se omite.");
+    console.log(chalk.yellow("⚠️  " + name + ": no se encontró fichero Entry en registryComponents/, se omite."));
     continue;
   }
 
-  const entryPath = path.join(registryComponentsDir, entryFile);
-  const freshProps    = parsePropsFromTypes(name);
-  const entrySrc      = fs.readFileSync(entryPath, "utf-8");
-  const existingMap   = parseExistingProps(entrySrc);
+  const entryPath  = path.join(registryComponentsDir, entryFile);
+  const freshProps = parsePropsFromTypes(name);
+  const entrySrc   = fs.readFileSync(entryPath, "utf-8");
+  const existingMap = parseExistingProps(entrySrc);
+  const changes    = collectChanges(freshProps, existingMap);
 
-  if (!hasChanges(freshProps, existingMap)) {
-    console.log("⏭️  " + name + ": sin cambios, se omite.");
+  if (changes.length === 0) {
+    console.log(chalk.grey("⏭️  " + name + ": sin cambios."));
     continue;
   }
 
-  // Mostrar detalle de los cambios detectados
-  for (const fp of freshProps) {
-    const ex = existingMap.get(fp.name);
-    if (!ex) {
-      console.log("  ➕ " + name + "." + fp.name + ": prop nueva");
-    } else if (propNeedsUpdate(fp, ex)) {
-      console.log("  ✏️  " + name + "." + fp.name + ": type/options/required actualizado");
+  // ── Mostrar resumen de cambios ──────────────────────────────────────────
+  console.log("\n" + chalk.bold.cyan("─── " + name + " ───────────────────────────────────────"));
+
+  for (const c of changes) {
+    if (c.kind === "add") {
+      console.log(
+        chalk.green("  ➕ Nueva prop: ") +
+        chalk.white(c.prop.name) +
+        chalk.grey(" (type: " + c.prop.type + (c.prop.options ? ", options: [" + c.prop.options.join(", ") + "]" : "") + ")")
+      );
+    } else if (c.kind === "update") {
+      const typeChanged    = c.prop.type !== c.existing.type;
+      const optionsChanged = JSON.stringify((c.prop.options ?? []).sort()) !== JSON.stringify((c.existing.options ?? []).sort());
+      const reqChanged     = c.prop.required !== c.existing.required;
+      const details = [
+        typeChanged    ? chalk.grey("type: ") + chalk.yellow(c.existing.type) + chalk.grey(" → ") + chalk.white(c.prop.type) : null,
+        optionsChanged ? chalk.grey("options: ") + chalk.yellow("[" + (c.existing.options ?? []).join(", ") + "]") + chalk.grey(" → ") + chalk.white("[" + (c.prop.options ?? []).join(", ") + "]") : null,
+        reqChanged     ? chalk.grey("required: ") + chalk.yellow(String(c.existing.required)) + chalk.grey(" → ") + chalk.white(String(c.prop.required)) : null,
+      ].filter(Boolean).join("  ");
+      console.log(chalk.yellow("  ✏️  Prop modificada: ") + chalk.white(c.prop.name) + "  " + details);
+    } else if (c.kind === "remove") {
+      console.log(chalk.red("  ➖ Prop eliminada: ") + chalk.white(c.name));
     }
   }
-  for (const eName of existingMap.keys()) {
-    if (!freshProps.find((fp) => fp.name === eName)) {
-      console.log("  ➖ " + name + "." + eName + ": prop eliminada");
-    }
+
+  console.log(chalk.grey("  Fichero: sandbox/registryComponents/" + entryFile));
+
+  // ── Confirmación ───────────────────────────────────────────────────────
+  const apply = await confirm({
+    message: "¿Aplicar estos cambios en " + name + "?",
+    default: true,
+  });
+
+  if (!apply) {
+    console.log(chalk.grey("  ↩️  Omitido.\n"));
+    totalSkipped++;
+    continue;
   }
 
-  console.log("🔄 " + name + ": actualizando props / render / generateCode...");
+  // ── Aplicar ────────────────────────────────────────────────────────────
+  const newPropsSection  = buildPropsSection(freshProps, existingMap);
+  const newRenderSection = buildRenderSection(name, freshProps);
+  const newGcSection     = buildGenerateCodeSection(name, freshProps);
 
-  // Construir las tres secciones nuevas
-  const newPropsSection    = buildPropsSection(freshProps, existingMap);
-  const newRenderSection   = buildRenderSection(name, freshProps);
-  const newGcSection       = buildGenerateCodeSection(name, freshProps);
-
-  // Aplicar los reemplazos en orden
   let updatedSrc = entrySrc;
   updatedSrc = replacePropsSectionInFile(updatedSrc, newPropsSection);
   updatedSrc = replaceRenderSectionInFile(updatedSrc, newRenderSection);
@@ -357,12 +359,14 @@ for (const name of components) {
 
   fs.writeFileSync(entryPath, updatedSrc);
   totalUpdated++;
-  console.log("✅ " + name + ": " + entryFile + " actualizado.");
+  console.log(chalk.green("  ✅ " + entryFile + " actualizado.\n"));
 }
 
-// ─── 8. Resumen ───────────────────────────────────────────────────────────────
+// ─── 8. Resumen final ────────────────────────────────────────────────────────
+console.log(chalk.bold("\n──────────────────────────────────────────────────"));
 if (totalUpdated > 0) {
-  console.log("\n✅ Sync completado: " + totalUpdated + " componente(s) actualizado(s).\n");
+  console.log(chalk.green("✅ Sync completado: " + totalUpdated + " componente(s) actualizado(s)" + (totalSkipped > 0 ? ", " + totalSkipped + " omitido(s)" : "") + "."));
 } else {
-  console.log("\n✅ Todo al día, no se realizaron cambios.\n");
+  console.log(chalk.grey("✅ Sin cambios aplicados" + (totalSkipped > 0 ? " (" + totalSkipped + " omitido(s) manualmente)" : "") + "."));
 }
+console.log("");
