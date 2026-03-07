@@ -31,6 +31,15 @@
     width: auto;
 }
 
+.modern-input__inputbox::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+.modern-input__inputbox[type="search"] .modern-input__input-icon {
+  cursor: pointer;
+}
+
 .modern-input__inputbox[type="search"]::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
@@ -40,6 +49,26 @@
 .modern-input__inputbox[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.modern-input__inputbox[type="color"] {
+    width: 100%;
+    height: 25px;
+    border: none;
+    background: none;
+    padding: 0 0 0 0.2rem;
+}
+
+.modern-input__inputbox[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.modern-input__inputbox[type="color"]::-webkit-color-swatch {
+  border: none;
+}
+
+.modern-input__inputbox[type="color"]::-moz-color-swatch {
+  border: none;
 }
 
 .modern-input__input-mask {

@@ -1,29 +1,42 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useCallback, useRef, useState } from "react";
 import { InputProps } from "./Input.types";
 import "./Input.css";
 import { Icon } from "../../icons";
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", onChange,  ...props }, ref) => {
+  ({ type = "text", onChange, onSearchButtonClick, ...props }, ref) => {
+
     const [value, setValue] = useState("");
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       setValue(e.currentTarget.value);
       onChange?.(e);
-    };
+    }, [onChange]);
+
+    const searchButtonClick = () => {
+      if (!value) {
+        setValue('');
+      }
+      onSearchButtonClick?.({
+        target: { value: value }
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
+
     const iconsByType = {
       'color': 'palette',
       'date': 'calendar-dots',
       'search': 'magnifying-glass',
-      'text': '',
-      'number': '',
-      'password': '',
-      'email': '',
-      'tel': ''
+      'text': 'pencil',
+      'number': 'numpad',
+      'password': 'asterisk',
+      'email': 'envelope-simple-open',
+      'tel': 'phone'
     }
     return (
       <div className="modern-input" data-input-type={type}>
           <div className="modern-input__input-mask"> 
              <input
+              id="moderInput"
               ref={ref}
               aria-label="input-type-aria-label"
               className="modern-input__inputbox"
@@ -31,11 +44,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               onChange={handleChange}
               {...props}
             />
-            { ['search', 'color', 'date'].includes(type)? 
-              <div className="modern-input__input-icon">
-                <Icon name={iconsByType[type]} variant="light"/>
-            </div> : <></>
-            }
+            <div className="modern-input__input-icon" onClick={() => type == 'search' ? searchButtonClick() : {}}>
+                <Icon name={type != 'search' ? iconsByType[type] : !!value ? 'x' : iconsByType[type]} variant="light"/>
+            </div>
           </div>
       </div>
     );
