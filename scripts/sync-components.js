@@ -32,27 +32,21 @@ function extractInterfaceBody(src) {
   const ifaceStart = src.search(/\binterface\s+\w+Props\b/);
   if (ifaceStart === -1) return src;
 
-  // Avanzar hasta el primer '{' de la interfaz
   let i = ifaceStart;
   while (i < src.length && src[i] !== "{") i++;
   if (i >= src.length) return src;
 
-  // Contar llaves para encontrar el cierre real
   let depth = 0;
-  let bodyStart = i + 1;
-  let bodyEnd   = -1;
+  const bodyStart = i + 1;
+  let bodyEnd = -1;
   for (; i < src.length; i++) {
     if (src[i] === "{") depth++;
-    if (src[i] === "}") {
-      depth--;
-      if (depth === 0) { bodyEnd = i; break; }
-    }
+    if (src[i] === "}") { depth--; if (depth === 0) { bodyEnd = i; break; } }
   }
   return bodyEnd === -1 ? src : src.slice(bodyStart, bodyEnd);
 }
 
 // Devuelve un Map<propName, { type, options, required }>
-// donde propName es el nombre real de la prop en el componente (igual que en .types.tsx).
 function parsePropsFromTypes(name) {
   const typesFile = path.join(componentsDir, name, `${name}.types.tsx`);
   if (!fs.existsSync(typesFile)) return new Map();
@@ -78,7 +72,6 @@ function parsePropsFromTypes(name) {
       continue;
     }
 
-    // Union de strings con comillas simples o dobles → select
     const quotedUnion = [...resolved.matchAll(/["']([^"']+)["']/g)].map((x) => x[1]);
     if (quotedUnion.length > 0) {
       map.set(propName, { type: "select", options: quotedUnion, required: !optional });
@@ -96,12 +89,29 @@ function parsePropsFromTypes(name) {
 // ─── 2. Parsear props existentes en el Entry file ────────────────────────────
 // Devuelve Map<name, { propName, type, options, required, description, defaultValue, multiline }>
 
-function parseExistingProps(entrySrc) {
-  const propsMatch = entrySrc.match(/\bprops:\s*\[([\s\S]*?)\],\s*\n\s*render:/);
-  if (!propsMatch) return new Map();
+// Extrae el body del array props: [ ... ] contando corchetes,
+// para no romperse cuando alguna prop tiene options: ["a", "b", ...].
+function extractPropsArrayBody(src) {
+  const marker = "props: [";
+  const markerIdx = src.indexOf(marker);
+  if (markerIdx === -1) return null;
 
-  const body = propsMatch[1];
-  const map  = new Map();
+  const arrayStart = markerIdx + marker.length - 1; // índice del '['
+  let depth = 0;
+  let bodyStart = arrayStart + 1;
+  let bodyEnd = -1;
+  for (let i = arrayStart; i < src.length; i++) {
+    if (src[i] === "[") depth++;
+    if (src[i] === "]") { depth--; if (depth === 0) { bodyEnd = i; break; } }
+  }
+  return bodyEnd === -1 ? null : src.slice(bodyStart, bodyEnd);
+}
+
+function parseExistingProps(entrySrc) {
+  const body = extractPropsArrayBody(entrySrc);
+  if (body === null) return new Map();
+
+  const map = new Map();
 
   // Dividir en bloques { ... } al nivel superior
   const blocks = [];
@@ -123,7 +133,7 @@ function parseExistingProps(entrySrc) {
     const typeMatch      = block.match(/\btype:\s*["']([^"']+)["']/);
     const optionsMatch   = block.match(/\boptions:\s*\[([^\]]*)\]/);
     const descMatch      = block.match(/\bdescription:\s*"([^"]*)"/);
-    const defaultMatch   = block.match(/\bdefaultValue:\s*([^,\n]+)/);
+    const defaultMatch   = block.match(/\bdefaultValue:\s*([^,\n}]+)/);
     const requiredMatch  = block.match(/\brequired:\s*(true|false)/);
     const multilineMatch = block.match(/\bmultiline:\s*(true|false)/);
 
@@ -146,11 +156,10 @@ function parseExistingProps(entrySrc) {
 }
 
 // ─── 3. Comparación ──────────────────────────────────────────────────────────
-// Reglas:
-//   propName === '' | 'native'  → prop manual/nativa, se ignora completamente.
-//   propName no existe en types → marcar REMOVE.
-//   propName existe pero cambió → marcar UPDATE.
-//   prop en types sin referencia en ningún propName → marcar ADD.
+// propName === '' | 'native'  → prop manual/nativa, se ignora completamente.
+// propName no existe en types → REMOVE.
+// propName existe pero cambió → UPDATE.
+// prop en types sin referencia en propName → ADD.
 
 function isIgnoredPropName(pn) {
   return !pn || pn === "native";
@@ -169,7 +178,7 @@ function collectChanges(typesMap, existingMap) {
 
   for (const [entryName, entryProp] of existingMap) {
     const pn = entryProp.propName;
-    if (isIgnoredPropName(pn)) continue;         // prop manual/nativa, skip
+    if (isIgnoredPropName(pn)) continue;
 
     const fromTypes = typesMap.get(pn);
     if (!fromTypes) {
@@ -179,7 +188,6 @@ function collectChanges(typesMap, existingMap) {
     }
   }
 
-  // Props del types no referenciadas por ningún Entry → nuevas
   const referencedPropNames = new Set(
     [...existingMap.values()]
       .map((p) => p.propName)
@@ -279,8 +287,7 @@ function buildPropsSection(propsArray) {
 }
 
 function buildRenderSection(name, propsArray) {
-  // Props con propName ignorado (manual/nativo) se excluyen del render generado
-  const managed     = propsArray.filter((p) => !isIgnoredPropName(p.propName) && p.name !== "children");
+  const managed      = propsArray.filter((p) => !isIgnoredPropName(p.propName) && p.name !== "children");
   const childrenProp = propsArray.find((p) => p.name === "children" && !isIgnoredPropName(p.propName));
 
   const spreadLines = managed.map((p) => {
