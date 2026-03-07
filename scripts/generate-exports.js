@@ -226,17 +226,13 @@ if (!fs.existsSync(registryComponentsDir)) {
   fs.mkdirSync(registryComponentsDir, { recursive: true });
 }
 
-// Leer los ficheros *Entry.tsx existentes y reconstruir el nombre del componente
-// a partir del nombre del fichero, preservando el casing original del fichero.
-// Ej: "digitalClockEntry.tsx" -> base "digitalClock" -> nombre "DigitalClock"
-//     "badgeEntry.tsx"        -> base "badge"         -> nombre "Badge"
+// Construir un mapa componentName -> fileBaseName preservando el casing del
+// fichero en disco. Ej: "digitalClockEntry.tsx" -> "DigitalClock": "digitalClockEntry"
 function fileNameToComponentName(fileName) {
   const base = path.basename(fileName, "Entry.tsx");
   return base.charAt(0).toUpperCase() + base.slice(1);
 }
 
-// Mapa: componentName -> fileBaseName (sin extension)
-// Ej: "DigitalClock" -> "digitalClock"
 const existingEntries = new Map(
   fs.readdirSync(registryComponentsDir)
     .filter((f) => f.endsWith("Entry.tsx"))
@@ -261,22 +257,20 @@ console.log("✨ Componentes nuevos detectados:", newComponents.join(", "));
 
 // ─── 7. Crear fichero por cada componente nuevo ───────────────────────────────
 for (const name of newComponents) {
-  // El nombre del fichero sigue el patron: ${componentName.toLowerCase()}Entry.tsx
-  // Ej: "DigitalClock" -> "digitalclockEntry.tsx"
   const fileBase    = name.toLowerCase() + "Entry";
   const fileName    = fileBase + ".tsx";
   const filePath    = path.join(registryComponentsDir, fileName);
   const fileContent = generateEntryFile(name, parseProps(name));
 
   fs.writeFileSync(filePath, fileContent);
-  // Registrar en el mapa para que el paso 8 lo incluya
   existingEntries.set(name, fileBase);
   console.log("✅ Creado:", `sandbox/registryComponents/${fileName}`);
 }
 
 // ─── 8. Reescribir sandbox/registryComponents/index.ts (orden alfabético) ──────
-// Ordenar los nombres de componente case-insensitive y reconstruir el fichero
-// completo con la estructura: imports individuales + export const COMPS = [...].
+// Reconstruye el fichero completo con la estructura acordada:
+//   - un import por componente (comillas simples, orden alfabético)
+//   - export const COMPS = [...] con los mismos nombres en el mismo orden
 const sortedNames = [...existingEntries.keys()]
   .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
@@ -293,7 +287,7 @@ const indexContent =
   "\n\n" +
   "export const COMPS = [\n" +
   compsItems + "\n" +
-  "]\n";
+  "];";
 
 fs.writeFileSync(registryIndexPath, indexContent);
 console.log("✅ sandbox/registryComponents/index.ts actualizado (orden alfabético)");
