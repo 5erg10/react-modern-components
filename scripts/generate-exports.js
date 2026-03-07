@@ -26,8 +26,6 @@ const category = await select({
   ],
 });
 
-console.log('category: ', category);
-
 // ─── 1. Leer componentes del filesystem ──────────────────────────────────────
 const components = fs
   .readdirSync(componentsDir, { withFileTypes: true })
@@ -199,6 +197,7 @@ function generateEntryFile(name, props) {
   }
 
   // ── Fichero completo ──────────────────────────────────────────────────────
+  
   let file = "";
   file += "import { " + name + " } from \"../../src/components/" + name + "\";\n";
   file += "import { ComponentEntry } from \"../registry\";\n";

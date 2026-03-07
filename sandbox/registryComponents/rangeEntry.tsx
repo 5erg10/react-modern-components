@@ -12,9 +12,22 @@ export const RangeEntry: ComponentEntry = {
     { name: "min", propName: 'min', type: "number", description: "Minimum allowed value.", defaultValue: 0 },
     { name: "max", propName: 'max', type: "number", description: "Maximum allowed value.", defaultValue: 1 },
     { name: "step", propName: 'step', type: "number", description: "Step increment between values.", defaultValue: 0.1 },
-    { name: "disabled", propName: 'native', type: "boolean", description: "When true, the slider is non-interactive and visually dimmed.", defaultValue: false },
+    { name: "disabled", propName: 'disabled', type: "boolean", description: "When true, the slider is non-interactive and visually dimmed.", defaultValue: false },
     { name: "showTooltip", propName: 'showTooltip', type: "boolean", description: "When true, shows the current value above the thumb while dragging.", defaultValue: true },
+    { name: "value", propName: 'value', type: "number", description: "Numeric value for value.", defaultValue: 0, required: true },
+    { name: "label", propName: 'label', type: "string", description: "Value for the label prop.", defaultValue: "rangeSelector" }
   ],
+  // render: ({ values }) => (
+  //   <Range
+  //     min={values["min"] as number}
+  //     max={values["max"] as number}
+  //     step={values["step"] as number}
+  //     disabled={values["disabled"] as boolean}
+  //     showTooltip={values["showTooltip"] as boolean}
+  //     value={values["value"] as number}
+  //     label={String(values["label"])}
+  //   />
+  // ),
   render: ({ values }) => {
     const RangePreview = () => {
       const [val, setVal] = useState<number>((values["max"] as number) / 2);
@@ -27,6 +40,7 @@ export const RangeEntry: ComponentEntry = {
             disabled={values["disabled"] as boolean}
             showTooltip={values["showTooltip"] as boolean}
             value={val}
+            label={values["label"] as string}
             onChange={setVal}
           />
           <div style={{ marginTop: 8, fontSize: 13, color: "#6b7280", textAlign: "center" }}>value: {val}</div>
@@ -42,6 +56,7 @@ export const RangeEntry: ComponentEntry = {
       `step={${values["step"]}}`,
       values["disabled"] ? "disabled" : "",
       values["showTooltip"] ? "showTooltip" : "",
+      values["label"] ? `label=${values["label"]}` : "",
       "value={value}",
       "onChange={setValue}",
     ].filter(p => p !== "").join("\n  ");
