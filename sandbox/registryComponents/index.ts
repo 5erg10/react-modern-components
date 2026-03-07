@@ -1,7 +1,7 @@
 import { BadgeEntry } from './badgeEntry';
 import { ButtonEntry } from './buttonEntry';
-import { CheckboxEntry } from './checkboxEntry';
 import { CardEntry } from './cardEntry';
+import { CheckboxEntry } from './checkboxEntry';
 import { DigitalClockEntry } from './digitalClockEntry';
 import { DropdownEntry } from './dropdownEntry';
 import { InputEntry } from './inputEntry';
@@ -18,5 +18,4 @@ export const COMPS = [
     InputEntry,
     ModalEntry,
     TableEntry
-]
-
+];
