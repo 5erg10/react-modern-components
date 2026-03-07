@@ -1,9 +1,21 @@
-export { BadgeEntry } from "./badgeEntry";
-export { ButtonEntry } from "./buttonEntry";
-export { CheckboxEntry } from "./checkboxEntry";
-export { DigitalClockEntry } from "./digitalclockEntry";
-export { DropdownEntry } from "./dropdownEntry";
-export { InputEntry } from "./inputEntry";
-export { ModalEntry } from "./modalEntry";
-export { RangeEntry } from "./rangeEntry";
-export { TableEntry } from "./tableEntry";
+import { BadgeEntry } from './badgeEntry';
+import { ButtonEntry } from './buttonEntry';
+import { CardEntry } from './cardEntry';
+import { CheckboxEntry } from './checkboxEntry';
+import { DigitalClockEntry } from './digitalClockEntry';
+import { DropdownEntry } from './dropdownEntry';
+import { InputEntry } from './inputEntry';
+import { ModalEntry } from './modalEntry';
+import { TableEntry } from './tableEntry';
+
+export const COMPS = [
+    BadgeEntry,
+    ButtonEntry,
+    CardEntry,
+    CheckboxEntry,
+    DigitalClockEntry,
+    DropdownEntry,
+    InputEntry,
+    ModalEntry,
+    TableEntry
+]
