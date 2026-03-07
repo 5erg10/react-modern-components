@@ -6,6 +6,7 @@ import { DigitalClockEntry } from './digitalClockEntry';
 import { DropdownEntry } from './dropdownEntry';
 import { InputEntry } from './inputEntry';
 import { ModalEntry } from './modalEntry';
+import { RangeEntry } from './rangeEntry';
 import { TableEntry } from './tableEntry';
 
 export const COMPS = [
@@ -17,5 +18,6 @@ export const COMPS = [
     DropdownEntry,
     InputEntry,
     ModalEntry,
+    RangeEntry,
     TableEntry
 ];
