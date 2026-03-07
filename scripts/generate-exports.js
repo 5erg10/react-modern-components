@@ -2,45 +2,31 @@ import fs from "fs";
 import path from "path";
 import { select } from '@inquirer/prompts';
 
-const componentsDir = path.resolve("./src/components");
-const registryPath  = path.resolve("./sandbox/registry.tsx");
-const pkgPath       = path.resolve("./package.json");
+const componentsDir        = path.resolve("./src/components");
+const registryComponentsDir = path.resolve("./sandbox/registryComponents");
+const registryIndexPath    = path.resolve("./sandbox/registryComponents/index.ts");
+const pkgPath              = path.resolve("./package.json");
 
 const iconsByCategory = {
-  ui: "🧩",
-  input: "📱",
-  modal: "🎞️",
-  tabla: "📋",
-  button: "🛎️"
-}
+  ui:     "🧩",
+  input:  "📱",
+  modal:  "🎞️",
+  tabla:  "📋",
+  button: "🛎️",
+};
 
 const category = await select({
   message: 'Introduce la categoria del componente: ',
   choices: [
-    {
-      name: "Ui",
-      value: "ui",
-    },
-    {
-      name: "Input",
-      value: "input",
-    },
-    {
-      name: "Modal",
-      value: "modal",
-    },
-    {
-      name: "Table",
-      value: 'tabla'
-    },
-    {
-      name: "Button",
-      value: 'button'
-    }
-  ]
+    { name: "Ui",     value: "ui"     },
+    { name: "Input",  value: "input"  },
+    { name: "Modal",  value: "modal"  },
+    { name: "Table",  value: "tabla"  },
+    { name: "Button", value: "button" },
+  ],
 });
 
-console.log('category:  ', category);
+console.log('category: ', category);
 
 // ─── 1. Leer componentes del filesystem ──────────────────────────────────────
 const components = fs
@@ -149,11 +135,8 @@ function parseProps(name) {
   return props;
 }
 
-// ─── 4. Generador de entradas de registry ────────────────────────────────────
-// Todo el código TypeScript generado usa concatenación de strings (+),
-// nunca template literals anidados, para que los ${ } queden como texto
-// literal en el archivo de salida y no se evalúen durante el script.
-function generateEntry(name, props) {
+// ─── 4. Generador del fichero registryComponents/${name}Entry.tsx ─────────────
+function generateEntryFile(name, props) {
   const id        = name.toLowerCase();
   const entryName = name + "Entry";
 
@@ -215,42 +198,48 @@ function generateEntry(name, props) {
     returnLine = "    return `<" + name + interpolations + " />`;";
   }
 
-  console.log('icon: ', iconsByCategory[category]);
+  // ── Fichero completo ──────────────────────────────────────────────────────
+  let file = "";
+  file += "import { " + name + " } from \"../../src/components/" + name + "\";\n";
+  file += "import { ComponentEntry } from \"../registry\";\n";
+  file += "\n";
+  file += "export const " + entryName + ": ComponentEntry = {\n";
+  file += "  id: \"" + id + "\",\n";
+  file += "  name: \"" + name + "\",\n";
+  file += "  icon: \"" + iconsByCategory[category] + "\",\n";
+  file += "  category: \"" + category + "\",\n";
+  file += "  description: \"" + name + " component.\",\n";
+  file += "  props: [\n" + propDefs + "\n  ],\n";
+  file += "  render: ({ values }) => (\n    " + renderInner + "\n  ),\n";
+  file += "  generateCode: (values) => {\n";
+  file += propVarLines + "\n";
+  file += returnLine + "\n";
+  file += "  },\n";
+  file += "};\n";
 
-  let entry = "";
-  entry += "/* AUTO-GENERATED: " + name + " — edit render/generateCode as needed */\n";
-  entry += "const " + entryName + ": ComponentEntry = {\n";
-  entry += "  id: \"" + id + "\",\n";
-  entry += "  name: \"" + name + "\",\n";
-  entry += "  icon: \"" + iconsByCategory[category] + "\",\n";
-  entry += "  category: \"" + category + "\",\n";
-  entry += "  description: \"" + name + " component.\",\n";
-  entry += "  props: [\n" + propDefs + "\n  ],\n";
-  entry += "  render: ({ values }) => (\n    " + renderInner + "\n  ),\n";
-  entry += "  generateCode: (values) => {\n";
-  entry += propVarLines + "\n";
-  entry += returnLine + "\n";
-  entry += "  },\n";
-  entry += "};\n";
-
-  return entry;
+  return file;
 }
 
-// ─── 5. Leer registry y detectar componentes ya registrados ──────────────────
-let registrySrc = fs.readFileSync(registryPath, "utf-8");
+// ─── 5. Detectar componentes ya registrados ───────────────────────────────────
+// Un componente está registrado si ya existe su fichero en registryComponents/
+if (!fs.existsSync(registryComponentsDir)) {
+  fs.mkdirSync(registryComponentsDir, { recursive: true });
+}
 
-const registeredRegex = /export const componentRegistry[\s\S]*?=\s*\[([\s\S]*?)\];/;
-const registeredMatch = registrySrc.match(registeredRegex);
-const alreadyRegistered = new Set(
-  registeredMatch
-    ? [...registeredMatch[1].matchAll(/(\w+)Entry/g)].map((m) => m[1])
-    : []
+const existingEntryFiles = new Set(
+  fs.readdirSync(registryComponentsDir)
+    .filter((f) => f.endsWith("Entry.tsx"))
+    .map((f) => {
+      // "buttonEntry.tsx" → "Button"  (capitalizar primera letra)
+      const base = path.basename(f, "Entry.tsx");
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    })
 );
 
-console.log("🔍 Componentes ya en el registry:", [...alreadyRegistered].join(", ") || "(ninguno)");
+console.log("🔍 Componentes ya en el registry:", [...existingEntryFiles].join(", ") || "(ninguno)");
 
 // ─── 6. Detectar componentes nuevos ──────────────────────────────────────────
-const newComponents = components.filter((name) => !alreadyRegistered.has(name));
+const newComponents = components.filter((name) => !existingEntryFiles.has(name));
 
 if (newComponents.length === 0) {
   console.log("✅ Registry ya está al día, no hay componentes nuevos.");
@@ -259,66 +248,39 @@ if (newComponents.length === 0) {
 
 console.log("✨ Componentes nuevos detectados:", newComponents.join(", "));
 
-// ─── 7. Insertar imports ──────────────────────────────────────────────────────
-const lines = registrySrc.split("\n");
-let lastImportLineIdx = -1;
-lines.forEach((line, i) => {
-  if (line.startsWith("import ")) lastImportLineIdx = i;
-});
+// ─── 7. Crear fichero por cada componente nuevo ───────────────────────────────
+for (const name of newComponents) {
+  const fileName   = name.toLowerCase() + "Entry.tsx";
+  const filePath   = path.join(registryComponentsDir, fileName);
+  const fileContent = generateEntryFile(name, parseProps(name));
 
-const newImportLines = newComponents
-  .map((name) => "import { " + name + " } from \"../src/components/" + name + "\";");
+  fs.writeFileSync(filePath, fileContent);
+  console.log("✅ Creado:", `sandbox/registryComponents/${fileName}`);
+}
 
-lines.splice(lastImportLineIdx + 1, 0, ...newImportLines);
-registrySrc = lines.join("\n");
+// ─── 8. Actualizar sandbox/registryComponents/index.ts ───────────────────────
+// Leer el index existente (o partir de vacío) y añadir solo las líneas nuevas.
+let indexContent = fs.existsSync(registryIndexPath)
+  ? fs.readFileSync(registryIndexPath, "utf-8")
+  : "";
 
-// ─── 8. Insertar bloques de entrada antes del array ──────────────────────────
-const registryArrayMarker = "export const componentRegistry: ComponentEntry[] = [";
-const markerIdx = registrySrc.indexOf(registryArrayMarker);
+for (const name of newComponents) {
+  const entryName  = name + "Entry";
+  const importLine = `export { ${entryName} } from "./${name.toLowerCase()}Entry";\n`;
 
-const generatedBlocks = newComponents
-  .map((name) => generateEntry(name, parseProps(name)))
-  .join("\n");
+  if (!indexContent.includes(importLine.trim())) {
+    indexContent += importLine;
+  }
+}
 
-registrySrc =
-  registrySrc.slice(0, markerIdx) +
-  generatedBlocks + "\n" +
-  registrySrc.slice(markerIdx);
+fs.writeFileSync(registryIndexPath, indexContent);
+console.log("✅ sandbox/registryComponents/index.ts actualizado");
 
-// ─── 9. Añadir referencias al array ──────────────────────────────────────────
-// Estrategia: reconstruir el array completo en lugar de hacer inserción
-// posicional, para tener control total sobre el formato y evitar líneas
-// en blanco o comas extra independientemente de cómo esté el array original.
-const arrayStart  = registrySrc.indexOf(registryArrayMarker);
-const closingIdx  = registrySrc.indexOf("];", arrayStart);
-const arrayBody   = registrySrc.slice(arrayStart + registryArrayMarker.length, closingIdx);
-
-// Extraer nombres de Entry ya existentes preservando el orden original
-const existingRefs = [...arrayBody.matchAll(/(\w+Entry)/g)].map((m) => m[1]);
-
-// Añadir los nuevos al final
-const allRefs = [
-  ...existingRefs,
-  ...newComponents.map((name) => name + "Entry"),
-];
-
-const newArrayBody = "\n" + allRefs.map((ref) => "  " + ref).join(",\n") + "\n";
-
-registrySrc =
-  registrySrc.slice(0, arrayStart + registryArrayMarker.length) +
-  newArrayBody +
-  registrySrc.slice(closingIdx);
-
-// ─── 10. Escribir ─────────────────────────────────────────────────────────────
-fs.writeFileSync(registryPath, registrySrc);
-console.log("✅ registry.tsx actualizado con:", newComponents.join(", "));
-
-// ─── 11. Actualizar src/index.ts ─────────────────────────────────────────────
-const indexPath = path.resolve("./src/index.ts");
-
-const indexContent = components
+// ─── 9. Actualizar src/index.ts ──────────────────────────────────────────────
+const srcIndexPath  = path.resolve("./src/index.ts");
+const srcIndexContent = components
   .map((name) => `export { ${name} } from "./components/${name}";`)
   .join("\n") + "\n";
 
-fs.writeFileSync(indexPath, indexContent);
+fs.writeFileSync(srcIndexPath, srcIndexContent);
 console.log("✅ src/index.ts actualizado con:", components.join(", "));
