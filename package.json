@@ -31,6 +31,12 @@
       "import": "./dist/components/Button/index.es.js",
       "require": "./dist/components/Button/index.cjs.js"
     },
+    "./card": {
+      "types": "./dist/components/Card/index.d.ts",
+      "style": "./dist/components/Card/Card.css",
+      "import": "./dist/components/Card/index.es.js",
+      "require": "./dist/components/Card/index.cjs.js"
+    },
     "./checkbox": {
       "types": "./dist/components/Checkbox/index.d.ts",
       "style": "./dist/components/Checkbox/Checkbox.css",
