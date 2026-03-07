@@ -2,10 +2,10 @@ import fs from "fs";
 import path from "path";
 import { select } from '@inquirer/prompts';
 
-const componentsDir        = path.resolve("./src/components");
+const componentsDir         = path.resolve("./src/components");
 const registryComponentsDir = path.resolve("./sandbox/registryComponents");
-const registryIndexPath    = path.resolve("./sandbox/registryComponents/index.ts");
-const pkgPath              = path.resolve("./package.json");
+const registryIndexPath     = path.resolve("./sandbox/registryComponents/index.ts");
+const pkgPath               = path.resolve("./package.json");
 
 const iconsByCategory = {
   ui:     "🧩",
@@ -250,34 +250,39 @@ console.log("✨ Componentes nuevos detectados:", newComponents.join(", "));
 
 // ─── 7. Crear fichero por cada componente nuevo ───────────────────────────────
 for (const name of newComponents) {
-  const fileName   = name.toLowerCase() + "Entry.tsx";
-  const filePath   = path.join(registryComponentsDir, fileName);
+  const fileName    = name.toLowerCase() + "Entry.tsx";
+  const filePath    = path.join(registryComponentsDir, fileName);
   const fileContent = generateEntryFile(name, parseProps(name));
 
   fs.writeFileSync(filePath, fileContent);
   console.log("✅ Creado:", `sandbox/registryComponents/${fileName}`);
 }
 
-// ─── 8. Actualizar sandbox/registryComponents/index.ts ───────────────────────
-// Leer el index existente (o partir de vacío) y añadir solo las líneas nuevas.
-let indexContent = fs.existsSync(registryIndexPath)
-  ? fs.readFileSync(registryIndexPath, "utf-8")
-  : "";
+// ─── 8. Actualizar sandbox/registryComponents/index.ts (orden alfabético) ──────
+// Recoger todas las entradas existentes + las nuevas, ordenar y reescribir.
+const allEntryNames = [
+  // Entradas ya existentes: leer los ficheros *Entry.tsx que hay en la carpeta
+  ...fs.readdirSync(registryComponentsDir)
+    .filter((f) => f.endsWith("Entry.tsx"))
+    .map((f) => {
+      const base = path.basename(f, "Entry.tsx"); // "button"
+      return base.charAt(0).toUpperCase() + base.slice(1); // "Button"
+    }),
+];
 
-for (const name of newComponents) {
-  const entryName  = name + "Entry";
-  const importLine = `export { ${entryName} } from "./${name.toLowerCase()}Entry";\n`;
+// Ordenar case-insensitive
+allEntryNames.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
-  if (!indexContent.includes(importLine.trim())) {
-    indexContent += importLine;
-  }
-}
+const indexContent =
+  allEntryNames
+    .map((name) => `export { ${name}Entry } from "./${name.toLowerCase()}Entry";`)
+    .join("\n") + "\n";
 
 fs.writeFileSync(registryIndexPath, indexContent);
-console.log("✅ sandbox/registryComponents/index.ts actualizado");
+console.log("✅ sandbox/registryComponents/index.ts actualizado (orden alfabético)");
 
 // ─── 9. Actualizar src/index.ts ──────────────────────────────────────────────
-const srcIndexPath  = path.resolve("./src/index.ts");
+const srcIndexPath    = path.resolve("./src/index.ts");
 const srcIndexContent = components
   .map((name) => `export { ${name} } from "./components/${name}";`)
   .join("\n") + "\n";
