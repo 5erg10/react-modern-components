@@ -15,16 +15,18 @@ export const BadgeEntry: ComponentEntry = {
     { name: "outline", propName: 'outline', type: "boolean", description: "Set true to transparent background badge.", defaultValue: false },
     { name: "dismissible", propName: 'dismissible', type: "boolean", description: "", defaultValue: false },
   ],
-  render: ({ values }) => (
-    <Badge
-      variant={values["variant"] as any}
-      size={values["size"] as any}
-      label={String(values["label"])}
-      icon={String(values["icon"])}
-      outline={values["outline"] as boolean}
-      dismissible={values["dismissible"] as boolean}
-    />
-  ),
+  render: ({ values }) => {
+    return (
+        <Badge
+        variant={values["variant"] as any}
+        size={values["size"] as any}
+        label={String(values["label"])}
+        icon={String(values["icon"])}
+        outline={values["outline"] as boolean}
+        dismissible={values["dismissible"] as boolean}
+      />
+    )
+  },
   generateCode: (values) => {
     const props = [
       `variant="${values["variant"]}"`,

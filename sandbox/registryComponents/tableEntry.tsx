@@ -15,11 +15,13 @@ export const TableEntry: ComponentEntry = {
     "configurable page size (10 / 50 / 100), and pagination controls that " +
     "show the current page and the visible row range.",
   props: [],
-  render: () => (
-    <div style={{ width: "100%", padding: "1rem 0" }}>
-      <Table data={TABLE_SAMPLE_DATA} />
-    </div>
-  ),
+  render: () => { 
+    return (
+      <div style={{ width: "100%", padding: "1rem 0" }}>
+        <Table data={TABLE_SAMPLE_DATA} />
+      </div>
+    )
+  },
   generateCode: () => `
 const data = [
   { id: 1, nombre: "Ana García",   departamento: "Ingeniería", cargo: "Dev Frontend",   salario: 42000, activo: "Sí" },

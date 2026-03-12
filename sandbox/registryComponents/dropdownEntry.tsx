@@ -14,18 +14,15 @@ export const DropdownEntry: ComponentEntry = {
     { name: "label", propName: 'label', type: "string", description: "", defaultValue: "name" },
   ],
   render: ({ values }) => {
-    const Entry = () => {
-      return (
-        <>
-          <Dropdown
-            options={DROPDOW_OPTIONS}
-            label={values['label'] as string}
-            onChange={(e) => console.log(e.target.value)}
-          />
-        </>
-      )
-    }
-    return <Entry/>;
+    return (
+      <>
+        <Dropdown
+          options={DROPDOW_OPTIONS}
+          label={values['label'] as string}
+          onChange={(e) => console.log(e.target.value)}
+        />
+      </>
+    )
   },
   generateCode: (values) => {
     const props = [

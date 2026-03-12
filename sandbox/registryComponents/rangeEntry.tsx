@@ -29,25 +29,22 @@ export const RangeEntry: ComponentEntry = {
   //   />
   // ),
   render: ({ values }) => {
-    const RangePreview = () => {
-      const [val, setVal] = useState<number>((values["max"] as number) / 2);
-      return (
-        <div style={{ width: "100%", maxWidth: 400, padding: "2rem 1rem" }}>
-          <Range
-            min={values["min"] as number}
-            max={values["max"] as number}
-            step={values["step"] as number}
-            disabled={values["disabled"] as boolean}
-            showTooltip={values["showTooltip"] as boolean}
-            value={val}
-            label={values["label"] as string}
-            onChange={setVal}
-          />
-          <div style={{ marginTop: 8, fontSize: 13, color: "#6b7280", textAlign: "center" }}>value: {val}</div>
-        </div>
-      );
-    };
-    return <RangePreview />;
+    const [val, setVal] = useState<number>((values["max"] as number) / 2);
+    return (
+      <div style={{ width: "100%", maxWidth: 400, padding: "2rem 1rem" }}>
+        <Range
+          min={values["min"] as number}
+          max={values["max"] as number}
+          step={values["step"] as number}
+          disabled={values["disabled"] as boolean}
+          showTooltip={values["showTooltip"] as boolean}
+          value={val}
+          label={values["label"] as string}
+          onChange={setVal}
+        />
+        <div style={{ marginTop: 8, fontSize: 13, color: "#6b7280", textAlign: "center" }}>value: {val}</div>
+      </div>
+    );
   },
   generateCode: (values) => {
     const props = [

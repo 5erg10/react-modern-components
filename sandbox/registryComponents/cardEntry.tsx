@@ -10,13 +10,17 @@ export const CardEntry: ComponentEntry = {
   props: [
 
   ],
-  render: ({ values }) => (
-    <Card
+  render: ({ values }) => {
+    return (
+      <Card
 
-    />
-  ),
+      />
+    )
+  },
   generateCode: (values) => {
-
-    return `<Card />`;
+    const props = [].filter(p => p !== "").join("\n  ");
+    return `
+<Card 
+  ${props}/>`;
   },
 };

@@ -13,22 +13,19 @@ export const InputEntry: ComponentEntry = {
     { name: "disabled", propName: "native", type: "boolean", description: "When true, input is non-interactive and visually dimmed.", defaultValue: false },
   ],
   render: ({ values }) => {
-    const InputEntryPreview = () => {
-      const [inputValue, setInputValue] = useState("");
-      return (
-        <>
-          <Input
-            disabled={values["disabled"] as boolean}
-            type={values["type"] as any}
-            onChange={(e) => setInputValue((e.target as HTMLInputElement).value)}
-          />
-          <div style={{ position: "absolute", bottom: "3rem", left: "5rem", color: "#6b7280", textAlign: "center" }}>
-            Input value: {inputValue}
-          </div>
-        </>
-      );
-    };
-    return <InputEntryPreview />;
+    const [inputValue, setInputValue] = useState("");
+    return (
+      <>
+        <Input
+          disabled={values["disabled"] as boolean}
+          type={values["type"] as any}
+          onChange={(e) => setInputValue((e.target as HTMLInputElement).value)}
+        />
+        <div style={{ position: "absolute", bottom: "3rem", left: "5rem", color: "#6b7280", textAlign: "center" }}>
+          Input value: {inputValue}
+        </div>
+      </>
+    );
   },
   generateCode: (values) => {
     const props = [values["disabled"] ? "disabled" : "", `type="${values["type"]}"`].filter(p => p !== "").join("\n  ");

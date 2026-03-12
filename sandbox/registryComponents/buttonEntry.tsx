@@ -22,26 +22,23 @@ export const ButtonEntry: ComponentEntry = {
     { name: "children", propName: 'native', type: "string", description: "Label text displayed inside the button.", defaultValue: "Click me" },
   ],
   render: ({ values }) => {
-    const ButtonComponentPreview = () => {
-      const [buttonpressed, setButtonPressed] = useState(false);
-      return (
-        <div>
-          <Button
-            variant={values["variant"] as any}
-            size={values["size"] as any}
-            icon={values["icon"] as any}
-            iconPosition={values["icon position"] as any}
-            ellipsis={values["ellipsis"] as boolean}
-            disabled={values["disabled"] as boolean}
-            outline={values["outline"] as boolean}
-            onClick={() => { setButtonPressed(true); setTimeout(() => setButtonPressed(false), 3000); }}>
-            {String(values["children"])}
-          </Button>
-          {buttonpressed && (<div style={{ position: "absolute", bottom: "3rem", right: "5rem", color: "#6b7280", textAlign: "center" }}>button pressed!!</div>)}
-        </div>
-      );
-    };
-    return <ButtonComponentPreview />;
+    const [buttonpressed, setButtonPressed] = useState(false);
+    return (
+      <div>
+        <Button
+          variant={values["variant"] as any}
+          size={values["size"] as any}
+          icon={values["icon"] as any}
+          iconPosition={values["icon position"] as any}
+          ellipsis={values["ellipsis"] as boolean}
+          disabled={values["disabled"] as boolean}
+          outline={values["outline"] as boolean}
+          onClick={() => { setButtonPressed(true); setTimeout(() => setButtonPressed(false), 3000); }}>
+          {String(values["children"])}
+        </Button>
+        {buttonpressed && (<div style={{ position: "absolute", bottom: "3rem", right: "5rem", color: "#6b7280", textAlign: "center" }}>button pressed!!</div>)}
+      </div>
+    );
   },
   generateCode: (values) => {
     const props = [

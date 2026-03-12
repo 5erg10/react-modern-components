@@ -15,34 +15,31 @@ export const CheckboxEntry: ComponentEntry = {
     { name: "disabled", propName: 'native', type: "boolean", description: "", defaultValue: false },
   ],
   render: ({ values }) => {
-    const CheckboxCompPreview = () => {
-      const [chekboxValue, setChexboxValue] = useState("");
-      const onChangeRefresh = (value: any) => { setChexboxValue(JSON.stringify(value)); };
-      return (
-        <>
-          <div style={{ display: "flex", gap: "2rem" }}>
-            <Checkbox
-              disabled={values["disabled"] as boolean}
-              type={values["type"] as any}
-              name={values["name"] as string}
-              value={values["value"] as string}
-              onChange={onChangeRefresh}
-            />
-            <Checkbox
-              disabled={values["disabled"] as boolean}
-              type={values["type"] as any}
-              name={values["name"] as string}
-              value="rojo"
-              onChange={onChangeRefresh}
-            />
-          </div>
-          <div style={{ position: "absolute", bottom: "3rem", left: "5rem", color: "#6b7280", textAlign: "center" }}>
-            Checkbox value: {chekboxValue}
-          </div>
-        </>
-      );
-    };
-    return <CheckboxCompPreview />;
+    const [chekboxValue, setChexboxValue] = useState("");
+    const onChangeRefresh = (value: any) => { setChexboxValue(JSON.stringify(value)); };
+    return (
+      <>
+        <div style={{ display: "flex", gap: "2rem" }}>
+          <Checkbox
+            disabled={values["disabled"] as boolean}
+            type={values["type"] as any}
+            name={values["name"] as string}
+            value={values["value"] as string}
+            onChange={onChangeRefresh}
+          />
+          <Checkbox
+            disabled={values["disabled"] as boolean}
+            type={values["type"] as any}
+            name={values["name"] as string}
+            value="rojo"
+            onChange={onChangeRefresh}
+          />
+        </div>
+        <div style={{ position: "absolute", bottom: "3rem", left: "5rem", color: "#6b7280", textAlign: "center" }}>
+          Checkbox value: {chekboxValue}
+        </div>
+      </>
+    );
   },
   generateCode: (values) => {
     const props = [

@@ -17,24 +17,21 @@ export const ModalEntry: ComponentEntry = {
     { name: "children", propName: 'native', type: "string", description: "Content rendered inside the modal.", defaultValue: "Modal content goes here", multiline: true },
   ],
   render: ({ values }) => {
-    const ModalPreview = () => {
-      const [open, setOpen] = useState(values["isOpen"] as boolean);
-      return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-          <Button variant="primary" onClick={() => setOpen(true)}>Open Modal</Button>
-          {open && (
-            <Modal isOpen={open} onClose={() => setOpen(false)}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <h3 style={{ margin: 0, fontSize: 16, color: "#1f2937" }}>Modal title</h3>
-                <p style={{ margin: 0, fontSize: 14, color: "#6b7280", lineHeight: 1.5 }}>{String(values["children"])}</p>
-                <Button variant="secondary" onClick={() => setOpen(false)}>Close</Button>
-              </div>
-            </Modal>
-          )}
-        </div>
-      );
-    };
-    return <ModalPreview />;
+    const [open, setOpen] = useState(values["isOpen"] as boolean);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+        <Button variant="primary" onClick={() => setOpen(true)}>Open Modal</Button>
+        {open && (
+          <Modal isOpen={open} onClose={() => setOpen(false)}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <h3 style={{ margin: 0, fontSize: 16, color: "#1f2937" }}>Modal title</h3>
+              <p style={{ margin: 0, fontSize: 14, color: "#6b7280", lineHeight: 1.5 }}>{String(values["children"])}</p>
+              <Button variant="secondary" onClick={() => setOpen(false)}>Close</Button>
+            </div>
+          </Modal>
+        )}
+      </div>
+    );
   },
   generateCode: (values) =>
     `\nconst [isOpen, setIsOpen] = useState(false);\n\n<Button onClick={() => setIsOpen(true)}>\n  Open Modal\n</Button>\n\n<Modal\n  isOpen={isOpen}\n  onClose={() => setIsOpen(false)}>\n  ${values["children"]}\n</Modal>`,
