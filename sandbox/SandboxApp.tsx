@@ -2,9 +2,10 @@ import { useState } from "react";
 import { componentRegistry } from "./registry";
 import { ComponentViewer } from "./ComponentViewer";
 import { IconViewer } from "./IconViewer";
+import { DocsViewer } from "./DocsViewer";
 import { Icon, iconNames } from "../src/icons";
 
-type View = { kind: "component"; id: string } | { kind: "icons" };
+type View = { kind: "component"; id: string } | { kind: "icons" } | { kind: "docs" };
 
 export const SandboxApp = () => {
 
@@ -35,6 +36,18 @@ export const SandboxApp = () => {
       </header>
 
       <aside className="sb-sidebar">
+
+        {/* ── Docs ── */}
+        <div className="sb-sidebar-section-title">General</div>
+        <div
+          className={`sb-sidebar-item ${view.kind === "docs" ? "active" : ""}`}
+          onClick={() => setView({ kind: "docs" })}
+        >
+          <span className="sb-sidebar-item-icon">📖</span>
+          <span className="sb-sidebar-item-name">Documentación</span>
+        </div>
+
+        {/* ── Components ── */}
         <div className="sb-sidebar-section-title">Components</div>
         {componentRegistry.map((comp) => (
           <div
@@ -48,6 +61,7 @@ export const SandboxApp = () => {
           </div>
         ))}
 
+        {/* ── Icons ── */}
         <div className="sb-sidebar-section-title">Icons</div>
         <div
           className={`sb-sidebar-item ${view.kind === "icons" ? "active" : ""}`}
@@ -59,7 +73,9 @@ export const SandboxApp = () => {
         </div>
       </aside>
 
-      {view.kind === "icons" ? (
+      {view.kind === "docs" ? (
+        <DocsViewer />
+      ) : view.kind === "icons" ? (
         <IconViewer ambient={mainAmbient}/>
       ) : activeComponent ? (
         <ComponentViewer key={activeComponent.id} component={activeComponent} />
