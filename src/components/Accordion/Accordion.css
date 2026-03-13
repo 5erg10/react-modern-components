@@ -1,0 +1,87 @@
+/* ============================================================
+   Accordion
+   ============================================================ */
+
+.modern-accordion {
+  --accordion-border:      #d1d5db;
+  --accordion-bg:          #ffffff;
+  --accordion-bg-hover:    #f9fafb;
+  --accordion-bg-open:     #f3f4f6;
+  --accordion-color:       #111827;
+  --accordion-color-muted: #6b7280;
+  --accordion-radius:      4px;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--accordion-border);
+  border-radius: var(--accordion-radius);
+  overflow: hidden;
+}
+
+/* ── Item ── */
+.modern-accordion__item {
+  border-bottom: 1px solid var(--accordion-border);
+}
+
+.modern-accordion__item:last-child {
+  border-bottom: none;
+}
+
+/* ── Header ── */
+.modern-accordion__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: var(--accordion-bg);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--accordion-color);
+  transition: background-color 0.15s ease;
+  gap: 0.5rem;
+}
+
+.modern-accordion__header:hover:not(:disabled) {
+  background: var(--accordion-bg-hover);
+}
+
+.modern-accordion__header:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+[data-open="true"] .modern-accordion__header {
+  background: var(--accordion-bg-open);
+}
+
+/* ── Title ── */
+.modern-accordion__title {
+  flex: 1;
+}
+
+/* ── Icon ── */
+.modern-accordion__icon {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  color: var(--accordion-color-muted);
+  transition: color 0.15s ease;
+}
+
+.modern-accordion__header:hover:not(:disabled) .modern-accordion__icon {
+  color: var(--accordion-color);
+}
+
+/* ── Body ── */
+.modern-accordion__body {
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--accordion-color);
+  background: var(--accordion-bg-open);
+  border-top: 1px solid var(--accordion-border);
+}

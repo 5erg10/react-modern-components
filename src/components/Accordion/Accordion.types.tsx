@@ -1,2 +1,10 @@
+export interface AccordionItem {
+  title: string;
+  content: string;
+  disabled?: boolean;
+}
 
-export interface AccordionProps {}
+export interface AccordionProps {
+  items: AccordionItem[];
+  disabled?: boolean;
+}
