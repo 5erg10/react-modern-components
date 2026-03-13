@@ -3,19 +3,14 @@
    ============================================================ */
 
 .modern-table-wrapper {
-  --table-bg:            #1f2937;
-  --table-surface:       #374151;
-  --table-surface-alt:   #2d3a4a;
+  --table-surface-alt:   #4e4e4e34;
   --table-border:        #4b5563;
   --table-header-bg:     #283a61;
-  --table-header-color:  #e2e8f0;
-  --table-cell-color:    #d1d5db;
+  --table-text-color:    #d1d5db;
   --table-accent:        #4767ac;
   --table-accent-hover:  #395daa;
-  --table-input-bg:      #374151;
+  --table-input-bg:      #363636;
   --table-input-border:  #6a7d9b;
-  --table-input-color:   #f3f4f6;
-  --table-radius:        4px;
   --table-col-min-width: 120px;
 
   display: flex;
@@ -24,11 +19,11 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  background-color: var(--table-bg);
+  background-color: transparent;
   border: 1px solid var(--table-border);
   box-sizing: border-box;
   font-size: 0.9rem;
-  color: var(--table-cell-color);
+  color: var(--table-text-color);
 }
 
 /* ── Toolbar ── */
@@ -37,7 +32,7 @@
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
-  background-color: var(--table-surface);
+  background-color: transparent;
   border-bottom: 1px solid var(--table-border);
   gap: 0.75rem;
   flex-wrap: wrap;
@@ -58,9 +53,9 @@
   appearance: none;
   -webkit-appearance: none;
   padding: 0.45rem 2rem 0.45rem 0.75rem;
-  background-color: var(--table-input-bg);
-  color: var(--table-input-color);
-  border: 2px solid var(--table-input-border);
+  background-color: transparent;
+  color: var(--table-text-color);
+  border: 1px solid var(--table-input-border);
   border-right: none;
   outline: none;
   font-size: 0.875rem;
@@ -84,8 +79,8 @@
   min-width: 0;
   padding: 0.45rem 0.75rem;
   background-color: var(--table-input-bg);
-  color: var(--table-input-color);
-  border: 2px solid var(--table-input-border);
+  color: var(--table-text-color);
+  border: 1px solid var(--table-input-border);
   outline: none;
   font-size: 0.875rem;
   height: 38px;
@@ -129,8 +124,8 @@
 .modern-table-th {
   min-width: var(--table-col-min-width);
   padding: 0.65rem 1rem;
-  background-color: var(--table-header-bg);
-  color: var(--table-header-color);
+  background-color: transparent;
+  color: var(--table-text-color);
   text-align: left;
   font-weight: 600;
   font-size: 0.8rem;
@@ -211,7 +206,7 @@
   min-width: var(--table-col-min-width);
   padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--table-border);
-  color: var(--table-cell-color);
+  color: var(--table-text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -237,7 +232,7 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0.65rem 1rem;
-  background-color: var(--table-surface);
+  background-color: transparent;
   border-top: 1px solid var(--table-border);
   flex-shrink: 0;
 }
@@ -255,7 +250,7 @@
 }
 
 .modern-table-total strong {
-  color: var(--table-header-color);
+  color: var(--table-text-color);
 }
 
 .modern-table-page-size-group {
@@ -316,5 +311,5 @@
 }
 
 .modern-table-page-info strong {
-  color: var(--table-header-color);
+  color: var(--table-text-color);
 }

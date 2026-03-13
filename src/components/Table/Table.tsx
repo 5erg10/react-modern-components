@@ -157,6 +157,7 @@ const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
             <tr>
               {columns.map((col) => {
                 const isActive = sort?.column === col;
+                const ariaSort: "ascending" | "descending" | "none" = isActive ? (sort!.direction === "asc" ? "ascending" : "descending") : "none";
                 const arrow = isActive
                   ? sort!.direction === "asc" ? " ↑" : " ↓"
                   : "";
@@ -165,7 +166,7 @@ const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
                     key={col}
                     className={`modern-table-th modern-table-th--sortable${isActive ? " modern-table-th--active" : ""}`}
                     onClick={() => handleSortColumn(col)}
-                    aria-sort={isActive ? (sort!.direction === "asc" ? "ascending" : "descending") : "none"}
+                    aria-sort={ariaSort}
                   >
                     <span className="modern-table-th-content">
                       <span className="modern-table-th-label">{col}</span>

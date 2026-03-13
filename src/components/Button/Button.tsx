@@ -4,7 +4,7 @@ import "./Button.css";
 import { Icon } from "../../icons";
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", size = "md", ellipsis = false, icon, iconPosition = "left", outline, onClick,  children, ...props }, ref) => {
+  ({ variant = "primary", size = "md", ellipsis = false, icon, iconPosition = "left", outline = "false", onClick,  children, ...props }, ref) => {
     return (
       <button
         ref={ref}
