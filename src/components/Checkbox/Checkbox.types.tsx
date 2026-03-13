@@ -1,5 +1,5 @@
 export interface CheckboxProps {
-    type: "checkbox" | "radio",
+    type?: "checkbox" | "radio",
     name?: string,
     value?: string,
     disabled?: boolean

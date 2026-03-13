@@ -20,3 +20,5 @@ export const Dropdown = forwardRef<HTMLSelectElement, DropdownProps>(
         </> 
     )    
 });
+
+Dropdown.displayName = "Dropdown";

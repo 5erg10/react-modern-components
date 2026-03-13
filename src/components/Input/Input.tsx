@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useRef, useState } from "react";
+import { forwardRef, useCallback, useState } from "react";
 import { InputProps } from "./Input.types";
 import "./Input.css";
 import { Icon } from "../../icons";
@@ -36,7 +36,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="modern-input" data-input-type={type}>
           <div className="modern-input__input-mask"> 
              <input
-              id="moderInput"
               ref={ref}
               aria-label="input-type-aria-label"
               className="modern-input__inputbox"
