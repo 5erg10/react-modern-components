@@ -24,8 +24,6 @@ const sections: Section[] = [
           <code>forwardRef</code>, lo que permite que los consumidores accedan directamente al nodo
           DOM subyacente cuando lo necesiten.
         </p>
-        <p>El repositorio incluye también un <strong>sandbox</strong> integrado para explorar y probar cada componente de forma visual, sin necesidad de crear un proyecto aparte.</p>
-        <p>Componentes disponibles: <code>Badge</code>, <code>Button</code>, <code>Card</code>, <code>Checkbox</code>, <code>DigitalClock</code>, <code>Dropdown</code>, <code>Input</code>, <code>Modal</code>, <code>Range</code>, <code>Table</code>.</p>
       </>
     ),
   },
@@ -37,8 +35,6 @@ const sections: Section[] = [
         <p>Clona el repositorio y entra en el directorio del proyecto:</p>
         <CodeBlock>{`git clone https://github.com/5erg10/react-modern-components.git
 cd react-modern-components`}</CodeBlock>
-        <p>Si quieres trabajar sobre una rama concreta (por ejemplo, la rama de desarrollo activa):</p>
-        <CodeBlock>{`git checkout feat/forward-ref`}</CodeBlock>
       </>
     ),
   },
@@ -69,14 +65,6 @@ cd react-modern-components`}</CodeBlock>
         </p>
         <CodeBlock>{`npm run sandbox`}</CodeBlock>
         <p>Esto levanta el sandbox en <code>http://localhost:5174</code> (o el puerto disponible).</p>
-        <p><strong>Cómo usarlo:</strong></p>
-        <ul>
-          <li>En el menú lateral izquierdo encontrarás todas las secciones: <em>Documentación</em>, los componentes y la librería de iconos.</li>
-          <li>Al seleccionar un componente se abre el visor con una preview en vivo, los controles para modificar sus props en tiempo real y un bloque de código JSX que puedes copiar directamente.</li>
-          <li>El botón sol/luna del header cambia el tema claro/oscuro del canvas.</li>
-        </ul>
-        <p><strong>Cómo añadir un nuevo componente al sandbox:</strong></p>
-        <p>Crea un fichero en <code>sandbox/registryComponents/</code> siguiendo la estructura <code>ComponentEntry</code> definida en <code>sandbox/registry.tsx</code>, e impórtalo en el array <code>COMPS</code> de <code>sandbox/registryComponents/index.ts</code>.</p>
       </>
     ),
   },

@@ -653,12 +653,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 32px;
-  max-width: 860px;
 }
 
 .sb-docs-hero {
   padding-bottom: 24px;
   border-bottom: 1px solid var(--sb-border);
+  max-width: 1000px;
 }
 
 .sb-docs-hero-title {
@@ -678,6 +678,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-width: 1000px;
 }
 
 .sb-docs-section-title {
