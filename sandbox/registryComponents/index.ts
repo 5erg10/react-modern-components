@@ -1,3 +1,4 @@
+import { AccordionEntry } from './accordionEntry';
 import { BadgeEntry } from './badgeEntry';
 import { ButtonEntry } from './buttonEntry';
 import { CardEntry } from './cardEntry';
@@ -10,6 +11,7 @@ import { RangeEntry } from './rangeEntry';
 import { TableEntry } from './tableEntry';
 
 export const COMPS = [
+    AccordionEntry,
     BadgeEntry,
     ButtonEntry,
     CardEntry,

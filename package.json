@@ -19,6 +19,12 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js"
     },
+    "./accordion": {
+      "types": "./dist/components/Accordion/index.d.ts",
+      "style": "./dist/components/Accordion/Accordion.css",
+      "import": "./dist/components/Accordion/index.es.js",
+      "require": "./dist/components/Accordion/index.cjs.js"
+    },
     "./badge": {
       "types": "./dist/components/Badge/index.d.ts",
       "style": "./dist/components/Badge/Badge.css",
