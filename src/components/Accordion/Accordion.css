@@ -10,6 +10,7 @@
   --accordion-color:       #111827;
   --accordion-color-muted: #6b7280;
   --accordion-radius:      4px;
+  --accordion-duration:    0.25s;
 
   display: flex;
   flex-direction: column;
@@ -42,7 +43,7 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--accordion-color);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--accordion-duration) ease;
   gap: 0.5rem;
 }
 
@@ -69,19 +70,46 @@
   flex-shrink: 0;
   font-size: 0.85rem;
   color: var(--accordion-color-muted);
-  transition: color 0.15s ease;
+  transition: color var(--accordion-duration) ease;
 }
 
 .modern-accordion__header:hover:not(:disabled) .modern-accordion__icon {
   color: var(--accordion-color);
 }
 
+/* ── Collapse (wrapper animado) ── */
+/*
+  Técnica: grid-template-rows 0fr → 1fr
+  Es la única forma CSS-pura de animar height: auto.
+  El hijo directo necesita min-height: 0 para que el
+  grid pueda colapsarlo hasta 0 sin cortar el contenido.
+*/
+.modern-accordion__collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--accordion-duration) ease;
+}
+
+[data-open="true"] .modern-accordion__collapse {
+  grid-template-rows: 1fr;
+}
+
 /* ── Body ── */
 .modern-accordion__body {
-  padding: 0.85rem 1rem;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 1rem;
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--accordion-color);
   background: var(--accordion-bg-open);
-  border-top: 1px solid var(--accordion-border);
+  border-top: 0px solid var(--accordion-border);
+  transition:
+    padding    var(--accordion-duration) ease,
+    border-top var(--accordion-duration) ease;
+}
+
+[data-open="true"] .modern-accordion__body {
+  padding: 0.85rem 1rem;
+  border-top-width: 1px;
 }

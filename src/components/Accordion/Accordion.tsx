@@ -39,12 +39,12 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
                 />
               </button>
 
-              {isOpen && (
+              <div className="modern-accordion__collapse">
                 <div
                   className="modern-accordion__body"
                   dangerouslySetInnerHTML={{ __html: item.content }}
                 />
-              )}
+              </div>
             </div>
           );
         })}
