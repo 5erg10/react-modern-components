@@ -104,7 +104,7 @@ function parseProps(name) {
     if (resolved.includes("=>") || resolved.startsWith("React.")) continue;
 
     if (propName === "children") {
-      props.push({ name: "children", type: "string", required: false, defaultValue: name + " content", multiline: true });
+      props.push({ name: "children", type: "string", required: false, defaultValue: `${name} content`, multiline: true });
       continue;
     }
 
@@ -136,22 +136,27 @@ function parseProps(name) {
 // ─── 4. Generador del fichero registryComponents/${name}Entry.tsx ─────────────
 function generateEntryFile(name, props) {
   const id        = name.toLowerCase();
-  const entryName = name + "Entry";
+  const entryName = `${name}Entry`;
 
   // ── PropDefs ──────────────────────────────────────────────────────────────
   const propDefs = props.map((p) => {
-    let s = "    {\n";
-    s += "      name: \"" + p.name + "\",\n";
-    s += "      type: \"" + p.type + "\",\n";
-    if (p.options) {
-      s += "      options: [" + p.options.map((o) => "\"" + o + "\"").join(", ") + "],\n";
-    }
-    s += "      description: \"\",\n";
-    s += "      defaultValue: " + JSON.stringify(p.defaultValue) + ",\n";
-    if (p.required)  s += "      required: true,\n";
-    if (p.multiline) s += "      multiline: true,\n";
-    s += "    }";
-    return s;
+    const optionsLine = p.options
+      ? `      options: [${p.options.map((o) => `"${o}"`).join(", ")}],\n`
+      : "";
+    const requiredLine  = p.required  ? `      required: true,\n`  : "";
+    const multilineLine = p.multiline ? `      multiline: true,\n` : "";
+
+    return (
+      `    {\n` +
+      `      name: "${p.name}",\n` +
+      `      type: "${p.type}",\n` +
+      optionsLine +
+      `      description: "",\n` +
+      `      defaultValue: ${JSON.stringify(p.defaultValue)},\n` +
+      requiredLine +
+      multilineLine +
+      `    }`
+    );
   }).join(",\n");
 
   // ── render ────────────────────────────────────────────────────────────────
@@ -159,64 +164,48 @@ function generateEntryFile(name, props) {
   const childrenProp = props.find((p) => p.name === "children");
 
   const spreadLines = nonChildren.map((p) => {
-    if (p.type === "boolean") return "      " + p.name + "={values[\"" + p.name + "\"] as boolean}";
-    if (p.type === "number")  return "      " + p.name + "={values[\"" + p.name + "\"] as number}";
-    if (p.type === "select")  return "      " + p.name + "={values[\"" + p.name + "\"] as any}";
-    return "      " + p.name + "={String(values[\"" + p.name + "\"])}";
+    if (p.type === "boolean") return `      ${p.name}={values["${p.name}"] as boolean}`;
+    if (p.type === "number")  return `      ${p.name}={values["${p.name}"] as number}`;
+    if (p.type === "select")  return `      ${p.name}={values["${p.name}"] as any}`;
+    return                           `      ${p.name}={String(values["${p.name}"])}`;
   }).join("\n");
 
-  let renderInner;
-  if (childrenProp) {
-    renderInner  = "<" + name + "\n" + spreadLines + "\n    >\n";
-    renderInner += "      {String(values[\"children\"])}\n";
-    renderInner += "    </" + name + ">";
-  } else {
-    renderInner = "<" + name + "\n" + spreadLines + "\n    />";
-  }
+  const renderInner = childrenProp
+    ? `<${name}\n${spreadLines}\n    >\n      {String(values["children"])}\n    </${name}>`
+    : `<${name}\n${spreadLines}\n    />`;
 
   // ── generateCode ──────────────────────────────────────────────────────────
   const propVarLines = nonChildren.map((p) => {
-    if (p.type === "boolean") {
-      return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? \" " + p.name + "\" : \"\";";
-    }
-    if (p.type === "select") {
-      return "    const " + p.name + "Prop = ` " + p.name + "=\"$" + "{values[\"" + p.name + "\"]}\"`;";
-    }
-    return "    const " + p.name + "Prop = values[\"" + p.name + "\"] ? ` " + p.name + "=\"$" + "{String(values[\"" + p.name + "\"])}\"` : \"\";";
+    if (p.type === "boolean") return `    const ${p.name}Prop = values["${p.name}"] ? " ${p.name}" : "";`;
+    if (p.type === "select")  return `    const ${p.name}Prop = \` ${p.name}="\${values["${p.name}"]}"\`;`;
+    return                           `    const ${p.name}Prop = values["${p.name}"] ? \` ${p.name}="\${String(values["${p.name}"])}"\` : "";`;
   }).join("\n");
 
-  const interpolations = nonChildren
-    .map((p) => "$" + "{" + p.name + "Prop}")
-    .join("");
+  const interpolations = nonChildren.map((p) => `\${${p.name}Prop}`).join("");
 
-  let returnLine;
-  if (childrenProp) {
-    returnLine = "    return `<" + name + interpolations + ">$" + "{values[\"children\"]}</" + name + ">`;";
-  } else {
-    returnLine = "    return `<" + name + interpolations + " />`;";
-  }
+  const returnLine = childrenProp
+    ? `    return \`<${name}${interpolations}>\${values["children"]}</${name}>\`;`
+    : `    return \`<${name}${interpolations} />\`;`;
 
   // ── Fichero completo ──────────────────────────────────────────────────────
-  
-  let file = "";
-  file += "import { " + name + " } from \"../../src/components/" + name + "\";\n";
-  file += "import { ComponentEntry } from \"../registry\";\n";
-  file += "\n";
-  file += "export const " + entryName + ": ComponentEntry = {\n";
-  file += "  id: \"" + id + "\",\n";
-  file += "  name: \"" + name + "\",\n";
-  file += "  icon: \"" + iconsByCategory[category] + "\",\n";
-  file += "  category: \"" + category + "\",\n";
-  file += "  description: \"" + name + " component.\",\n";
-  file += "  props: [\n" + propDefs + "\n  ],\n";
-  file += "  render: ({ values }) => (\n    " + renderInner + "\n  ),\n";
-  file += "  generateCode: (values) => {\n";
-  file += propVarLines + "\n";
-  file += returnLine + "\n";
-  file += "  },\n";
-  file += "};\n";
-
-  return file;
+  return (
+    `import { ${name} } from "../../src/components/${name}";\n` +
+    `import { ComponentEntry } from "../registry";\n` +
+    `\n` +
+    `export const ${entryName}: ComponentEntry = {\n` +
+    `  id: "${id}",\n` +
+    `  name: "${name}",\n` +
+    `  icon: "${iconsByCategory[category]}",\n` +
+    `  category: "${category}",\n` +
+    `  description: "${name} component.",\n` +
+    `  props: [\n${propDefs}\n  ],\n` +
+    `  render: ({ values }) => (\n    ${renderInner}\n  ),\n` +
+    `  generateCode: (values) => {\n` +
+    `${propVarLines}\n` +
+    `${returnLine}\n` +
+    `  },\n` +
+    `};\n`
+  );
 }
 
 // ─── 5. Detectar componentes ya registrados ───────────────────────────────────
@@ -256,8 +245,8 @@ console.log("✨ Componentes nuevos detectados:", newComponents.join(", "));
 
 // ─── 7. Crear fichero por cada componente nuevo ───────────────────────────────
 for (const name of newComponents) {
-  const fileBase    = name.toLowerCase() + "Entry";
-  const fileName    = fileBase + ".tsx";
+  const fileBase    = `${name.toLowerCase()}Entry`;
+  const fileName    = `${fileBase}.tsx`;
   const filePath    = path.join(registryComponentsDir, fileName);
   const fileContent = generateEntryFile(name, parseProps(name));
 
@@ -281,12 +270,7 @@ const compsItems = sortedNames
   .map((name) => `    ${name}Entry`)
   .join(",\n");
 
-const indexContent =
-  importLines +
-  "\n\n" +
-  "export const COMPS = [\n" +
-  compsItems + "\n" +
-  "];";
+const indexContent = `${importLines}\n\nexport const COMPS = [\n${compsItems}\n];`;
 
 fs.writeFileSync(registryIndexPath, indexContent);
 console.log("✅ sandbox/registryComponents/index.ts actualizado (orden alfabético)");
