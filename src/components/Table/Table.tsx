@@ -11,15 +11,65 @@ interface SortState {
   direction: SortDirection;
 }
 
-/* ── Inner component: hooks only run when data is a valid array ── */
+// ─── Color utils ─────────────────────────────────────────────────────────────
+
+/** Convierte cualquier string hex (#rgb, #rrggbb) o rgb(...) a [r, g, b]. */
+function parseColor(color: string): [number, number, number] | null {
+  const trimmed = color.trim();
+
+  // rgb(r, g, b) / rgba(r, g, b, a)
+  const rgbMatch = trimmed.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (rgbMatch) {
+    return [Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3])];
+  }
+
+  // #rgb -> #rrggbb
+  let hex = trimmed.startsWith("#") ? trimmed.slice(1) : trimmed;
+  if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
+  if (hex.length === 6) {
+    return [
+      parseInt(hex.slice(0, 2), 16),
+      parseInt(hex.slice(2, 4), 16),
+      parseInt(hex.slice(4, 6), 16),
+    ];
+  }
+
+  return null;
+}
+
+/** Oscurece un color RGB en un porcentaje (0–100). */
+function darken(rgb: [number, number, number], amount: number): string {
+  const factor = 1 - amount / 100;
+  const [r, g, b] = rgb.map((c) => Math.round(Math.max(0, c * factor)));
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+/**
+ * Dado un accentColor (hex o rgb), devuelve un objeto de CSS custom properties
+ * listo para pasarlo como `style` al wrapper.
+ */
+function buildAccentVars(
+  accentColor: string | undefined
+): React.CSSProperties {
+  if (!accentColor) return {};
+  const rgb = parseColor(accentColor);
+  if (!rgb) return {};
+  return {
+    "--table-accent":       accentColor,
+    "--table-accent-hover": darken(rgb, 12),
+  } as React.CSSProperties;
+}
+
+// ─── Inner component ──────────────────────────────────────────────────────────
 
 interface TableInnerProps {
   data: Record<string, unknown>[];
   onRowClick?: (row: Record<string, unknown>) => void;
+  accentColor?: string;
   containerRef: React.ForwardedRef<HTMLDivElement>;
 }
 
-const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
+const TableInner = ({ data, onRowClick, accentColor, containerRef }: TableInnerProps) => {
 
   /* ── Columns: intersection of all row keys ── */
   const columns = useMemo<string[]>(() => {
@@ -120,9 +170,10 @@ const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
 
   const hasPagination = totalRows > pageSize;
   const isClickable = typeof onRowClick === "function";
+  const accentVars = useMemo(() => buildAccentVars(accentColor), [accentColor]);
 
   return (
-    <div ref={containerRef} className="modern-table-wrapper">
+    <div ref={containerRef} className="modern-table-wrapper" style={accentVars}>
 
       {/* ── Toolbar ── */}
       <div className="modern-table-toolbar">
@@ -268,11 +319,11 @@ const TableInner = ({ data, onRowClick, containerRef }: TableInnerProps) => {
   );
 };
 
-/* ── Public component: guard before hooks ── */
+// ─── Public component ─────────────────────────────────────────────────────────
 
-export const Table = forwardRef<HTMLDivElement, TableProps>(({ data, onRowClick }, ref) => {
+export const Table = forwardRef<HTMLDivElement, TableProps>(({ data, onRowClick, accentColor }, ref) => {
   if (!Array.isArray(data) || data.length === 0) return null;
-  return <TableInner data={data} onRowClick={onRowClick} containerRef={ref} />;
+  return <TableInner data={data} onRowClick={onRowClick} accentColor={accentColor} containerRef={ref} />;
 });
 
 Table.displayName = "Table";
