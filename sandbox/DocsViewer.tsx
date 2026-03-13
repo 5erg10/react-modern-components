@@ -106,7 +106,7 @@ const sections: Section[] = [
         <p>El proyecto está configurado para publicación pública en npm (<code>publishConfig.access: "public"</code>).</p>
         <p><strong>Requisitos previos:</strong></p>
         <ol>
-          <li>Tener una cuenta en <a href="https://www.npmjs.com" target="_blank" rel="noreferrer">npmjs.com</a>.</li>
+          <li>Tener una cuenta en <a href="https://www.npmjs.com" target="_blank" rel="noopener">npmjs.com</a>.</li>
           <li>Haber iniciado sesión en la CLI: <CodeBlock>{`npm login`}</CodeBlock></li>
           <li>Asegurarte de que el campo <code>name</code> en <code>package.json</code> es único en el registro de npm. Actualmente es <code>modern-react-components</code>.</li>
         </ol>

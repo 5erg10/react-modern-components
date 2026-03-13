@@ -141,21 +141,21 @@ function generateEntryFile(name, props) {
   // ── PropDefs ──────────────────────────────────────────────────────────────
   const propDefs = props.map((p) => {
     const optionsLine = p.options
-      ? `      options: [${p.options.map((o) => `"${o}"`).join(", ")}],\n`
+      ? `options: [${p.options.map((o) => `"${o}"`).join(", ")}],`
       : "";
-    const requiredLine  = p.required  ? `      required: true,\n`  : "";
-    const multilineLine = p.multiline ? `      multiline: true,\n` : "";
+    const requiredLine  = p.required  ? `required: true,`  : "";
+    const multilineLine = p.multiline ? `multiline: true,` : "";
 
     return (
-      `    {\n` +
-      `      name: "${p.name}",\n` +
-      `      type: "${p.type}",\n` +
-      optionsLine +
-      `      description: "",\n` +
-      `      defaultValue: ${JSON.stringify(p.defaultValue)},\n` +
-      requiredLine +
-      multilineLine +
-      `    }`
+      `{
+        name: "${p.name}",
+        type: "${p.type}",
+        ${optionsLine}
+        description: "",
+        defaultValue: ${JSON.stringify(p.defaultValue)},
+        ${requiredLine}
+        ${multilineLine}
+      }`
     );
   }).join(",\n");
 
@@ -176,35 +176,40 @@ function generateEntryFile(name, props) {
 
   // ── generateCode ──────────────────────────────────────────────────────────
   const propVarLines = nonChildren.map((p) => {
-    if (p.type === "boolean") return `    const ${p.name}Prop = values["${p.name}"] ? " ${p.name}" : "";`;
-    if (p.type === "select")  return `    const ${p.name}Prop = \` ${p.name}="\${values["${p.name}"]}"\`;`;
-    return                           `    const ${p.name}Prop = values["${p.name}"] ? \` ${p.name}="\${String(values["${p.name}"])}"\` : "";`;
+    if (p.type === "boolean") return `values["${p.name}"] ? " ${p.name}" : "";`;
+    if (p.type === "select")  return `\` ${p.name}="\${values["${p.name}"]}"\`;`;
+    return                           `values["${p.name}"] ? \` ${p.name}="\${String(values["${p.name}"])}"\` : "";`;
   }).join("\n");
 
-  const interpolations = nonChildren.map((p) => `\${${p.name}Prop}`).join("");
-
   const returnLine = childrenProp
-    ? `    return \`<${name}${interpolations}>\${values["children"]}</${name}>\`;`
-    : `    return \`<${name}${interpolations} />\`;`;
+    ? `return \`<${name}>
+          \${values["children"]}
+      </${name}>\``
+    : `return \`<${name}/>\``;
 
   // ── Fichero completo ──────────────────────────────────────────────────────
   return (
-    `import { ${name} } from "../../src/components/${name}";\n` +
-    `import { ComponentEntry } from "../registry";\n` +
-    `\n` +
-    `export const ${entryName}: ComponentEntry = {\n` +
-    `  id: "${id}",\n` +
-    `  name: "${name}",\n` +
-    `  icon: "${iconsByCategory[category]}",\n` +
-    `  category: "${category}",\n` +
-    `  description: "${name} component.",\n` +
-    `  props: [\n${propDefs}\n  ],\n` +
-    `  render: ({ values }) => (\n    ${renderInner}\n  ),\n` +
-    `  generateCode: (values) => {\n` +
-    `${propVarLines}\n` +
-    `${returnLine}\n` +
-    `  },\n` +
-    `};\n`
+  ` import { ${name} } from "../../src/components/${name}";
+    import { ComponentEntry } from "../registry";
+    export const ${entryName}: ComponentEntry = {
+        id: "${id}",
+        name: "${name}",
+        icon: "${iconsByCategory[category]}",
+        category: "${category}",
+        description: "${name} component.",
+        props: [${propDefs}],
+        render: ({ values }) => {
+          return (
+            ${renderInner}
+          )  
+        },
+        generateCode: (values) => {
+          const props = [
+            ${propVarLines}
+          ].filter(p => p !== "").join("\\n ");
+          ${returnLine}
+      },
+    };`
   );
 }
 
