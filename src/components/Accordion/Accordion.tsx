@@ -4,7 +4,7 @@ import "./Accordion.css";
 import { Icon } from "../../icons";
 
 export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
-  ({ items, disabled = false }, ref) => {
+  ({ items, ambient = 'light', disabled = false }, ref) => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
 
     const handleToggle = (index: number) => {
@@ -12,7 +12,7 @@ export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(
     };
 
     return (
-      <div ref={ref} className="modern-accordion">
+      <div ref={ref} className="modern-accordion" data-accordion-ambient={ambient}>
         {items.map((item, index) => {
           const isOpen     = openIndex === index;
           const isDisabled = disabled || item.disabled;

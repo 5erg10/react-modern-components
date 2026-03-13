@@ -31,23 +31,35 @@ export const AccordionEntry: ComponentEntry = {
       description: "Deshabilita todo el accordion de forma global.",
       defaultValue: false,
     },
+     {
+      name: "Ambient",
+      propName: "ambient",
+      type: "select",
+      options: ['dark', 'light'],
+      description: "Deshabilita todo el accordion de forma global.",
+      defaultValue: 'dark',
+    },
   ],
   render: ({ values }) => (
     <Accordion
+      ambient={values['Ambient'] as 'dark' | 'light'}
       items={DEMO_ITEMS}
       disabled={values["disabled"] as boolean}
     />
   ),
   generateCode: (values) => {
-    const disabledProp = values["disabled"] ? " disabled" : "";
+    const props = [
+      values["disabled"] ? `disabled` : "",
+      values['Ambient'] ? `ambient="${values['Ambient']}"` : ""
+    ].filter(p => p !== "").join("\n  ");
     return (
-`<Accordion${disabledProp}
+`<Accordion 
+  ${props}
   items={[
     { title: "Sección 1", content: "Contenido de la sección 1." },
     { title: "Sección 2", content: "<p>Contenido <strong>HTML</strong>.</p>" },
     { title: "Sección deshabilitada", content: "...", disabled: true },
-  ]}
-/>`
+  ]}/>`
     );
   },
 };

@@ -50,6 +50,6 @@ export const ButtonEntry: ComponentEntry = {
       values["icon"] ? `icon="${values["icon"]}"` : "",
       values["icon position"] ? `iconPosition="${values["icon position"]}"` : "",
     ].filter(p => p !== "").join("\n  ");
-    return `\n<Button\n  ${props}\n  onClick={() => {}}>\n  ${values["children"]}\n</Button>`;
+    return `<Button\n  ${props}\n  onClick={() => {}}>\n  ${values["children"]}\n</Button>`;
   },
 };

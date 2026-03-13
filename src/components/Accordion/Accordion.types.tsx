@@ -7,4 +7,5 @@ export interface AccordionItem {
 export interface AccordionProps {
   items: AccordionItem[];
   disabled?: boolean;
+  ambient?: 'light' | 'dark';
 }
