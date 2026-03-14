@@ -596,6 +596,7 @@ body {
   justify-content: flex-end;
   gap: 0.1rem;
   cursor: pointer;
+  color: var(--sb-text-primary);
 }
 
 .sb-controls-preview-ambient-selector {

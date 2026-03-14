@@ -3,14 +3,14 @@
    ============================================================ */
 
 .modern-table-wrapper {
-  --table-surface-alt:   #4e4e4e34;
-  --table-border:        #4b5563;
-  --table-header-bg:     #283a61;
+  --table-surface-alt:   #86868634;
+  --table-border:        #b4b4b4;
+  --table-header-bg:     #1f1f1f;
   --table-text-color:    #d1d5db;
   --table-accent:        #4767ac;
-  --table-accent-hover:  #395daa;
+  --table-accent-darker:  #395daa;
+  --table-accent-lighter:  #6a7d9b;
   --table-input-bg:      #363636;
-  --table-input-border:  #6a7d9b;
   --table-col-min-width: 120px;
 
   display: flex;
@@ -24,6 +24,20 @@
   box-sizing: border-box;
   font-size: 0.9rem;
   color: var(--table-text-color);
+}
+
+.modern-table-wrapper[data-table-ambient="dark"] {
+  --table-text-color: #d1d5db;
+  --table-header-bg: #252525;
+  --table-border: #4b4b4b;
+  --table-input-bg: #252525;
+}
+
+.modern-table-wrapper[data-table-ambient="light"] {
+  --table-text-color: #333333;
+  --table-header-bg: #dadada;
+  --table-border: #b4b4b4;
+  --table-input-bg: #dadada;
 }
 
 /* ── Toolbar ── */
@@ -55,7 +69,7 @@
   padding: 0.45rem 2rem 0.45rem 0.75rem;
   background-color: transparent;
   color: var(--table-text-color);
-  border: 1px solid var(--table-input-border);
+  border: 1px solid var(--table-accent-lighter);
   border-right: none;
   outline: none;
   font-size: 0.875rem;
@@ -80,7 +94,7 @@
   padding: 0.45rem 0.75rem;
   background-color: var(--table-input-bg);
   color: var(--table-text-color);
-  border: 1px solid var(--table-input-border);
+  border: 1px solid var(--table-accent-lighter);
   outline: none;
   font-size: 0.875rem;
   height: 38px;
@@ -124,14 +138,14 @@
 .modern-table-th {
   min-width: var(--table-col-min-width);
   padding: 0.65rem 1rem;
-  background-color: transparent;
+  background-color: var(--table-header-bg);
   color: var(--table-text-color);
   text-align: left;
   font-weight: 600;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  border-bottom: 2px solid var(--table-accent);
+  border-bottom: 1px solid var(--table-accent);
   white-space: nowrap;
   position: sticky;
   top: 0;
@@ -184,7 +198,7 @@
 }
 
 .modern-table-row:hover {
-  background-color: #2d3e55;
+  background-color: var(--table-accent-lighter);
 }
 
 /* Clickable rows — only applied when onRowClick is provided */
@@ -194,18 +208,17 @@
 }
 
 .modern-table-row--clickable:hover {
-  background-color: #354f6e;
+  background-color: var(--table-accent);
 }
 
 .modern-table-row--clickable:focus-visible {
-  outline: 2px solid #7ca4e0;
+  outline: 1px solid #7ca4e0;
   outline-offset: -2px;
 }
 
 .modern-table-td {
   min-width: var(--table-col-min-width);
   padding: 0.6rem 1rem;
-  border-bottom: 1px solid var(--table-border);
   color: var(--table-text-color);
   white-space: nowrap;
   overflow: hidden;
@@ -232,8 +245,8 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0.65rem 1rem;
-  background-color: transparent;
-  border-top: 1px solid var(--table-border);
+  background-color: var(--table-header-bg);
+  border-top: 1px solid var(--table-accent);
   flex-shrink: 0;
 }
 
@@ -260,7 +273,7 @@
 }
 
 .modern-table-page-size-group .modern-table-select {
-  border-right: 2px solid var(--table-input-border);
+  border-right: 1px solid var(--table-accent-lighter);
 }
 
 .modern-table-page-size-label {
@@ -295,7 +308,7 @@
 }
 
 .modern-table-page-btn:hover:not(:disabled) {
-  background-color: var(--table-accent-hover);
+  background-color: var(--table-accent-darker);
 }
 
 .modern-table-page-btn:disabled {

@@ -13,8 +13,7 @@ export const ModalEntry: ComponentEntry = {
     "Clicking the backdrop calls onClose — clicks inside the content " +
     "do not propagate, preventing accidental dismissal.",
   props: [
-    { name: "isOpen", propName: 'isOpen', type: "boolean", description: "Controls whether the modal is visible.", defaultValue: false, required: true },
-    { name: "children", propName: 'native', type: "string", description: "Content rendered inside the modal.", defaultValue: "Modal content goes here", multiline: true },
+    { name: "Content", propName: 'children', type: "string", description: "Content rendered inside the modal.", defaultValue: "Modal content goes here", multiline: true },
   ],
   render: ({ values }) => {
     const [open, setOpen] = useState(values["isOpen"] as boolean);
@@ -34,5 +33,13 @@ export const ModalEntry: ComponentEntry = {
     );
   },
   generateCode: (values) =>
-    `\nconst [isOpen, setIsOpen] = useState(false);\n\n<Button onClick={() => setIsOpen(true)}>\n  Open Modal\n</Button>\n\n<Modal\n  isOpen={isOpen}\n  onClose={() => setIsOpen(false)}>\n  ${values["children"]}\n</Modal>`,
+    `
+const [isOpen, setIsOpen] = useState(false);
+<Button onClick={() => setIsOpen(true)}> 
+  Open Modal
+</Button>
+<Modal
+  onClose={() => setIsOpen(false)}>
+    ${values["children"]}
+</Modal>`,
 };

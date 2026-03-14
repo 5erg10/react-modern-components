@@ -49,17 +49,18 @@ export const SandboxApp = () => {
 
         {/* ── Components ── */}
         <div className="sb-sidebar-section-title">Components</div>
-        {componentRegistry.map((comp) => (
-          <div
-            key={comp.id}
-            className={`sb-sidebar-item ${view.kind === "component" && view.id === comp.id ? "active" : ""}`}
-            onClick={() => setView({ kind: "component", id: comp.id })}
-          >
-            <span className="sb-sidebar-item-icon">{comp.icon}</span>
-            <span className="sb-sidebar-item-name">{comp.name}</span>
-            <span className="sb-sidebar-item-tag">{comp.category}</span>
-          </div>
-        ))}
+        {componentRegistry.map((comp) => {
+          return (
+            <div
+              key={comp.id}
+              className={`sb-sidebar-item ${view.kind === "component" && view.id === comp.id ? "active" : ""}`}
+              onClick={() => setView({ kind: "component", id: comp.id })}>
+              <span className="sb-sidebar-item-icon">{comp.icon}</span>
+              <span className="sb-sidebar-item-name">{comp.name}</span>
+              <span className="sb-sidebar-item-tag">{comp.category}</span>
+            </div>
+          )
+        })}
 
         {/* ── Icons ── */}
         <div className="sb-sidebar-section-title">Icons</div>
@@ -78,7 +79,7 @@ export const SandboxApp = () => {
       ) : view.kind === "icons" ? (
         <IconViewer ambient={mainAmbient}/>
       ) : activeComponent ? (
-        <ComponentViewer key={activeComponent.id} component={activeComponent} />
+        <ComponentViewer key={activeComponent.id} component={activeComponent} ambient={mainAmbient}/>
       ) : (
         <div className="sb-canvas">
           <div className="sb-empty">

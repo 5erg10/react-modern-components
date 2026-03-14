@@ -23,13 +23,13 @@
     --indicator-height: 25;
 }
 
-[data-ambient-mode='light'] {
+[data-ambient-mode='dark'] {
     --main-background-color: #fff;
     --markers-color: #333;
     --indicator-color: rgb(160, 155, 81);
 }
 
-[data-ambient-mode='dark'] {
+[data-ambient-mode='light'] {
     --main-background-color: #333;
     --markers-color: #fff;
     --indicator-color: rgb(248, 240, 122);

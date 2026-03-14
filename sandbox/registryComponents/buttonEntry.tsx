@@ -18,8 +18,8 @@ export const ButtonEntry: ComponentEntry = {
     { name: "icon", propName: 'icon', type: "string", description: "Set an Icon Name to print icon.", defaultValue: undefined },
     { name: "icon position", propName: 'iconPosition', type: "select", options: ["right", "left"], description: "Select right or left icon position", defaultValue: "left" },
     { name: "ellipsis", propName: 'ellipsis', type: "boolean", description: "Trunk button text content with ellipsis", defaultValue: false },
-    { name: "disabled", propName: 'native', type: "boolean", description: "When true, the button is non-interactive and visually dimmed.", defaultValue: false },
-    { name: "children", propName: 'native', type: "string", description: "Label text displayed inside the button.", defaultValue: "Click me" },
+    { name: "disabled", propName: 'disabled', type: "boolean", description: "When true, the button is non-interactive and visually dimmed.", defaultValue: false },
+    { name: "children", propName: 'children', type: "string", description: "Label text displayed inside the button.", defaultValue: "Click me" },
   ],
   render: ({ values }) => {
     const [buttonpressed, setButtonPressed] = useState(false);
@@ -29,7 +29,7 @@ export const ButtonEntry: ComponentEntry = {
           variant={values["variant"] as any}
           size={values["size"] as any}
           icon={values["icon"] as any}
-          iconPosition={values["icon position"] as any}
+          iconPosition={values["iconPosition"] as any}
           ellipsis={values["ellipsis"] as boolean}
           disabled={values["disabled"] as boolean}
           outline={values["outline"] as boolean}

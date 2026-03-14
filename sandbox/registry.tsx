@@ -5,8 +5,8 @@ import { COMPS } from './registryComponents';
 ------------------------------------------------------- */
 export interface PropDef {
   name: string;
-  propName: String,
-  type: "string" | "boolean" | "number" | "select" | "range" | "array";
+  propName: string,
+  type: "string" | "boolean" | "number" | "select" | "range" | "array" | "color";
   description: string;
   defaultValue: unknown;
   required?: boolean;

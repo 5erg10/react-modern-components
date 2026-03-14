@@ -1,26 +1,33 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { ComponentEntry, PropDef } from "./registry";
 
 interface Props {
   component: ComponentEntry;
+  ambient?: 'dark' | 'light';
 }
 
-export const ComponentViewer = ({ component }: Props) => {
+export const ComponentViewer = ({ component, ambient }: Props) => {
+
   // Initialise state from prop defaults
   const [values, setValues] = useState<Record<string, unknown>>(() =>
-    Object.fromEntries(component.props.map((p) => [p.name, p.defaultValue]))
+    Object.fromEntries(component.props.map((p) => [p.propName, p.propName == 'ambient' ? ambient || p.defaultValue : p.defaultValue]))
   );
-
+  
   const [copied, setCopied] = useState(false);
-
+  
   const set = useCallback((name: string, value: unknown) => {
+    console.log('change: ', name, value);
     setValues((prev) => ({ ...prev, [name]: value }));
   }, []);
 
+  useEffect(() => {
+    if(values.ambient) set('ambient', ambient);
+  }, [ambient])
+
   const Preview = component.render;
-
+  
   const codeStr = component.generateCode(values);
-
+  
   const handleCopy = () => {
     navigator.clipboard.writeText(codeStr).then(() => {
       setCopied(true);
@@ -63,8 +70,8 @@ export const ComponentViewer = ({ component }: Props) => {
             <PropControl
               key={prop.name}
               prop={prop}
-              value={values[prop.name]}
-              onChange={(v) => set(prop.name, v)}
+              value={values[prop.propName]}
+              onChange={(v) => set(prop.propName, v)}
             />
           ))}
         </div>
@@ -112,7 +119,7 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
         <input
           id="booleanInput"
           type="checkbox"
-          checked={!!value}
+          checked={value as boolean}
           onChange={(e) => onChange(e.target.checked)}
         />
         <span className="sb-toggle-label">{value ? "true" : "false"}</span>
@@ -182,6 +189,26 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
         />
       </label>
     );
+  }
+
+  if(prop.type === "color") {
+    let eventValueTimeout: ReturnType<typeof setTimeout>;;
+    return (
+      <label >
+         <input
+            id="colorViewerInput"
+            className="sb-input"
+            aria-label="generic-input"
+            type="color"
+            value={String(value)}
+            style={{height: '50px'}}
+            onChange={(e) => {
+              if(eventValueTimeout) clearTimeout(eventValueTimeout);
+              eventValueTimeout = setTimeout(onChange, 500, e.target.value);
+            }}
+          />
+      </label>
+    )
   }
 
   return (

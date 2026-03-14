@@ -57,7 +57,7 @@
   --badge-border-color: #3c5cb4;
 }
 
-.badge[data-badge-outline] {
+.badge[data-badge-outline='true'] {
   --badge-bg-color: transparent !important;
 }
 

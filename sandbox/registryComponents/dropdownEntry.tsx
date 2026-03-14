@@ -11,7 +11,9 @@ export const DropdownEntry: ComponentEntry = {
   category: "input",
   description: "Dropdown component.",
   props: [
-    { name: "label", propName: 'label', type: "string", description: "", defaultValue: "name" },
+    { 
+      name: "Label", propName: 'label', type: "string", description: "", defaultValue: "name"
+    },
   ],
   render: ({ values }) => {
     return (

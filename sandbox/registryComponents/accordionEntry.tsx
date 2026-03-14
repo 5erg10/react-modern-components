@@ -25,7 +25,7 @@ export const AccordionEntry: ComponentEntry = {
   description: "Muestra una lista de secciones expandibles. Solo una puede estar abierta a la vez. Cada item puede estar deshabilitado individualmente, y existe también una prop disabled global.",
   props: [
     {
-      name: "disabled",
+      name: "Disabled",
       propName: "disabled",
       type: "boolean",
       description: "Deshabilita todo el accordion de forma global.",
@@ -42,7 +42,7 @@ export const AccordionEntry: ComponentEntry = {
   ],
   render: ({ values }) => (
     <Accordion
-      ambient={values['Ambient'] as 'dark' | 'light'}
+      ambient={values['ambient'] as 'dark' | 'light'}
       items={DEMO_ITEMS}
       disabled={values["disabled"] as boolean}
     />
@@ -50,7 +50,7 @@ export const AccordionEntry: ComponentEntry = {
   generateCode: (values) => {
     const props = [
       values["disabled"] ? `disabled` : "",
-      values['Ambient'] ? `ambient="${values['Ambient']}"` : ""
+      values['ambient'] ? `ambient="${values['ambient']}"` : ""
     ].filter(p => p !== "").join("\n  ");
     return (
 `<Accordion 

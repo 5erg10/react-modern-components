@@ -9,10 +9,10 @@ export const CheckboxEntry: ComponentEntry = {
   category: "input",
   description: "Checkbox component.",
   props: [
-    { name: "type", propName: 'type', type: "select", options: ["checkbox", "radio"], description: "Type of input", defaultValue: "checkbox" },
-    { name: "name", propName: 'name', type: "string", description: "", defaultValue: "color" },
-    { name: "value", propName: 'value', type: "string", description: "", defaultValue: "azul" },
-    { name: "disabled", propName: 'native', type: "boolean", description: "", defaultValue: false },
+    { name: "Type", propName: 'type', type: "select", options: ["checkbox", "radio"], description: "Type of input", defaultValue: "checkbox" },
+    { name: "Name", propName: 'name', type: "string", description: "", defaultValue: "color" },
+    { name: "Value", propName: 'value', type: "string", description: "", defaultValue: "azul" },
+    { name: "Disabled", propName: 'disabled', type: "boolean", description: "", defaultValue: false },
   ],
   render: ({ values }) => {
     const [chekboxValue, setChexboxValue] = useState("");
