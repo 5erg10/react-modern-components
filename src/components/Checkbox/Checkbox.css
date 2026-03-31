@@ -2,7 +2,7 @@
     --checkbox--size: 2rem;
     --checkbox-text-color: #f3f4f6;
     --checkbox-bg-color: #374151;
-    --checkbox-border-color: #6a7d9b;
+    --checkbox-border-color: #f3f4f6;
 
     --checkbox-check-icon-display: block;
     --checkbox-circle-icon-display: none;
@@ -15,7 +15,7 @@
     height: var(--checkbox--size);
     background-color: var(--checkbox-bg-color);
     color: var(--checkbox-text-color);
-    border: solid 2px var(--checkbox-border-color);
+    border: solid 1px var(--checkbox-border-color);
     opacity: 1;
 }
 
