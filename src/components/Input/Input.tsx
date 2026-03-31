@@ -4,7 +4,7 @@ import "./Input.css";
 import { Icon } from "../../icons";
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", onChange, onSearchButtonClick, onKeyDown, label, id, ambient = 'dark', color, backgroundColor, darkColor, darkBackgroundColor, ...props }, ref) => {
+  ({ type = "text", onChange, onSearchButtonClick, onKeyDown, label, id, ambient = 'dark', color, backgroundColor, darkColor, darkBackgroundColor, error, errorLabel, ...props }, ref) => {
 
     const generatedId = useId();
     const inputId = id || generatedId;
@@ -83,7 +83,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const colorStyle = {
       '--input-text-color': resolvedColor,
       '--input-bg-color': resolvedBg,
-      '--input-border-color': resolvedColor,
+      '--input-border-color': error ? '#c24c4c' : resolvedColor,
     } as React.CSSProperties;
 
     return (
@@ -109,6 +109,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </div>
           </div>
           {label && <label className="modern-input__label" htmlFor={inputId}>{label}</label>}
+          {error && errorLabel && <span className="modern-input__error-label">{errorLabel}</span>}
       </div>
     );
   }

@@ -154,15 +154,15 @@
   pointer-events: none;
   transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease, background 0.2s ease;
   background: transparent;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 2rem 0.2rem 0.5rem;
   line-height: 1;
   white-space: nowrap;
-  border-radius: 0.2rem;
+  border-radius: 0.2rem 0.2rem 0rem 0rem;
 }
 
 .modern-input:has(.modern-input__inputbox:focus) .modern-input__label,
 .modern-input[data-has-value="true"] .modern-input__label {
-  top: 0;
+  top: -5px;
   transform: translateY(-50%);
   font-size: 0.72rem;
   color: var(--input-border-color);
@@ -177,8 +177,19 @@
 }
 
 /* ------- DISABLED STYLES -----*/
-    
+
 .modern-input:has(.modern-input__inputbox:disabled) {
     opacity: 0.3;
     cursor: not-allowed;
+}
+
+/* ------- ERROR STYLES -----*/
+
+.modern-input__error-label {
+    position: absolute;
+    bottom: -1.2rem;
+    left: 0;
+    font-size: 0.72rem;
+    color: #c24c4c;
+    white-space: nowrap;
 }

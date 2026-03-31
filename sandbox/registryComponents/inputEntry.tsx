@@ -17,6 +17,8 @@ export const InputEntry: ComponentEntry = {
     { name: "Dark Color", propName: "darkColor", type: "color", description: "Text and border color for light ambient.", defaultValue: "#333333" },
     { name: "Dark Background Color", propName: "darkBackgroundColor", type: "color", description: "Background color for light ambient.", defaultValue: "#dedede" },
     { name: "Disabled", propName: "disabled", type: "boolean", description: "When true, input is non-interactive and visually dimmed.", defaultValue: false },
+    { name: "Error", propName: "error", type: "boolean", description: "When true, shows error state with red border.", defaultValue: false },
+    { name: "Error Label", propName: "errorLabel", type: "string", description: "Error message shown below the input when error is true.", defaultValue: "Error message" },
   ],
   render: ({ values }) => {
     const [inputValue, setInputValue] = useState("");
@@ -31,6 +33,8 @@ export const InputEntry: ComponentEntry = {
           backgroundColor={values["backgroundColor"] as string}
           darkColor={values["darkColor"] as string}
           darkBackgroundColor={values["darkBackgroundColor"] as string}
+          error={values["error"] as boolean}
+          errorLabel={values["errorLabel"] as string}
           onChange={(e) => setInputValue((e.target as HTMLInputElement).value)}
         />
         <div style={{ position: "absolute", bottom: "3rem", left: "5rem", color: "#6b7280", textAlign: "center" }}>
@@ -49,6 +53,8 @@ export const InputEntry: ComponentEntry = {
       values["backgroundColor"] !== "#374151" ? `backgroundColor="${values["backgroundColor"]}"` : "",
       values["darkColor"] !== "#333333" ? `darkColor="${values["darkColor"]}"` : "",
       values["darkBackgroundColor"] !== "#dedede" ? `darkBackgroundColor="${values["darkBackgroundColor"]}"` : "",
+      values["error"] ? `error` : "",
+      values["error"] && values["errorLabel"] ? `errorLabel="${values["errorLabel"]}"` : "",
     ].filter(p => p !== "").join("\n  ");
     return `\n<Input\n  ${props}\n  onChange={() => {}}\n/>`;
   },

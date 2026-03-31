@@ -65,9 +65,3 @@ export const tableData = [
   { id: 64, nombre: "Bianca Parrish", departamento: "Ingenieria", cargo: "HR Specialist", salario: 26, activo: "si" },
   { id: 65, nombre: "Cunningham Snider", departamento: "Ventas", cargo: "SEO Analyst", salario: 30, activo: "si" }
 ];
-
-export const dropdownOptions = [
-  { name: 'Sarah Connor', age: 53, gender: 'female' },
-  { name: 'John connor', age: 30, gender: 'male' },
-  { name: 'Kyle Reese', age: 55, gender: 'male' }
-];

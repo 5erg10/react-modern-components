@@ -10,7 +10,7 @@ export const DigitalClockEntry: ComponentEntry = {
   props: [
     { name: "Size", propName: 'size', type: "select", options: ["large", "medium", "small"], description: "clock size", defaultValue: "small" },
     { name: "Ambient", propName: 'ambient', type: "select", options: ["light", "dark"], description: "clock ambient theme", defaultValue: "dark" },
-    { name: "Mask opacity", propName: 'maskOpacity', type: "range", range: [0, 1], description: "Opacity of clock mask", defaultValue: 0.8 },
+    { name: "Mask opacity", propName: 'maskOpacity', type: "range", range: [0, 1], step: 0.01, description: "Opacity of clock mask", defaultValue: 0.9 },
   ],
   render: ({ values }) => (
     <DigitalClock size={values["size"] as any} ambient={values["ambient"] as any} maskOpacity={values["maskOpacity"] as any} />

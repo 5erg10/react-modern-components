@@ -11,23 +11,12 @@ export const RangeEntry: ComponentEntry = {
   props: [
     { name: "min", propName: 'min', type: "number", description: "Minimum allowed value.", defaultValue: 0 },
     { name: "max", propName: 'max', type: "number", description: "Maximum allowed value.", defaultValue: 1 },
-    { name: "step", propName: 'step', type: "number", description: "Step increment between values.", defaultValue: 0.1 },
+    { name: "step", propName: 'step', type: "number", description: "Step increment between values.", defaultValue: 0.01 },
     { name: "disabled", propName: 'disabled', type: "boolean", description: "When true, the slider is non-interactive and visually dimmed.", defaultValue: false },
     { name: "showTooltip", propName: 'showTooltip', type: "boolean", description: "When true, shows the current value above the thumb while dragging.", defaultValue: true },
     { name: "value", propName: 'value', type: "number", description: "Numeric value for value.", defaultValue: 0, required: true },
     { name: "label", propName: 'label', type: "string", description: "Value for the label prop.", defaultValue: "rangeSelector" }
   ],
-  // render: ({ values }) => (
-  //   <Range
-  //     min={values["min"] as number}
-  //     max={values["max"] as number}
-  //     step={values["step"] as number}
-  //     disabled={values["disabled"] as boolean}
-  //     showTooltip={values["showTooltip"] as boolean}
-  //     value={values["value"] as number}
-  //     label={String(values["label"])}
-  //   />
-  // ),
   render: ({ values }) => {
     const [val, setVal] = useState<number>((values["max"] as number) / 2);
     return (

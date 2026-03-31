@@ -10,4 +10,6 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     backgroundColor?: string,
     darkColor?: string,
     darkBackgroundColor?: string,
+    error?: boolean,
+    errorLabel?: string,
 }

@@ -136,7 +136,7 @@ const ControlInput = ({ prop, value, onChange }: PropControlProps) => {
           aria-label="range-selector"
           min={prop.range?.[0] || 0}
           max={prop.range?.[1] || 1}
-          step="0.1"
+          step={prop.step || "0.1"}
           onChange={(e) => onChange(e.target.value)}
         />
       </label>
