@@ -45,10 +45,59 @@
   appearance: none;
 }
 
+.modern-input__inputbox[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .modern-input__inputbox[type="number"]::-webkit-inner-spin-button,
 .modern-input__inputbox[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.modern-input__inputbox[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  opacity: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.modern-input__date-display {
+  flex: 1;
+  padding: 0 0.8rem;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-input-type="date"] .modern-input__input-mask {
+  cursor: pointer;
+}
+
+[data-input-type="date"] .modern-input__input-icon {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.modern-input__inputbox[type="password"]::-ms-reveal,
+.modern-input__inputbox[type="password"]::-ms-clear {
+  display: none;
+}
+
+.modern-input__inputbox[type="password"]::-moz-reveal {
+  display: none;
+}
+
+[data-input-type="password"] .modern-input__input-icon {
+  cursor: pointer;
 }
 
 .modern-input__inputbox[type="color"] {
