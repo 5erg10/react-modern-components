@@ -1,7 +1,7 @@
 .modern-input {
     --input-text-color: #f3f4f6;
     --input-bg-color: #374151;
-    --input-border-color: #6a7d9b;
+    --input-border-color: #f3f4f6;
     position: relative;
     display: inline;
     border: solid 2px var(--input-border-color);
@@ -142,6 +142,32 @@
     padding: 0.5rem;
 }
 
+/* ---- FLOATING LABEL ------*/
+
+.modern-input__label {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--input-text-color);
+  pointer-events: none;
+  transition: top 0.2s ease, font-size 0.2s ease, color 0.2s ease, background 0.2s ease;
+  background: transparent;
+  padding: 0 0.2rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.modern-input:has(.modern-input__inputbox:focus) .modern-input__label,
+.modern-input[data-has-value="true"] .modern-input__label {
+  top: 0;
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  color: var(--input-border-color);
+  background: var(--input-bg-color);
+}
+
 /* ---- FOCUS STYLES ------*/
 
 .modern-input:focus {
@@ -151,7 +177,7 @@
 
 /* ------- DISABLED STYLES -----*/
     
-.modern-input:disabled {
+.modern-input:has(.modern-input__inputbox:disabled) {
     opacity: 0.3;
     cursor: not-allowed;
 }

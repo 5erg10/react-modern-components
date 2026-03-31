@@ -1,10 +1,13 @@
-import { forwardRef, useCallback, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useId, useImperativeHandle, useRef, useState } from "react";
 import { InputProps } from "./Input.types";
 import "./Input.css";
 import { Icon } from "../../icons";
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ type = "text", onChange, onSearchButtonClick, onKeyDown, ...props }, ref) => {
+  ({ type = "text", onChange, onSearchButtonClick, onKeyDown, label, id, ambient = 'dark', color, backgroundColor, darkColor, darkBackgroundColor, ...props }, ref) => {
+
+    const generatedId = useId();
+    const inputId = id || generatedId;
 
     const inputRef = useRef<HTMLInputElement>(null);
     useImperativeHandle(ref, () => inputRef.current!);
@@ -74,8 +77,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       return new Date(dateValue + 'T00:00:00').toLocaleDateString();
     };
 
+    const resolvedColor = ambient === 'dark' ? (color ?? '#f3f4f6') : (darkColor ?? '#333333');
+    const resolvedBg    = ambient === 'dark' ? (backgroundColor ?? '#374151') : (darkBackgroundColor ?? '#dedede');
+
+    const colorStyle = {
+      '--input-text-color': resolvedColor,
+      '--input-bg-color': resolvedBg,
+      '--input-border-color': resolvedColor,
+    } as React.CSSProperties;
+
     return (
-      <div className="modern-input" data-input-type={type}>
+      <div className="modern-input" style={colorStyle} data-input-type={type} data-has-value={!!value} data-input-ambient={ambient}>
           <div className="modern-input__input-mask" onClick={() => type === 'date' ? inputRef.current?.showPicker() : undefined}>
             {type === 'date' && (
               <span className="modern-input__date-display">
@@ -84,6 +96,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             )}
              <input
               ref={inputRef}
+              id={inputId}
               aria-label="input-type-aria-label"
               className="modern-input__inputbox"
               type={resolvedType}
@@ -95,6 +108,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 <Icon name={getIconName()} variant="light"/>
             </div>
           </div>
+          {label && <label className="modern-input__label" htmlFor={inputId}>{label}</label>}
       </div>
     );
   }
