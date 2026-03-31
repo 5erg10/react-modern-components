@@ -42,6 +42,8 @@
     border-radius: 50%;
     position: relative;
     overflow: hidden;
+    -webkit-mask-image: radial-gradient(circle, black 70%, transparent 50%);
+    mask-image: radial-gradient(circle, black 70%, transparent 50%);
 }
 
 .dial-box {
@@ -116,18 +118,15 @@
     width: calc((var(--main-size)*0.5) * 1px);
     height: calc(var(--indicator-height) * 1px);
     background: transparent;
-    border-top: solid 2px var(--indicator-color);
-    border-bottom: solid 2px var(--indicator-color);
-    border-left: solid 2px var(--indicator-color);
     position: absolute;
-    border-radius: 50px 0px 0px 50px;
+    border-radius: 9999px 0px 0px 9999px;
     right: 0px;
     top: calc(50% - calc((var(--indicator-height)/2) * 1px));
     display: flex;
     align-items: center;
     justify-content: flex-start;
     padding-left: 1rem;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,var(--mask-opacity));
+    box-shadow: inset 0 0 0 2px var(--indicator-color), 0 0 0 9999px rgba(0,0,0,var(--mask-opacity));
     span {
         color: var(--indicator-color);
         font-size: var(--hour-font-size);
