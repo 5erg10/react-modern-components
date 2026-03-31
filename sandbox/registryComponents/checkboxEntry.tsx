@@ -12,6 +12,11 @@ export const CheckboxEntry: ComponentEntry = {
     { name: "Type", propName: 'type', type: "select", options: ["checkbox", "radio"], description: "Type of input", defaultValue: "checkbox" },
     { name: "Name", propName: 'name', type: "string", description: "", defaultValue: "color" },
     { name: "Value", propName: 'value', type: "string", description: "", defaultValue: "azul" },
+    { name: "Ambient", propName: "ambient", type: "select", options: ["dark", "light"], description: "Color theme of the checkbox.", defaultValue: "dark" },
+    { name: "Color", propName: "color", type: "color", description: "Text and border color for dark ambient.", defaultValue: "#f3f4f6" },
+    { name: "Background Color", propName: "backgroundColor", type: "color", description: "Background color for dark ambient.", defaultValue: "#374151" },
+    { name: "Dark Color", propName: "darkColor", type: "color", description: "Text and border color for light ambient.", defaultValue: "#333333" },
+    { name: "Dark Background Color", propName: "darkBackgroundColor", type: "color", description: "Background color for light ambient.", defaultValue: "#dedede" },
     { name: "Disabled", propName: 'disabled', type: "boolean", description: "", defaultValue: false },
   ],
   render: ({ values }) => {
@@ -25,6 +30,11 @@ export const CheckboxEntry: ComponentEntry = {
             type={values["type"] as any}
             name={values["name"] as string}
             value={values["value"] as string}
+            ambient={values["ambient"] as "dark" | "light"}
+            color={values["color"] as string}
+            backgroundColor={values["backgroundColor"] as string}
+            darkColor={values["darkColor"] as string}
+            darkBackgroundColor={values["darkBackgroundColor"] as string}
             onChange={onChangeRefresh}
           />
           <Checkbox
@@ -32,6 +42,11 @@ export const CheckboxEntry: ComponentEntry = {
             type={values["type"] as any}
             name={values["name"] as string}
             value="rojo"
+            ambient={values["ambient"] as "dark" | "light"}
+            color={values["color"] as string}
+            backgroundColor={values["backgroundColor"] as string}
+            darkColor={values["darkColor"] as string}
+            darkBackgroundColor={values["darkBackgroundColor"] as string}
             onChange={onChangeRefresh}
           />
         </div>
@@ -47,6 +62,11 @@ export const CheckboxEntry: ComponentEntry = {
       `type="${values["type"]}"`,
       `name="${values["name"]}"`,
       `value="${values["value"]}"`,
+      values["ambient"] !== "dark" ? `ambient="${values["ambient"]}"` : "",
+      values["color"] !== "#f3f4f6" ? `color="${values["color"]}"` : "",
+      values["backgroundColor"] !== "#374151" ? `backgroundColor="${values["backgroundColor"]}"` : "",
+      values["darkColor"] !== "#333333" ? `darkColor="${values["darkColor"]}"` : "",
+      values["darkBackgroundColor"] !== "#dedede" ? `darkBackgroundColor="${values["darkBackgroundColor"]}"` : "",
     ].filter(p => p !== "").join("\n  ");
     return `\n<Checkbox\n  ${props}\n  onChange={() => {}}/>`;
   },

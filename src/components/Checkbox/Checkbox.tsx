@@ -1,12 +1,21 @@
-import { forwardRef } from "react";
+import React, { forwardRef } from "react";
 import { CheckboxProps } from "./Checkbox.types";
 import "./Checkbox.css";
 import { Icon } from "../../icons";
 
 export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  ({ type = "checkbox", name, value, disabled, onChange, ...props }, ref) => {
+  ({ type = "checkbox", name, value, disabled, ambient = 'dark', color, backgroundColor, darkColor, darkBackgroundColor, onChange, ...props }, ref) => {
+    const resolvedColor = ambient === 'dark' ? (color ?? '#f3f4f6') : (darkColor ?? '#333333');
+    const resolvedBg    = ambient === 'dark' ? (backgroundColor ?? '#374151') : (darkBackgroundColor ?? '#dedede');
+
+    const colorStyle = {
+      '--checkbox-text-color': resolvedColor,
+      '--checkbox-bg-color': resolvedBg,
+      '--checkbox-border-color': resolvedColor,
+    } as React.CSSProperties;
+
     return (
-      <div className={`modern-input-checkbox ${disabled ? 'modern-input-checkbox__disabled' : ''}`}  data-checkbox-input-type={type}>
+      <div className={`modern-input-checkbox ${disabled ? 'modern-input-checkbox__disabled' : ''}`} style={colorStyle} data-checkbox-input-type={type} data-checkbox-ambient={ambient}>
           <input
             disabled={disabled}
             ref={ref}
